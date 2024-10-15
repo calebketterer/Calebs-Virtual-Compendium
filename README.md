@@ -1,5 +1,7 @@
 # Caleb's Virtual Compendium
 
+![Capture](https://github.com/user-attachments/assets/ad0ac5aa-d2bb-4d06-af09-8abc915d98e2)
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.4.
 
 ## Development server
