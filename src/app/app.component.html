@@ -1,10 +1,6 @@
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * * The content below * * * * * * * * * * * -->
-<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * -->
-<!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * Delete the template below * * * * * * * * * -->
-<!-- * * * * * * * to get started with your project! * * * * * * * -->
+<!-- * * * * * * * * * is no longer a placeholder. * * * * * * * * -->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
 <style>
@@ -13,16 +9,22 @@
     --electric-violet: oklch(53.18% 0.28 296.97);
     --french-violet: oklch(47.66% 0.246 305.88);
     --vivid-pink: oklch(69.02% 0.277 332.77);
-    --hot-red: oklch(61.42% 0.238 15.34);
-    --orange-red: oklch(63.32% 0.24 31.68);
+    --hot-red: oklch(55.34% 0.1608 140.47);
+    --orange-red: oklch(37.54% 0.2278 269.73);
 
-    --gray-900: oklch(19.37% 0.006 300.98);
-    --gray-700: oklch(36.98% 0.014 302.71);
-    --gray-400: oklch(70.9% 0.015 304.04);
+    --red: oklch(45% 0.25 30);
+    --yellow: oklch(75% 0.2 110);
+    --blue: oklch(50% 0.25 264);
+    --violet: oklch(47.66% 0.246 305.88);
+
+    --gray-90: oklch(90.0% 0 0);
+    --gray-85: oklch(85% 0 0);
+    --gray-70: oklch(70.0% 0 0);
+    --gray-40: oklch(40% 0 0);
 
     --red-to-pink-to-purple-vertical-gradient: linear-gradient(
       180deg,
-      var(--orange-red) 0%,
+      var(--red) 0%,
       var(--vivid-pink) 50%,
       var(--electric-violet) 100%
     );
@@ -46,7 +48,7 @@
 
   h1 {
     font-size: 3.125rem;
-    color: var(--gray-900);
+    color: var(--gray-90);
     font-weight: 500;
     line-height: 100%;
     letter-spacing: -0.125rem;
@@ -58,7 +60,7 @@
 
   p {
     margin: 0;
-    color: var(--gray-700);
+    color: var(--gray-70);
   }
 
   main {
@@ -131,15 +133,19 @@
   }
 
   .pill-group .pill:nth-child(6n + 1) {
-    --pill-accent: var(--bright-blue);
+    --pill-accent: var(--violet);
   }
   .pill-group .pill:nth-child(6n + 2) {
-    --pill-accent: var(--french-violet);
+    --pill-accent: var(--blue);
   }
-  .pill-group .pill:nth-child(6n + 3),
-  .pill-group .pill:nth-child(6n + 4),
-  .pill-group .pill:nth-child(6n + 5) {
+  .pill-group .pill:nth-child(6n + 3) {
     --pill-accent: var(--hot-red);
+  }
+  .pill-group .pill:nth-child(6n + 4){
+    --pill-accent: var(--yellow);
+  }
+  .pill-group .pill:nth-child(6n + 5) {
+    --pill-accent: var(--red);
   }
 
   .pill-group svg {
@@ -225,18 +231,18 @@
           <clipPath id="a"><path fill="#fff" d="M0 0h982v239H0z" /></clipPath>
         </defs>
       </svg>
-      <h1>Hello, {{ title }}</h1>
-      <p>Congratulations! Your app is running. 🎉</p>
+      <h1>Hey there, friend.</h1>
+      <p>Good news! My app is running. 🎉</p>
     </div>
     <div class="divider" role="separator" aria-label="Divider"></div>
     <div class="right-side">
       <div class="pill-group">
         @for (item of [
-          { title: 'Explore the Docs', link: 'https://angular.dev' },
-          { title: 'Learn with Tutorials', link: 'https://angular.dev/tutorials' },
-          { title: 'CLI Docs', link: 'https://angular.dev/tools/cli' },
-          { title: 'Angular Language Service', link: 'https://angular.dev/tools/language-service' },
-          { title: 'Angular DevTools', link: 'https://angular.dev/tools/devtools' },
+          { title: 'Google Site', link: 'https://sites.google.com/view/calebketterer?usp=sharing' },
+          { title: 'Explore the Google Docs', link: 'https://docs.google.com/document/d/1iRuBT_4kFa9iq_dP6nAQ4kQsEGyxmUw-P05On__oL3A/edit?usp=sharing' },
+          { title: 'Personal Github', link: 'https://github.com/calebketterer' },
+          { title: 'Paper Gwent Resources', link: 'https://drive.google.com/drive/folders/1buJl4aGBJxhNY5lkLGh8VHywMnii-BaU?usp=drive_link' },
+          { title: 'Custom Card Generator', link: 'https://gwentcard.github.io' },
         ]; track item.title) {
           <a
             class="pill"
@@ -261,7 +267,7 @@
       </div>
       <div class="social-links">
         <a
-          href="https://github.com/angular/angular"
+          href="https://github.com/calebketterer"
           aria-label="Github"
           target="_blank"
           rel="noopener"
