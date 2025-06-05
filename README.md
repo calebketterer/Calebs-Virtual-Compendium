@@ -26,7 +26,7 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 
 ## Development server in browser
 
-Visit https://vscode.dev/. Log in to GitHub, then fork the repository. Under the explorer, select "Open Remote Repository" and select Calebs Virtual Compendium. Open Terminal and click "Continue Working in GitHub Codespaces." Install ng with the command line `npm install -g @angular/cli` in the codespace Terminal. Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. If you can not connect to the localhost, in Terminal, you can also type `o + enter` to directly open this project in your browser.
+Visit https://vscode.dev/. Log in to GitHub, then fork the repository. Under the explorer, select "Open Remote Repository" and select Calebs Virtual Compendium. Open Terminal and click "Continue Working in GitHub Codespaces." Install ng with the command line `npm install -g @angular/cli` in the codespace Terminal. Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. If you can not connect to the localhost, type `h + enter` then `o + enter` into Terminal to directly open this project in your browser.
 
 ## Further help
 
