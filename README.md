@@ -31,3 +31,17 @@ Visit https://vscode.dev/. Log in to GitHub, then fork the repository. Under the
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Conway's Simulation
+
+![Capture](https://github.com/user-attachments/assets/6ccf45ca-c79d-4bd6-81b5-221c2aad75da)
+
+Based off Cambridge mathematician John Conway's [Game of Life]([url](https://playgameoflife.com/)), this cellular automaton became widely known when it was mentioned in an article published by Scientific American in 1970. It consists of a grid of cells which, based on a few mathematical rules, can live, die or multiply. Depending on the initial conditions, the cells form various patterns throughout the course of the game.
+
+The rules for a space that is populated: 
+1. Each cell with one or no neighbors dies, as if by solitude.
+2. Each cell with four or more neighbors dies, as if by overpopulation.
+3. Each cell with two or three neighbors survives.
+
+The rule for a space that is empty or unpopulated:
+4. Each cell with three neighbors becomes populated.
