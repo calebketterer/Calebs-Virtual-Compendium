@@ -1,0 +1,332 @@
+/* These styles are specific to app.component.html */
+
+/* Body styles were global before, but Angular components manage their own styling.
+   For consistency with the original demo, applying it to the host or main div is fine,
+   but typically global body styles belong in styles.css.
+   This component's main container now has these styles.
+*/
+.main {
+    font-family: 'Inter', sans-serif; /* Using Inter font */
+    /* Removed background-color: #f0f4f8; to allow global body background to show through */
+    display: flex;
+    flex-direction: column; /* Changed to column to stack selector and content */
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 80px 20px 20px; /* Increased padding-top to add more space */
+    box-sizing: border-box;
+    width: 100%; /* Ensure main takes full width */
+    /* Removed position: relative as view-selector-container is no longer absolutely positioned */
+}
+
+/* Original content container - adapt styling as needed */
+.original-content-container {
+    width: 100%;
+    max-width: 700px; /* From your original .content */
+    margin-bottom: 2rem; /* Adjusted space below original content */
+    display: flex; /* Re-apply flex properties for the original content */
+    justify-content: space-around;
+    /* Add other original content styles here if they were scoped */
+}
+
+/* Canvas styling to make it responsive */
+canvas {
+    background-color: #ffffff; /* White background for the grid */
+    border-radius: 0.75rem; /* Rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    display: block; /* Remove extra space below canvas */
+    width: 100%; /* Make canvas fill its container width (within max-width from parent flexbox) */
+    max-width: 800px; /* Max width for larger screens */
+    height: auto; /* Maintain aspect ratio */
+    border: 20px solid var(--gray-40); /* Added a subtle border around the canvas */
+}
+
+/* Custom styling for the range input */
+input[type="range"] {
+    -webkit-appearance: none; /* Remove default styling for WebKit browsers */
+    appearance: none; /* Standard property for removing default styling */
+    width: 100%; /* Full width */
+    height: 8px; /* Thinner track */
+    background: #d1d5db; /* Light gray track */
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    border-radius: 4px; /* Rounded track */
+}
+
+input[type="range"]:hover {
+    opacity: 1; /* Full opacity on hover */
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Remove default thumb styling */
+    appearance: none; /* Standard property */
+    width: 20px; /* Thumb size */
+    height: 20px; /* Thumb size */
+    background: #3b82f6; /* Blue thumb */
+    cursor: pointer;
+    border-radius: 50%; /* Circular thumb */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #3b82f6;
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Styles from your original app.component.html's <style> block */
+:host {
+    --bright-blue: oklch(51.01% 0.274 263.83);
+    --electric-violet: oklch(53.18% 0.28 296.97);
+    --french-violet: oklch(47.66% 0.246 305.88);
+    --vivid-pink: oklch(69.02% 0.277 332.77);
+    --hot-red: oklch(55.34% 0.1608 140.47);
+    --orange-red: oklch(37.54% 0.2278 269.73);
+
+    --red: oklch(45% 0.25 30);
+    --yellow: oklch(75% 0.2 110);
+    --blue: oklch(50% 0.25 264);
+    --violet: oklch(47.66% 0.246 305.88);
+
+    --gray-90: oklch(90.0% 0 0);
+    --gray-85: oklch(85% 0 0);
+    --gray-70: oklch(70.0% 0 0);
+    --gray-40: oklch(40% 0 0);
+
+    --red-to-pink-to-purple-vertical-gradient: linear-gradient(
+        180deg,
+        var(--red) 0%,
+        var(--vivid-pink) 50%,
+        var(--electric-violet) 100%
+    );
+
+    --red-to-pink-to-purple-horizontal-gradient: linear-gradient(
+        90deg,
+        var(--orange-red) 0%,
+        var(--vivid-pink) 50%,
+        var(--electric-violet) 100%
+    );
+
+    --pill-accent: var(--bright-blue);
+
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+        "Segoe UI Symbol";
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1 {
+    font-size: 3.125rem;
+    color: var(--gray-90);
+    font-weight: 500;
+    line-height: 100%;
+    letter-spacing: -0.125rem;
+    margin: 0;
+    font-family: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+        "Segoe UI Symbol";
+}
+
+p {
+    margin: 0;
+    color: var(--gray-70);
+}
+
+
+.angular-logo {
+    max-width: 9.2rem;
+}
+
+.content {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    max-width: 700px;
+    margin-bottom: 3rem;
+}
+
+.content h1 {
+    margin-top: 1.75rem;
+}
+
+.content p {
+    margin-top: 1.5rem;
+}
+
+.divider {
+    width: 1px;
+    background: var(--red-to-pink-to-purple-vertical-gradient);
+    margin-inline: 0.5rem;
+}
+
+.pill-group {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+.pill {
+    display: flex;
+    align-items: center;
+    --pill-accent: var(--bright-blue);
+    background: color-mix(in srgb, var(--pill-accent) 5%, transparent);
+    color: var(--pill-accent);
+    padding-inline: 0.75rem;
+    padding-block: 0.375rem;
+    border-radius: 2.75rem;
+    border: 0;
+    transition: background 0.3s ease;
+    font-family: var(--inter-font);
+    font-size: 0.875rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 1.4rem;
+    letter-spacing: -0.00875rem;
+    text-decoration: none;
+}
+
+.pill:hover {
+    background: color-mix(in srgb, var(--pill-accent) 15%, transparent);
+}
+
+.pill-group .pill:nth-child(6n + 1) {
+    --pill-accent: var(--violet);
+}
+.pill-group .pill:nth-child(6n + 2) {
+    --pill-accent: var(--blue);
+}
+.pill-group .pill:nth-child(6n + 3) {
+    --pill-accent: var(--hot-red);
+}
+.pill-group .pill:nth-child(6n + 4){
+    --pill-accent: var(--yellow);
+}
+.pill-group .pill:nth-child(6n + 5) {
+    --pill-accent: var(--red);
+}
+
+.pill-group svg {
+    margin-inline-start: 0.25rem;
+}
+
+.social-links {
+    display: flex;
+    align-items: center;
+    gap: 0.73rem;
+    margin-top: 1.5rem;
+}
+
+.social-links path {
+    transition: fill 0.3s ease;
+    fill: var(--gray-400);
+}
+
+.social-links a:hover svg path {
+    fill: var(--gray-900);
+}
+
+@media screen and (max-width: 650px) {
+    .content {
+        flex-direction: column;
+        width: max-content;
+    }
+
+    .divider {
+        height: 1px;
+        width: 100%;
+        background: var(--red-to-pink-to-purple-horizontal-gradient);
+        margin-block: 1.5rem;
+    }
+}
+
+/* --- Conway's Game of Life Widget Specific Styles --- */
+
+/* Text colors for the Game of Life widget to match the main heading */
+.main h1.text-3xl.font-bold.text-gray-800.mb-6 {
+    color: var(--gray-90) !important; /* Using your defined white-like color variable */
+}
+
+/* For labels within the game widget */
+.main label.text-gray-700 {
+    color: var(--gray-90) !important; /* Using your defined white-like color variable */
+}
+
+/* For small text below the speed slider */
+.main .text-xs.text-gray-500 {
+    color: var(--gray-90) !important; /* Set to your white-like color variable */
+}
+
+/* For the message box text (bottommost text) */
+#messageBox {
+    color: var(--gray-90) !important; /* Force white color for the message box, overriding current text color */
+}
+
+
+/* Styling for Conway's Game of Life buttons to match the pill style */
+.main button {
+    font-weight: 600;
+    border: 0; /* Remove border for the new style */
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    margin: 0.25rem; /* Add small space between buttons */
+    border-radius: 9999px; /* Make them fully rounded (pill-shaped) */
+    padding-inline: 1.25rem; /* More horizontal padding to match pill links */
+    padding-block: 0.625rem; /* More vertical padding */
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.main button:active {
+    transform: translateY(1px); /* Slight press effect */
+}
+
+/* Individual button styles for Conway's Game of Life to mimic pill accents */
+.main button.bg-green-500 {
+    background-color: #d1fae5; /* Very light green (Tailwind green-100) */
+    color: #065f46; /* Dark green text (Tailwind green-800) */
+    box-shadow: 0 4px 6px rgba(6, 95, 70, 0.1), 0 1px 3px rgba(6, 95, 70, 0.05); /* Subtle shadow from darker color */
+}
+.main button.bg-green-500:hover {
+    background-color: #a7f3d0; /* Slightly darker green on hover (Tailwind green-200) */
+    box-shadow: 0 6px 8px rgba(6, 95, 70, 0.2), 0 2px 4px rgba(6, 95, 70, 0.1);
+}
+
+.main button.bg-red-500 {
+    background-color: #fee2e2; /* Very light red (Tailwind red-100) */
+    color: #991b1b; /* Dark red text (Tailwind red-800) */
+    box-shadow: 0 4px 6px rgba(153, 27, 27, 0.1), 0 1px 3px rgba(153, 27, 27, 0.05);
+}
+.main button.bg-red-500:hover {
+    background-color: #fecaca; /* Slightly darker red on hover (Tailwind red-200) */
+    box-shadow: 0 6px 8px rgba(153, 27, 27, 0.2), 0 2px 4px rgba(153, 27, 27, 0.1);
+}
+
+.main button.bg-yellow-500 {
+    background-color: #fffbeb; /* Very light yellow (Tailwind yellow-100) */
+    color: #92400e; /* Dark yellow text (Tailwind yellow-800) */
+    box-shadow: 0 4px 6px rgba(146, 64, 14, 0.1), 0 1px 3px rgba(146, 64, 14, 0.05);
+}
+.main button.bg-yellow-500:hover {
+    background-color: #fde68a; /* Slightly darker yellow on hover (Tailwind yellow-200) */
+    box-shadow: 0 6px 8px rgba(146, 64, 14, 0.2), 0 2px 4px rgba(146, 64, 14, 0.1);
+}
+
+.main button.bg-indigo-500 {
+    background-color: #e0e7ff; /* Very light indigo (Tailwind indigo-100) */
+    color: #3730a3; /* Dark indigo text (Tailwind indigo-800) */
+    box-shadow: 0 4px 6px rgba(55, 48, 163, 0.1), 0 1px 3px rgba(55, 48, 163, 0.05);
+}
+.main button.bg-indigo-500:hover {
+    background-color: #c7d2fe; /* Slightly darker indigo on hover (Tailwind indigo-200) */
+    box-shadow: 0 6px 8px rgba(55, 48, 163, 0.2), 0 2px 4px rgba(55, 48, 163, 0.1);
+}
