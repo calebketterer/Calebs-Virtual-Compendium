@@ -28,7 +28,7 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 
 Visit https://vscode.dev/. Log in to GitHub, then fork the repository. Under the explorer, select "Open Remote Repository" and select Calebs Virtual Compendium. Open Terminal and click "Continue Working in GitHub Codespaces." Install ng with the command line `npm install -g @angular/cli` in the codespace Terminal. Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. If you can not connect to the localhost, type `h + enter` then `o + enter` into Terminal to directly open this project in your browser.
 
-## Further help
+## Further help with setup
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
 
@@ -38,10 +38,8 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 
 Based off Cambridge mathematician John Conway's [Game of Life]([url](https://playgameoflife.com/)), this cellular automaton became widely known when it was mentioned in an article published by Scientific American in 1970. It consists of a grid of cells which, based on a few mathematical rules, can live, die or multiply. Depending on the initial conditions, the cells form various patterns throughout the course of the game.
 
-The rules for a space that is populated: 
-1. Each cell with one or no neighbors dies, as if by solitude.
-2. Each cell with four or more neighbors dies, as if by overpopulation.
-3. Each cell with two or three neighbors survives.
-
-The rule for a space that is empty or unpopulated:
-4. Each cell with three neighbors becomes populated.
+The rules for each space: 
+1. Each populated cell with one or no neighbors dies, as if by solitude.
+2. Each populated cell with four or more neighbors dies, as if by overpopulation.
+3. Each populated cell with two or three neighbors survives.
+4. Each unpopulated cell with three neighbors becomes populated.
