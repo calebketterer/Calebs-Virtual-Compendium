@@ -1,10 +1,12 @@
+<!-- app.component.html -->
+
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * * The content below * * * * * * * * * * * -->
 <!-- * * * * * * * * * is no longer a placeholder. * * * * * * * * -->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
 <main class="main">
-    <!-- Original Site Content - Always Visible -->
+    <!-- Original Site Content - ALWAYS Visible -->
     <div class="content original-content-container mb-8">
         <div class="left-side">
             <svg
@@ -50,7 +52,16 @@
             </svg>
             <h1>Hey there, friend.</h1>
             <p>Good news! My website is running, slightly customized,
-            <br> and all links are updated as of 2025.06.05! 🎉</p>
+            <br> and all links are updated as of 2025.06.06! 🎉</p>
+
+            <!-- Dropdown Menu - MOVED HERE -->
+            <div class="view-selector-container">
+                <select id="viewSelector" class="view-selector-dropdown" (change)="onViewChange($event)">
+                    <option value="main-site" selected>Main Site Info</option>
+                    <option value="conways-game-of-life">Conway's Game of Life</option>
+                    <option value="another-view">Another Placeholder View</option>
+                </select>
+            </div>
         </div>
         <div class="divider" role="separator" aria-label="Divider"></div>
         <div class="right-side">
@@ -147,50 +158,59 @@
         </div>
     </div>
 
-    <!-- Conway's Game of Life Content - Widget below original content -->
-    <div class="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg max-w-xl w-full mt-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Conway's Simulation</h1>
+    <!-- Conditionally displayed content wrapper -->
+    <!-- This div will only show if a non-"Main Site Info" option is selected -->
+    <div *ngIf="selectedView !== 'main-site'">
+        <!-- Conway's Game of Life Content -->
+        <div class="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg max-w-xl w-full mt-8" *ngIf="selectedView === 'conways-game-of-life'">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6">Conway's Simulation</h1>
 
-        <!-- Canvas for the game grid -->
-        <!-- Use #gameCanvas to get a reference in TypeScript -->
-        <canvas #gameCanvas id="gameCanvas" class="mb-6"></canvas>
+            <!-- Canvas for the game grid -->
+            <!-- Use #gameCanvas to get a reference in TypeScript -->
+            <canvas #gameCanvas id="gameCanvas" class="mb-6"></canvas>
 
-        <!-- Game Controls -->
-        <!-- Removed max-w-md here to allow it to span the full width of its parent -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full mx-auto mb-6 justify-items-center">
-            <!-- Angular event binding for button clicks -->
-            <button (click)="onStart()" class="px-5 py-2 bg-green-500 text-white rounded-full shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 transition duration-200">
-                Start
-            </button>
-            <button (click)="onStop()" class="px-5 py-2 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 transition duration-200">
-                Stop
-            </button>
-            <button (click)="onClear()" class="px-5 py-2 bg-yellow-500 text-white rounded-full shadow-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-75 transition duration-200">
-                Clear
-            </button>
-            <button (click)="onRandomize()" class="px-5 py-2 bg-indigo-500 text-white rounded-full shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition duration-200">
-                Randomize
-            </button>
-        </div>
+            <!-- Game Controls -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full mx-auto mb-6 justify-items-center">
+                <!-- Angular event binding for button clicks -->
+                <button (click)="onStart()" class="px-5 py-2 bg-green-500 text-white rounded-full shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 transition duration-200">
+                    Start
+                </button>
+                <button (click)="onStop()" class="px-5 py-2 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 transition duration-200">
+                    Stop
+                </button>
+                <button (click)="onClear()" class="px-5 py-2 bg-yellow-500 text-white rounded-full shadow-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-75 transition duration-200">
+                    Clear
+                </button>
+                <button (click)="onRandomize()" class="px-5 py-2 bg-indigo-500 text-white rounded-full shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition duration-200">
+                    Randomize
+                </button>
+            </div>
 
-        <!-- Speed Control -->
-        <!-- Removed max-w-md here to allow it to span the full width of its parent -->
-        <div class="w-full mx-auto mb-6">
-            <label for="speedSlider" class="block text-gray-700 text-sm font-semibold mb-2 text-center">Simulation Speed:</label>
-            <!-- Angular event binding for slider input -->
-            <input type="range" id="speedSlider" min="1" max="20" [value]="currentGenerationsPerSecond" (input)="onSpeedChange($event)" class="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer">
-            <!-- Changed to a single span to display combined text -->
-            <div class="text-xs text-gray-500 mt-1 text-center font-bold">
-                Slow (1 gen/sec) to Fast (20 gen/sec)
+            <!-- Speed Control -->
+            <div class="w-full mx-auto mb-6">
+                <label for="speedSlider" class="block text-gray-700 text-sm font-semibold mb-2 text-center">Simulation Speed:</label>
+                <!-- Angular event binding for slider input -->
+                <input type="range" id="speedSlider" min="1" max="20" [value]="currentGenerationsPerSecond" (input)="onSpeedChange($event)" class="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer">
+                <!-- Changed to a single span to display combined text -->
+                <div class="text-xs text-gray-500 mt-1 text-center font-bold">
+                    Slow (1 gen/sec) to Fast (20 gen/sec)
+                </div>
+            </div>
+
+            <!-- Message Display Area -->
+            <!-- Angular property binding for class and text content -->
+            <div id="messageBox" [class]="messageBoxClass">
+                {{ messageBoxText }}
             </div>
         </div>
 
-        <!-- Message Display Area -->
-        <!-- Angular property binding for class and text content -->
-        <div id="messageBox" [class]="messageBoxClass">
-            {{ messageBoxText }}
+        <!-- Placeholder for another view -->
+        <div class="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg max-w-xl w-full mt-8" *ngIf="selectedView === 'another-view'">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6">Another View Coming Soon!</h1>
+            <p class="text-gray-700 text-center">This is a placeholder for future content.</p>
         </div>
     </div>
+
 </main>
 
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->

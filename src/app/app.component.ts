@@ -1,11 +1,12 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, HostListener, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
+import { FormsModule } from '@angular/forms'; // Import FormsModule for ngModel (if used) or general form elements
 
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [RouterOutlet, CommonModule],
+    imports: [RouterOutlet, CommonModule, FormsModule], // Add FormsModule here
     templateUrl: './app.component.html',
     styleUrl: './app.component.css'
 })
@@ -37,8 +38,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     private boundHandleMouseMove: ((event: MouseEvent) => void) | null = null;
     private boundHandleMouseUp: ((event: MouseEvent) => void) | null = null;
 
-    // New property for info popup visibility
+    // New property for info popup visibility (not used in current HTML, but kept from original)
     showInfoPopup: boolean = false;
+
+    // New property for controlling view visibility via dropdown
+    selectedView: string = ''; // Default view is now an empty string to match the hidden placeholder
 
     constructor() { }
 
@@ -47,7 +51,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
      * We initialize the Game of Life here directly since it's always visible now.
      */
     ngAfterViewInit(): void {
-        this.initializeGameOfLife();
+        // Initialize Game of Life only if it's explicitly selected view and not the placeholder
+        if (this.selectedView === 'conways-game-of-life') {
+            this.initializeGameOfLife();
+        }
     }
 
     /**
@@ -218,10 +225,15 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
     onClear(): void {
         this.stopSimulation();
-        if (this.canvasRef && this.canvasRef.nativeElement) {
+        // Only re-initialize if the canvas is currently visible
+        if (this.selectedView === 'conways-game-of-life' && this.canvasRef && this.canvasRef.nativeElement) {
             this.initializeGameOfLife(); // Re-initialize to an empty grid
+        } else if (this.selectedView === 'conways-game-of-life') {
+            // If the view is active but canvas not ready yet (e.g., during rapid view switching),
+            // just clear the grid data. initializeGameOfLife will be called when canvas is ready.
+            this.grid = Array(this.GRID_HEIGHT).fill(0).map(() => Array(this.GRID_WIDTH).fill(0));
+            this.showMessage("Grid cleared. Draw new patterns or randomize.");
         }
-        this.showMessage("Grid cleared. Draw new patterns or randomize.");
     }
 
     onRandomize(): void {
@@ -377,14 +389,37 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     }
 
     /**
-     * Opens the info popup modal.
+     * Handles the change event from the view selector dropdown.
+     * Controls which content section is visible.
+     */
+    onViewChange(event: Event): void {
+        this.selectedView = (event.target as HTMLSelectElement).value;
+        this.stopSimulation(); // Stop the Game of Life simulation when switching views
+
+        // Re-initialize Game of Life only if it's the newly selected view
+        if (this.selectedView === 'conways-game-of-life') {
+            // Use a slight delay to ensure canvas element is rendered before initializing
+            setTimeout(() => {
+                this.initializeGameOfLife();
+            }, 0);
+        }
+        // Only show message if a valid view is selected
+        if (this.selectedView !== '') {
+            this.showMessage(`Switched to ${this.selectedView.replace(/-/g, ' ')} view.`);
+        } else {
+            this.showMessage("Select a view from the dropdown to get started.");
+        }
+    }
+
+    /**
+     * Opens the info popup modal. (Not directly used in current HTML)
      */
     openInfoPopup(): void {
         this.showInfoPopup = true;
     }
 
     /**
-     * Closes the info popup modal.
+     * Closes the info popup modal. (Not directly used in current HTML)
      */
     closeInfoPopup(): void {
         this.showInfoPopup = false;
@@ -395,8 +430,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
      */
     @HostListener('window:resize')
     onWindowResize(): void {
-        // Since the game is always visible, we always respond to resize
-        if (this.canvasRef?.nativeElement) {
+        // Only re-initialize if the Conway's Game of Life is the currently selected view
+        if (this.selectedView === 'conways-game-of-life' && this.canvasRef?.nativeElement) {
             const canvasElement = this.canvasRef.nativeElement;
             const currentContainerWidth = canvasElement.parentElement!.clientWidth;
 

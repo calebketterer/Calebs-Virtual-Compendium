@@ -1,9 +1,7 @@
-/* These styles are specific to app.component.html */
-
 /* Body styles were global before, but Angular components manage their own styling.
-   For consistency with the original demo, applying it to the host or main div is fine,
-   but typically global body styles belong in styles.css.
-   This component's main container now has these styles.
+    For consistency with the original demo, applying it to the host or main div is fine,
+    but typically global body styles belong in styles.css.
+    This component's main container now has these styles.
 */
 .main {
     font-family: 'Inter', sans-serif; /* Using Inter font */
@@ -249,6 +247,64 @@ p {
     }
 }
 
+/* --- Dropdown Menu Specific Styles --- */
+.view-selector-container {
+    width: 100%;
+    max-width: 700px; /* Align with original content container's max-width */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem; /* Space below the dropdown */
+    margin-top: 2rem; /* Space above the dropdown */
+}
+
+/* Removed .view-selector-label styles as the label element is removed */
+
+.view-selector-dropdown {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--gray-70);
+    border-radius: 0.5rem;
+    background-color: var(--gray-70); /* Changed to var(--gray-70) and transparency removed */
+    color: black; /* Text color is black for readability */
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Keep a subtle shadow for definition */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease; /* Add background transition */
+    width: 100%; /* Take full width of its container */
+    max-width: 300px; /* Limit max width for a cleaner look */
+}
+
+.view-selector-dropdown:hover {
+    border-color: var(--blue);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2); /* Subtle blue shadow on hover */
+    background-color: oklch(72% 0 0); /* Slightly lighter gray on hover */
+}
+
+.view-selector-dropdown:focus {
+    border-color: var(--bright-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); /* Focus ring */
+    background-color: oklch(75% 0 0); /* Slightly lighter gray on focus */
+}
+
+/* Styles for the options within the dropdown when it's open */
+.view-selector-dropdown option {
+    background-color: var(--gray-70); /* Set background to var(--gray-70) for options */
+    color: black; /* Ensure text is black for all options when dropdown is open */
+}
+
+/*
+    The placeholder option is now removed, so this rule is no longer strictly needed for a 'hidden' placeholder.
+    However, if you want the *selected* "Main Site Info" text to appear invisible in the dropdown when closed,
+    this rule would still make it white against a white background.
+    For now, I've changed the main dropdown's color to var(--gray-90) to make all options readable.
+*/
+.view-selector-dropdown option[value=""][disabled][selected] {
+    color: #ffffff; /* This rule will only apply if a hidden placeholder option is ever added back and explicitly set to selected */
+}
+
+
 /* --- Conway's Game of Life Widget Specific Styles --- */
 
 /* Text colors for the Game of Life widget to match the main heading */
@@ -328,5 +384,5 @@ p {
 }
 .main button.bg-indigo-500:hover {
     background-color: #c7d2fe; /* Slightly darker indigo on hover (Tailwind indigo-200) */
-    box-shadow: 0 6px 8px rgba(55, 48, 163, 0.2), 0 2px 4px rgba(55, 48, 163, 0.1);
+    box-shadow: 0 6px 8px #3730a333, 0 2px 4px rgba(55, 48, 163, 0.1);
 }
