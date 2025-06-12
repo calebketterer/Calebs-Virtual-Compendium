@@ -1,0 +1,173 @@
+.sudoku-header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.pill {
+  display: inline-block;
+  padding: 0.7em 3em;
+  font-size: 2.3rem;
+  font-weight: 800;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #7702ff 0%, #F0060B 100%);
+  color: #fff;
+  margin: 0 auto 0.8em auto;
+  box-shadow: 0 2px 18px #F0060B20;
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 3px #0001;
+  text-align: center;
+}
+
+.sudoku-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  outline: none;
+  user-select: none;
+  background: linear-gradient(135deg, #fff 70%, #f7f5fa 100%);
+  padding: 2rem 1rem 2rem 1rem;
+  border-radius: 18px;
+  box-shadow: 0 6px 32px #cc26d540;
+  max-width: 410px;
+  min-width: 410px;
+  margin: 0 auto;
+}
+
+.sudoku-board {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(9, 1fr);
+  border: 3px solid #b8a5c8;
+  border-radius: 12px;
+  background: #faf7ff;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 2px 8px #cc26d520;
+  overflow: hidden;
+  width: 360px;
+  height: 360px;
+}
+
+.sudoku-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.38rem;
+  text-align: center;
+  background: #fcfbff;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.17s, border-color 0.16s;
+  position: relative;
+  outline: none;
+  z-index: 0;
+  box-sizing: border-box;
+  border: none;
+  margin: 0; padding: 0;
+  /* Remove rounding to align perfectly */
+  border-radius: 0;
+}
+
+/* Thin grid lines for all but last col/row */
+.sudoku-cell:not(:nth-child(9n)) {
+  border-right: 1px solid #e3dfea;
+}
+.sudoku-cell:not(:nth-last-child(-n+9)) {
+  border-bottom: 1px solid #e3dfea;
+}
+
+/* Thicker section borders (vertical) */
+.sudoku-cell.thick-right {
+  border-right: 2.5px solid #b8a5c8 !important;
+}
+/* Thicker section borders (horizontal) */
+.sudoku-cell.thick-bottom {
+  border-bottom: 2.5px solid #b8a5c8 !important;
+}
+
+.sudoku-cell.initial { font-weight: bold; color: #6d378b; background: #ece6f3; cursor: default; }
+.sudoku-cell.selected { background: #e0dbff; box-shadow: 0 0 0 2.5px #cc26d5; z-index: 1; }
+.sudoku-cell:focus:not(.initial) { outline: 2.5px solid #7702ff; z-index: 2; }
+.sudoku-cell.highlight-row,
+.sudoku-cell.highlight-col { background: #f1eafd; }
+.sudoku-cell.error { background: #ffe5ee; color: #f0060b; animation: shake 0.2s 1; }
+.sudoku-cell.correct { background: #eafff1; color: #148a42; }
+.sudoku-cell.solution-revealed { background: #f9f6ff; color: #3586e8; font-weight: bold; }
+@keyframes shake {
+  0% { transform: translateX(0);}
+  25% { transform: translateX(-2.5px);}
+  50% { transform: translateX(2.5px);}
+  75% { transform: translateX(-2.5px);}
+  100% { transform: translateX(0);}
+}
+
+.button-row {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+.reset-btn, .check-btn, .reveal-btn {
+  min-width: 120px;
+  font-size: 1.05rem;
+  padding: 0.45rem 1.9rem;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(90deg,#7702ff,#F0060B);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px #cc26d530;
+  transition: background 0.2s, box-shadow 0.15s, transform 0.1s;
+}
+.reset-btn:hover, .check-btn:hover, .reveal-btn:hover {
+  background: linear-gradient(90deg,#F0060B,#7702ff);
+  transform: translateY(-2px) scale(1.04);
+}
+.check-btn {
+  background: linear-gradient(90deg,#cc26d5,#b993f4);
+  color: #fff;
+}
+.check-btn:hover {
+  background: linear-gradient(90deg,#b993f4,#cc26d5);
+  color: #fff;
+}
+.reveal-btn {
+  background: linear-gradient(90deg,#d2d0e3,#b993f4);
+  color: #6330a4;
+}
+.reveal-btn:hover {
+  background: linear-gradient(90deg,#b993f4,#d2d0e3);
+  color: #3a1860;
+}
+
+.check-count {
+  font-size: 1.05rem;
+  color: #6d378b;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.result-message {
+  font-size: 1.15rem;
+  text-align: center;
+  margin-top: 0.4rem;
+  margin-bottom: 0.3rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 7px;
+  background: #f8f3ff;
+  color: #b993f4;
+  border: 1px solid #b993f4;
+  box-shadow: 0 1.5px 7px #b993f440;
+}
+.result-message.success {
+  background: #e0ffe6;
+  color: #148a42;
+  border: 1px solid #2edfa0;
+}
+.result-message.error {
+  background: #fff0ef;
+  color: #f0060b;
+  border: 1px solid #f0060b;
+}

@@ -1,0 +1,44 @@
+<div class="sudoku-header">
+  <div class="pill sudoku-pill">Sudoku</div>
+</div>
+<div class="sudoku-container" tabindex="0" (keydown)="handleKey($event)">
+  <div class="sudoku-board">
+    <ng-container *ngFor="let rowIdx of [0,1,2,3,4,5,6,7,8]">
+      <ng-container *ngFor="let colIdx of [0,1,2,3,4,5,6,7,8]">
+        <div
+          class="sudoku-cell"
+          [ngClass]="{
+            'initial': isInitial(rowIdx, colIdx),
+            'selected': selectedCell?.row === rowIdx && selectedCell?.col === colIdx,
+            'highlight-row': selectedCell && selectedCell.row === rowIdx,
+            'highlight-col': selectedCell && selectedCell.col === colIdx,
+            'thick-bottom': (rowIdx+1)%3===0 && rowIdx!==8,
+            'thick-right': (colIdx+1)%3===0 && colIdx!==8,
+            'error': isErrorCell(rowIdx, colIdx) && checkMode,
+            'correct': isCorrectCell(rowIdx, colIdx) && checkMode,
+            'solution-revealed': revealMode && !isInitial(rowIdx, colIdx)
+          }"
+          (click)="selectCell(rowIdx, colIdx)"
+          [tabindex]="isInitial(rowIdx, colIdx) ? -1 : 0"
+          [attr.aria-label]="isInitial(rowIdx, colIdx) ? 'Initial value' : 'Editable cell'"
+        >
+          <span *ngIf="puzzle[rowIdx][colIdx] !== 0">{{ puzzle[rowIdx][colIdx] }}</span>
+        </div>
+      </ng-container>
+    </ng-container>
+  </div>
+  <div class="button-row">
+    <button class="reset-btn" (click)="reset()">Reset</button>
+    <button class="check-btn" (click)="checkAnswers()">Check Answers</button>
+    <button class="reveal-btn" (click)="toggleRevealSolution()">
+      {{ revealMode ? 'Hide Solution' : 'Reveal Solution' }}
+    </button>
+  </div>
+  <div class="check-count" *ngIf="checkCount > 0">
+    Number of checks: {{ checkCount }}
+  </div>
+  <div *ngIf="showResult" class="result-message"
+    [ngClass]="{'success': correctCells.size && errorCells.size === 0 && resultMessage.includes('solved'), 'error': errorCells.size > 0}">
+    {{ resultMessage }}
+  </div>
+</div>

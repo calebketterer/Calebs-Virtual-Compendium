@@ -52,12 +52,13 @@
             </svg>
             <h1>Hey there, friend.</h1>
             <p>Good news! My website is running, slightly customized,
-            <br> and all links are updated as of 2025.06.06! 🎉</p>
+            <br> and all links are updated as of 2025.06.12! 🎉</p>
 
-            <!-- Dropdown Menu - MOVED HERE -->
+            <!-- Dropdown Menu Options -->
             <div class="view-selector-container">
                 <select id="viewSelector" class="view-selector-dropdown" (change)="onViewChange($event)">
                     <option value="main-site" selected>Main Site Info</option>
+                    <option value="sudoku">Sudoku</option>
                     <option value="conways-game-of-life">Conway's Game of Life</option>
                     <option value="another-view">Another Placeholder View</option>
                 </select>
@@ -203,6 +204,8 @@
                 {{ messageBoxText }}
             </div>
         </div>
+
+     <app-sudoku *ngIf="selectedView === 'sudoku'"></app-sudoku>
 
         <!-- Placeholder for another view -->
         <div class="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg max-w-xl w-full mt-8" *ngIf="selectedView === 'another-view'">

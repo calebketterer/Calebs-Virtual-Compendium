@@ -2,11 +2,12 @@ import { Component, AfterViewInit, ViewChild, ElementRef, HostListener, OnDestro
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms'; // Import FormsModule for ngModel (if used) or general form elements
+import { SudokuComponent } from './sudoku/sudoku.component';
 
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [RouterOutlet, CommonModule, FormsModule], // Add FormsModule here
+    imports: [RouterOutlet, CommonModule, FormsModule, SudokuComponent], // Add FormsModule here
     templateUrl: './app.component.html',
     styleUrl: './app.component.css'
 })
