@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
+type Difficulty = 'easy' | 'medium' | 'hard';
 
 @Component({
   selector: 'app-sudoku',
@@ -8,33 +10,19 @@ import { CommonModule } from '@angular/common';
   templateUrl: './sudoku.component.html',
   styleUrls: ['./sudoku.component.css'],
 })
-export class SudokuComponent {
-  START_PUZZLE = [
-    [5, 3, 0, 0, 7, 0, 0, 0, 0],
-    [6, 0, 0, 1, 9, 5, 0, 0, 0],
-    [0, 9, 8, 0, 0, 0, 0, 6, 0],
-    [8, 0, 0, 0, 6, 0, 0, 0, 3],
-    [4, 0, 0, 8, 0, 3, 0, 0, 1],
-    [7, 0, 0, 0, 2, 0, 0, 0, 6],
-    [0, 6, 0, 0, 0, 0, 2, 8, 0],
-    [0, 0, 0, 4, 1, 9, 0, 0, 5],
-    [0, 0, 0, 0, 8, 0, 0, 7, 9],
+export class SudokuComponent implements OnDestroy {
+  readonly difficulties = [
+    { label: 'Easy', value: 'easy', blanks: 34 },
+    { label: 'Medium', value: 'medium', blanks: 44 },
+    { label: 'Hard', value: 'hard', blanks: 54 }
   ];
+  selectedDifficulty: Difficulty = 'easy';
 
-  SOLUTION = [
-    [5,3,4,6,7,8,9,1,2],
-    [6,7,2,1,9,5,3,4,8],
-    [1,9,8,3,4,2,5,6,7],
-    [8,5,9,7,6,1,4,2,3],
-    [4,2,6,8,5,3,7,9,1],
-    [7,1,3,9,2,4,8,5,6],
-    [9,6,1,5,3,7,2,8,4],
-    [2,8,7,4,1,9,6,3,5],
-    [3,4,5,2,8,6,1,7,9],
-  ];
+  START_PUZZLE: number[][] = [[]];
+  SOLUTION: number[][] = [[]];
 
-  puzzle = JSON.parse(JSON.stringify(this.START_PUZZLE));
-  initial = JSON.parse(JSON.stringify(this.START_PUZZLE));
+  puzzle: number[][] = [];
+  initial: number[][] = [];
   selectedCell: { row: number; col: number } | null = null;
   errorCells = new Set<string>();
   correctCells = new Set<string>();
@@ -45,9 +33,75 @@ export class SudokuComponent {
   userInputsBackup: number[][] = [];
   checkCount = 0;
 
+  // Timer-related fields
+  timerValue = 0; // seconds
+  timerInterval: ReturnType<typeof setInterval> | null = null;
+  timerRunning = false;
+
+  // Reveal-used indicator
+  revealUsed = false;
+
+  ngOnInit() {
+    this.newGame();
+  }
+
+  ngOnDestroy() {
+    this.clearTimer();
+  }
+
+  startTimer() {
+    if (this.timerInterval) return;
+    this.timerRunning = true;
+    this.timerInterval = setInterval(() => {
+      this.timerValue++;
+    }, 1000);
+  }
+
+  clearTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+    this.timerRunning = false;
+  }
+
+  resetTimer() {
+    this.clearTimer();
+    this.timerValue = 0;
+    this.startTimer();
+  }
+
+  formatTimer(): string {
+    const min = Math.floor(this.timerValue / 60);
+    const sec = this.timerValue % 60;
+    return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  }
+
+  newGame() {
+    // Generate a new valid board and puzzle for selected difficulty
+    const filled = this.generateFullSolution();
+    this.SOLUTION = filled.map(row => [...row]);
+    const blanks = this.difficulties.find(d => d.value === this.selectedDifficulty)!.blanks;
+    this.START_PUZZLE = this.removeCells(filled, blanks);
+    this.puzzle = this.START_PUZZLE.map(row => [...row]);
+    this.initial = this.START_PUZZLE.map(row => [...row]);
+    this.selectedCell = null;
+    this.errorCells.clear();
+    this.correctCells.clear();
+    this.checkMode = false;
+    this.showResult = false;
+    this.resultMessage = '';
+    this.revealMode = false;
+    this.userInputsBackup = [];
+    this.checkCount = 0;
+    this.revealUsed = false;
+    this.resetTimer();
+  }
+
   selectCell(row: number, col: number) {
     if (!this.revealMode && this.initial[row][col] === 0) {
       this.selectedCell = { row, col };
+      this.startTimer();
     }
   }
 
@@ -55,6 +109,7 @@ export class SudokuComponent {
     if (this.revealMode) return;
     if (!this.selectedCell) return;
     const { row, col } = this.selectedCell;
+    this.startTimer();
     if (event.key >= '1' && event.key <= '9') {
       this.puzzle[row][col] = Number(event.key);
     } else if (
@@ -72,6 +127,11 @@ export class SudokuComponent {
     }
   }
 
+  onDifficultyChange(event: Event) {
+    this.selectedDifficulty = (event.target as HTMLSelectElement).value as Difficulty;
+    this.newGame();
+  }
+
   isInitial(row: number, col: number) {
     return this.initial[row][col] !== 0;
   }
@@ -85,7 +145,7 @@ export class SudokuComponent {
   }
 
   reset() {
-    this.puzzle = JSON.parse(JSON.stringify(this.START_PUZZLE));
+    this.puzzle = this.START_PUZZLE.map(row => [...row]);
     this.selectedCell = null;
     this.errorCells.clear();
     this.correctCells.clear();
@@ -95,6 +155,8 @@ export class SudokuComponent {
     this.revealMode = false;
     this.userInputsBackup = [];
     this.checkCount = 0;
+    this.revealUsed = false;
+    this.resetTimer();
   }
 
   checkAnswers() {
@@ -124,6 +186,7 @@ export class SudokuComponent {
       this.resultMessage = 'Keep going! Some cells are still empty.';
     } else if (allCorrect) {
       this.resultMessage = '🎉 Congratulations! You solved it!';
+      this.clearTimer();
     } else {
       this.resultMessage = 'Some answers are incorrect. Try again!';
     }
@@ -135,6 +198,7 @@ export class SudokuComponent {
       this.puzzle = this.SOLUTION.map((row: number[]) => row.slice());
       this.revealMode = true;
       this.selectedCell = null;
+      this.revealUsed = true;
     } else {
       if (this.userInputsBackup.length === 9) {
         this.puzzle = this.userInputsBackup.map((row: number[]) => row.slice());
@@ -146,5 +210,73 @@ export class SudokuComponent {
     this.checkMode = false;
     this.showResult = false;
     this.resultMessage = '';
+  }
+
+  // -- SUDOKU GENERATION LOGIC --
+
+  generateFullSolution(): number[][] {
+    const grid = Array.from({ length: 9 }, () => Array(9).fill(0));
+    this.solveSudoku(grid, true);
+    return grid;
+  }
+
+  removeCells(solved: number[][], blanks: number): number[][] {
+    const puzzle = solved.map(row => [...row]);
+    let count = 0;
+    while (count < blanks) {
+      const row = Math.floor(Math.random() * 9);
+      const col = Math.floor(Math.random() * 9);
+      if (puzzle[row][col] !== 0) {
+        puzzle[row][col] = 0;
+        count++;
+      }
+    }
+    return puzzle;
+  }
+
+  solveSudoku(grid: number[][], randomize: boolean = false): boolean {
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        if (grid[row][col] === 0) {
+          let numbers = [1,2,3,4,5,6,7,8,9];
+          if (randomize) {
+            // Shuffle numbers for more random boards
+            for (let i = numbers.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+            }
+          }
+          for (let num of numbers) {
+            if (this.isSafe(grid, row, col, num)) {
+              grid[row][col] = num;
+              if (this.solveSudoku(grid, randomize)) {
+                return true;
+              }
+              grid[row][col] = 0;
+            }
+          }
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  isSafe(grid: number[][], row: number, col: number, num: number): boolean {
+    for (let i = 0; i < 9; i++) {
+      if (grid[row][i] === num || grid[i][col] === num) {
+        return false;
+      }
+    }
+    const boxRow = row - row % 3;
+    const boxCol = col - col % 3;
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        if (grid[boxRow + r][boxCol + c] === num) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 }
