@@ -1,0 +1,127 @@
+/* 
+  Styles for Conway's Game of Life component.
+  - Canvas appearance
+  - Buttons and slider appearance
+  - Message and label coloring
+*/
+
+/* Canvas: white, rounded, shadowed, with a subtle border */
+canvas {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: block;
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  border: 20px solid var(--gray-40);
+}
+
+/* Range slider: remove default look, custom color and thumb */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  background: #d1d5db;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+  border-radius: 4px;
+}
+input[type="range"]:hover {
+  opacity: 1;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #3b82f6;
+  cursor: pointer;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #3b82f6;
+  cursor: pointer;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Heading: ensure color matches site theme */
+h1.text-3xl.font-bold.text-gray-800.mb-6 {
+  color: var(--gray-90) !important;
+}
+/* Label for slider: match theme */
+label.text-gray-700 {
+  color: var(--gray-90) !important;
+}
+/* Slider info text: match theme */
+.text-xs.text-gray-500 {
+  color: var(--gray-90) !important;
+}
+/* Status/message box: always use the theme's primary text color */
+#messageBox {
+  color: var(--gray-90) !important;
+}
+
+/* Pill-style buttons for controls */
+button {
+  font-weight: 600;
+  border: 0;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  margin: 0.25rem;
+  border-radius: 9999px;
+  padding-inline: 1.25rem;
+  padding-block: 0.625rem;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+button:active {
+  transform: translateY(1px);
+}
+/* Start button: green pill */
+button.bg-green-500 {
+  background-color: #d1fae5;
+  color: #065f46;
+  box-shadow: 0 4px 6px rgba(6, 95, 70, 0.1), 0 1px 3px rgba(6, 95, 70, 0.05);
+}
+button.bg-green-500:hover {
+  background-color: #a7f3d0;
+  box-shadow: 0 6px 8px rgba(6, 95, 70, 0.2), 0 2px 4px rgba(6, 95, 70, 0.1);
+}
+/* Stop button: red pill */
+button.bg-red-500 {
+  background-color: #fee2e2;
+  color: #991b1b;
+  box-shadow: 0 4px 6px rgba(153, 27, 27, 0.1), 0 1px 3px rgba(153, 27, 27, 0.05);
+}
+button.bg-red-500:hover {
+  background-color: #fecaca;
+  box-shadow: 0 6px 8px rgba(153, 27, 27, 0.2), 0 2px 4px rgba(153, 27, 27, 0.1);
+}
+/* Clear button: yellow pill */
+button.bg-yellow-500 {
+  background-color: #fffbeb;
+  color: #92400e;
+  box-shadow: 0 4px 6px rgba(146, 64, 14, 0.1), 0 1px 3px rgba(146, 64, 14, 0.05);
+}
+button.bg-yellow-500:hover {
+  background-color: #fde68a;
+  box-shadow: 0 6px 8px rgba(146, 64, 14, 0.2), 0 2px 4px rgba(146, 64, 14, 0.1);
+}
+/* Randomize button: indigo pill */
+button.bg-indigo-500 {
+  background-color: #e0e7ff;
+  color: #3730a3;
+  box-shadow: 0 4px 6px rgba(55, 48, 163, 0.1), 0 1px 3px rgba(55, 48, 163, 0.05);
+}
+button.bg-indigo-500:hover {
+  background-color: #c7d2fe;
+  box-shadow: 0 6px 8px #3730a333, 0 2px 4px rgba(55, 48, 163, 0.1);
+}

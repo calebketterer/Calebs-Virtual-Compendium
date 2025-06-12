@@ -1,0 +1,78 @@
+<!--
+  Conway's Game of Life component
+  - Displays the canvas grid, control buttons, speed slider, and status message.
+  - All logic is in the component TypeScript file.
+-->
+
+<div class="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg max-w-xl w-full mt-8">
+  <!-- Title/Header -->
+  <h1 class="text-3xl font-bold text-gray-800 mb-6">
+    Conway's Simulation
+  </h1>
+
+  <!-- Canvas for Game of Life grid (drawn by code) -->
+  <canvas
+    #gameCanvas
+    id="gameCanvas"
+    class="mb-6"
+  ></canvas>
+
+  <!-- Control buttons for simulation (Start/Stop/Clear/Randomize) -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full mx-auto mb-6 justify-items-center">
+    <!-- Start the simulation -->
+    <button
+      (click)="onStart()"
+      class="px-5 py-2 bg-green-500 text-white rounded-full shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75"
+    >
+      Start
+    </button>
+    <!-- Stop/pause the simulation -->
+    <button
+      (click)="onStop()"
+      class="px-5 py-2 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75"
+    >
+      Stop
+    </button>
+    <!-- Clear all cells on the grid -->
+    <button
+      (click)="onClear()"
+      class="px-5 py-2 bg-yellow-500 text-white rounded-full shadow-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-75"
+    >
+      Clear
+    </button>
+    <!-- Randomize the grid -->
+    <button
+      (click)="onRandomize()"
+      class="px-5 py-2 bg-indigo-500 text-white rounded-full shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75"
+    >
+      Randomize
+    </button>
+  </div>
+
+  <!-- Speed slider control (generations per second) -->
+  <div class="w-full mx-auto mb-6">
+    <label
+      for="speedSlider"
+      class="block text-gray-700 text-sm font-semibold mb-2 text-center"
+    >
+      Simulation Speed:
+    </label>
+    <input
+      type="range"
+      id="speedSlider"
+      min="1"
+      max="20"
+      [value]="currentGenerationsPerSecond"
+      (input)="onSpeedChange($event)"
+      class="w-full h-2 bg-blue-100 rounded-lg appearance-none"
+    />
+    <div class="text-xs text-gray-500 mt-1 text-center font-bold">
+      Slow (1 gen/sec) to Fast (20 gen/sec)
+    </div>
+  </div>
+
+  <!-- Message/status area at the bottom -->
+  <div id="messageBox" [class]="messageBoxClass">
+    {{ messageBoxText }}
+  </div>
+</div>

@@ -138,7 +138,6 @@ p {
     color: var(--gray-70);
 }
 
-
 .angular-logo {
     max-width: 9.2rem;
 }
@@ -303,7 +302,6 @@ p {
 .view-selector-dropdown option[value=""][disabled][selected] {
     color: #ffffff; /* This rule will only apply if a hidden placeholder option is ever added back and explicitly set to selected */
 }
-
 
 /* --- Conway's Game of Life Widget Specific Styles --- */
 
