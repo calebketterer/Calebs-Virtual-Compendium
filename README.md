@@ -1,10 +1,55 @@
 # Caleb's Virtual Compendium
 
-![Capture](https://github.com/user-attachments/assets/ad0ac5aa-d2bb-4d06-af09-8abc915d98e2)
+![Capture](https://github.com/user-attachments/assets/cfd1e056-73d0-43ef-9f3f-3c5924ba2b9e)
 
+<strong>Welcome!</strong> This project contains multiple interactive links, visualizations, and games- all created by me.  
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.4.
 
-## Development server
+## Features
+
+<details>
+  <summary><strong>Conway's Game of Life Simulator</strong></summary>
+
+## Conway's Simulation
+
+![Capture](https://github.com/user-attachments/assets/6ccf45ca-c79d-4bd6-81b5-221c2aad75da)
+
+Based off Cambridge mathematician John Conway's [Game of Life]([url](https://playgameoflife.com/)), this cellular automaton became widely known when it was mentioned in an article published by Scientific American in 1970. It consists of a grid of cells which, based on a few mathematical rules, can live, die or multiply. Depending on the initial conditions, the cells form various patterns throughout the course of the game.
+
+The rules for each space: 
+1. Each populated cell with one or no neighbors dies, as if by solitude.
+2. Each populated cell with four or more neighbors dies, as if by overpopulation.
+3. Each populated cell with two or three neighbors survives.
+4. Each unpopulated cell with three neighbors becomes populated.
+</details>
+
+<details>
+  <summary><strong>Sudoku</strong></summary>
+
+## Classic Sudoku
+
+![Capture](https://github.com/user-attachments/assets/80c2eaff-aa2c-40bc-bae8-3dde3732bb59)
+
+A classic game of Sudoku, featuring the following:
+
+- Interactive Sudoku board with keyboard and mouse support.
+- "Check Answers" button with error highlighting.
+- "Reveal Solution" toggle to view or hide the solution.
+- Random puzzle generation with unique solutions.
+- Difficulty selection (Easy/Medium/Hard).
+
+Challenge yourself or practice your puzzle-solving skills!
+
+</details>
+
+## Development Server in Browser
+
+Visit https://vscode.dev/. Log in to GitHub, then fork the repository. Under the explorer, select "Open Remote Repository" and select Calebs Virtual Compendium. Open Terminal and click "Continue Working in GitHub Codespaces." Install ng with the command line `npm install -g @angular/cli` in the codespace Terminal. Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. If you can not connect to the localhost, type `h + enter` then `o + enter` into Terminal to directly open this project in your browser.
+
+<details>
+  <summary><strong>Old Server Setup Instructions</strong></summary>
+  
+## Development Server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
@@ -24,22 +69,11 @@ Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.
 
 Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
 
-## Development server in browser
-
-Visit https://vscode.dev/. Log in to GitHub, then fork the repository. Under the explorer, select "Open Remote Repository" and select Calebs Virtual Compendium. Open Terminal and click "Continue Working in GitHub Codespaces." Install ng with the command line `npm install -g @angular/cli` in the codespace Terminal. Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. If you can not connect to the localhost, type `h + enter` then `o + enter` into Terminal to directly open this project in your browser.
-
 ## Further help with setup
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
 
-## Conway's Simulation
+</details>
 
-![Capture](https://github.com/user-attachments/assets/6ccf45ca-c79d-4bd6-81b5-221c2aad75da)
 
-Based off Cambridge mathematician John Conway's [Game of Life]([url](https://playgameoflife.com/)), this cellular automaton became widely known when it was mentioned in an article published by Scientific American in 1970. It consists of a grid of cells which, based on a few mathematical rules, can live, die or multiply. Depending on the initial conditions, the cells form various patterns throughout the course of the game.
 
-The rules for each space: 
-1. Each populated cell with one or no neighbors dies, as if by solitude.
-2. Each populated cell with four or more neighbors dies, as if by overpopulation.
-3. Each populated cell with two or three neighbors survives.
-4. Each unpopulated cell with three neighbors becomes populated.
