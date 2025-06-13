@@ -18,6 +18,31 @@
     /* Removed position: relative as view-selector-container is no longer absolutely positioned */
 }
 
+.animated-header {
+  animation: fade-in 1.2s cubic-bezier(0.23,1,0.32,1) 0s 1 both;
+  background: linear-gradient(
+    90deg,
+    #f0060b 0%,
+    #ff41f8 18%,
+    #7702ff 36%,
+    #cc26d5 54%,
+    #ff41f8 72%,
+    #f0060b 90%
+  );
+  background-size: 200% 200%;
+  background-position: 50% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  user-select: none;
+  transition: background-position 0.25s cubic-bezier(0.4,1,0.6,1);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-24px) scale(0.95);}
+  to   { opacity: 1; transform: translateY(0) scale(1);}
+}
+
 /* Original content container - adapt styling as needed */
 .original-content-container {
     width: 100%;
