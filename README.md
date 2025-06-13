@@ -3,6 +3,7 @@
 ![Capture](https://github.com/user-attachments/assets/cfd1e056-73d0-43ef-9f3f-3c5924ba2b9e)
 
 <strong>Welcome!</strong> This project contains multiple interactive links, visualizations, and games- all created by me.  
+Visit the most recent deployment via Github Pages at [https://calebketterer.github.io/Calebs-Virtual-Compendium/](https://calebketterer.github.io/Calebs-Virtual-Compendium/).  
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.4.
 
 ## Features
@@ -72,8 +73,11 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help with setup
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
-
 </details>
+
+## Deploying as a Github Page
+
+If not already done, type `npm install -g angular-cli-ghpages` in terminal. Then, run `ng build --configuration production --base-href /Calebs-Virtual-Compendium/` and  `npx angular-cli-ghpages --dir=dist/example-website/browser/`. After that, the site should be updated at `https://calebketterer.github.io/Calebs-Virtual-Compendium/`
 
 
 
