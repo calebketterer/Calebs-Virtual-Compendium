@@ -4,11 +4,12 @@ import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SudokuComponent } from './sudoku/sudoku.component';
 import { ConwayComponent } from './conway/conway.component';
+import { SnakeComponent } from './snake/snake.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, FormsModule, SudokuComponent, ConwayComponent],
+  imports: [RouterOutlet, CommonModule, FormsModule, SudokuComponent, ConwayComponent, SnakeComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
