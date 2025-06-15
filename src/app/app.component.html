@@ -53,9 +53,11 @@
                 </defs>
             </svg>
             <!-- END: Angular Logo SVG -->
-            <h1>Hey there, friend.</h1>
-            <p>Good news! My website is running, slightly customized,
-            <br> and all links are updated as of 2025.06.15! 🎉</p>
+            <h1 #heyThere (click)="shakeHeyThere()" style="cursor:pointer;">Hey there, friend.</h1>
+            <p #goodNews (click)="shakeGoodNews()" style="cursor:pointer;">
+                Good news! My website is running, slightly customized,
+                <br> and all links are updated as of 2025.06.15! 🎉
+            </p>
 
             <!-- Dropdown Menu Options -->
             <div class="view-selector-container">

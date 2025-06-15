@@ -22,6 +22,10 @@ export class AppComponent implements AfterViewInit {
 
   @ViewChild('colorfulHeader', { static: true })
   colorfulHeader!: ElementRef<HTMLHeadingElement>;
+  @ViewChild('heyThere', { static: true })
+  heyThere!: ElementRef<HTMLElement>;
+  @ViewChild('goodNews', { static: true })
+  goodNews!: ElementRef<HTMLElement>;
 
   // Default gradient colors (from your last list)
   private defaultColors: string[] = [
@@ -35,7 +39,6 @@ export class AppComponent implements AfterViewInit {
 
   // Color pool using all provided color options (CSS oklch and hex)
   private colorPool: string[] = [
-    // Provided oklch colors (as CSS variables or as oklch() strings)
     "oklch(51.01% 0.274 263.83)", // --bright-blue
     "oklch(53.18% 0.28 296.97)",  // --electric-violet
     "oklch(47.66% 0.246 305.88)", // --french-violet
@@ -46,7 +49,6 @@ export class AppComponent implements AfterViewInit {
     "oklch(75% 0.2 110)",         // --yellow
     "oklch(50% 0.25 264)",        // --blue
     "oklch(47.66% 0.246 305.88)", // --violet
-    // Provided hex colors
     "#f0060b",
     "#ff41f8",
     "#7702ff",
@@ -110,10 +112,8 @@ export class AppComponent implements AfterViewInit {
    * If not enough unique, repeats are allowed.
    */
   getRandomizedColors(count: number): string[] {
-    // Shuffle pool, then pick first N colors.
     const shuffled = this.colorPool.slice().sort(() => Math.random() - 0.5);
     const picked = shuffled.slice(0, count);
-    // If not enough unique, repeat from shuffled
     while (picked.length < count) {
       picked.push(shuffled[picked.length % shuffled.length]);
     }
@@ -122,5 +122,19 @@ export class AppComponent implements AfterViewInit {
 
   onViewChange(event: Event): void {
     this.selectedView = (event.target as HTMLSelectElement).value;
+  }
+
+  shakeHeyThere() {
+    const el = this.heyThere.nativeElement;
+    el.classList.remove('shake');
+    void el.offsetWidth;
+    el.classList.add('shake');
+  }
+
+  shakeGoodNews() {
+    const el = this.goodNews.nativeElement;
+    el.classList.remove('shake');
+    void el.offsetWidth;
+    el.classList.add('shake');
   }
 }
