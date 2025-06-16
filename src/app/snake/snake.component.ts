@@ -16,8 +16,8 @@ export class SnakeComponent implements OnInit, OnDestroy {
   boardSize = 16;
   board: string[][] = [];
   snake: Coord[] = [];
-  direction: Direction = 'UP'; // Start vertical
-  nextDirection: Direction = 'UP'; // Start vertical
+  direction: Direction = 'UP';
+  nextDirection: Direction = 'UP';
   food: Coord = { x: 8, y: 8 };
   gameOver = false;
   score = 0;
@@ -29,11 +29,23 @@ export class SnakeComponent implements OnInit, OnDestroy {
     { label: 'Hard', interval: 75 },
     { label: 'Extreme', interval: 40 }
   ];
-  selectedDifficultyIdx = 1; // Default to Medium
-
+  selectedDifficultyIdx = 1;
   gameStarted = false;
 
+  // --- Advanced gradient & stretch ---
   private snakeTitleEl: HTMLElement | null = null;
+  private snakeTitleListenerAttached = false;
+
+  private gradientTargetX = 0.5;
+  private gradientCurrentX = 0.5;
+  private gradientRaf: number | null = null;
+  private gradientAnimating = false;
+
+  private stretchActive = false;
+  private stretchStart = 0;
+  private stretchDuration = 670; // Slower
+  private stretchRaf: number | null = null;
+  private stretchAmount = 0.55;  // Wider
 
   ngOnInit(): void {
     this.resetGame(false);
@@ -42,9 +54,9 @@ export class SnakeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.detachSnakeTitleGradientHandler();
-    if (this.moveInterval) {
-      clearInterval(this.moveInterval);
-    }
+    if (this.moveInterval) clearInterval(this.moveInterval);
+    if (this.gradientRaf !== null) cancelAnimationFrame(this.gradientRaf);
+    if (this.stretchRaf !== null) cancelAnimationFrame(this.stretchRaf);
   }
 
   startGame(): void {
@@ -59,9 +71,7 @@ export class SnakeComponent implements OnInit, OnDestroy {
   }
 
   resetGame(startNew: boolean): void {
-    if (this.moveInterval) {
-      clearInterval(this.moveInterval);
-    }
+    if (this.moveInterval) clearInterval(this.moveInterval);
     this.direction = 'UP';
     this.nextDirection = 'UP';
     this.snake = [
@@ -72,7 +82,7 @@ export class SnakeComponent implements OnInit, OnDestroy {
     this.placeFood();
     this.score = 0;
     this.gameOver = false;
-    this.gameStarted = false; // wait for user input
+    this.gameStarted = false;
     this.buildBoard();
   }
 
@@ -155,9 +165,7 @@ export class SnakeComponent implements OnInit, OnDestroy {
   endGame(): void {
     this.gameOver = true;
     this.gameStarted = false;
-    if (this.moveInterval) {
-      clearInterval(this.moveInterval);
-    }
+    if (this.moveInterval) clearInterval(this.moveInterval);
   }
 
   getCellClass(cell: string): string {
@@ -219,64 +227,107 @@ export class SnakeComponent implements OnInit, OnDestroy {
     this.resetGame(true);
   }
 
-  // --- Interactive Snake Title ---
-  private snakeTitleListenerAttached = false;
-
+  // --- Advanced, smooth green gradient with slightly more contrast ---
   private attachSnakeTitleGradientHandler() {
     this.snakeTitleEl = document.getElementById('snakeTitle');
     if (!this.snakeTitleEl || this.snakeTitleListenerAttached) return;
 
-    this.snakeTitleEl.addEventListener('mousemove', this.handleSnakeTitleMove);
-    this.snakeTitleEl.addEventListener('touchmove', this.handleSnakeTitleMove, { passive: false });
-    this.snakeTitleEl.addEventListener('mouseleave', this.resetSnakeTitleGradient);
-    this.snakeTitleEl.addEventListener('touchend', this.resetSnakeTitleGradient as any);
-    this.snakeTitleEl.addEventListener('touchcancel', this.resetSnakeTitleGradient as any);
+    // Listen globally for mouse/touch anywhere on the page
+    window.addEventListener('mousemove', this.handleGlobalMouseMove);
+    window.addEventListener('touchmove', this.handleGlobalMouseMove, { passive: false });
+    window.addEventListener('mouseleave', this.resetSnakeTitleGradient);
+    window.addEventListener('touchend', this.resetSnakeTitleGradient as any);
+    window.addEventListener('touchcancel', this.resetSnakeTitleGradient as any);
+    this.snakeTitleEl.addEventListener('click', this.handleSnakeTitleClick);
 
     this.snakeTitleListenerAttached = true;
   }
 
   private detachSnakeTitleGradientHandler() {
-    if (!this.snakeTitleEl || !this.snakeTitleListenerAttached) return;
-    this.snakeTitleEl.removeEventListener('mousemove', this.handleSnakeTitleMove);
-    this.snakeTitleEl.removeEventListener('touchmove', this.handleSnakeTitleMove);
-    this.snakeTitleEl.removeEventListener('mouseleave', this.resetSnakeTitleGradient);
-    this.snakeTitleEl.removeEventListener('touchend', this.resetSnakeTitleGradient as any);
-    this.snakeTitleEl.removeEventListener('touchcancel', this.resetSnakeTitleGradient as any);
+    if (!this.snakeTitleListenerAttached) return;
+    window.removeEventListener('mousemove', this.handleGlobalMouseMove);
+    window.removeEventListener('touchmove', this.handleGlobalMouseMove);
+    window.removeEventListener('mouseleave', this.resetSnakeTitleGradient);
+    window.removeEventListener('touchend', this.resetSnakeTitleGradient as any);
+    window.removeEventListener('touchcancel', this.resetSnakeTitleGradient as any);
+    if (this.snakeTitleEl) {
+      this.snakeTitleEl.removeEventListener('click', this.handleSnakeTitleClick);
+    }
     this.snakeTitleListenerAttached = false;
   }
 
-  private handleSnakeTitleMove = (e: MouseEvent | TouchEvent) => {
+  private handleGlobalMouseMove = (e: MouseEvent | TouchEvent) => {
     if (!this.snakeTitleEl) return;
-    let rect = this.snakeTitleEl.getBoundingClientRect();
-    let x = 0.5, y = 0.5;
-
+    // Get the mouse/touch position relative to the center of the title element
+    const rect = this.snakeTitleEl.getBoundingClientRect();
+    let x = 0.5;
     if (e instanceof TouchEvent && e.touches.length) {
       const touch = e.touches[0];
       x = (touch.clientX - rect.left) / rect.width;
-      y = (touch.clientY - rect.top) / rect.height;
     } else if (e instanceof MouseEvent) {
       x = (e.clientX - rect.left) / rect.width;
-      y = (e.clientY - rect.top) / rect.height;
     }
-
     x = Math.max(0, Math.min(1, x));
-    y = Math.max(0, Math.min(1, y));
-
-    const angle = Math.round(90 + (x - 0.5) * 60);
-    const pos = Math.round(x * 100);
-    this.snakeTitleEl.style.background = `linear-gradient(${angle}deg, oklch(55.34% 0.1608 140.47) 0%, oklch(60% 0.17 140.47) ${pos}%, oklch(43% 0.13 140.47) 100%)`;
-    this.snakeTitleEl.style.webkitBackgroundClip = 'text';
-    this.snakeTitleEl.style.backgroundClip = 'text';
-    this.snakeTitleEl.style.webkitTextFillColor = 'transparent';
+    this.gradientTargetX = x;
+    if (!this.gradientAnimating) {
+      this.gradientAnimating = true;
+      this.animateGradient();
+    }
   };
 
-  private resetSnakeTitleGradient = () => {
-    if (this.snakeTitleEl) {
-      this.snakeTitleEl.style.background =
-        'linear-gradient(90deg, oklch(55.34% 0.1608 140.47) 0%, oklch(60% 0.17 140.47) 50%, oklch(43% 0.13 140.47) 100%)';
+    private animateGradient = () => {
+    this.gradientCurrentX += (this.gradientTargetX - this.gradientCurrentX) * 0.18;
+    // Main site's header style: mostly solid themetic green, with a little motion of a lighter green highlight
+    // - The original dark green is oklch(55.34% 0.1608 140.47)
+    // - The lighter highlight is oklch(75% 0.13 140.47)
+    // The highlight moves, but the dominant color remains the dark green.
+
+    // The highlight will be a small band moving across the gradient according to gradientCurrentX
+    const angle = Math.round(90 + (this.gradientCurrentX - 0.5) * 100); // match site style: not too wide
+    const highlightPos = Math.round(40 + this.gradientCurrentX * 40);   // highlight between 40% and 80%
+
+     if (this.snakeTitleEl) {
+      this.snakeTitleEl.style.background = `oklch(55.34% 0.1608 140.47)`;
       this.snakeTitleEl.style.webkitBackgroundClip = 'text';
       this.snakeTitleEl.style.backgroundClip = 'text';
       this.snakeTitleEl.style.webkitTextFillColor = 'transparent';
+    }
+    // No animation needed, so stop the loop if running
+    this.gradientAnimating = false;
+    if (this.gradientRaf) {
+      cancelAnimationFrame(this.gradientRaf);
+      this.gradientRaf = 0;
+    }
+  };
+
+  private resetSnakeTitleGradient = () => {
+    this.gradientTargetX = 0.5;
+    if (!this.gradientAnimating) {
+      this.gradientAnimating = true;
+      this.animateGradient();
+    }
+  };
+
+  // --- Stretch-on-click animation ---
+  private handleSnakeTitleClick = () => {
+    if (this.stretchActive) return;
+    this.stretchActive = true;
+    this.stretchStart = performance.now();
+    this.animateStretch(performance.now());
+  };
+
+  private animateStretch = (now: number) => {
+    if (!this.snakeTitleEl) return;
+    const elapsed = now - this.stretchStart;
+    const t = Math.min(elapsed / this.stretchDuration, 1);
+    // Ease out
+    const scale = 1.0 + this.stretchAmount * Math.sin(Math.PI * t);
+    this.snakeTitleEl.style.transform = `scaleX(${scale})`;
+    if (t < 1) {
+      this.stretchRaf = requestAnimationFrame(this.animateStretch);
+    } else {
+      this.snakeTitleEl.style.transform = '';
+      this.stretchActive = false;
     }
   };
 }

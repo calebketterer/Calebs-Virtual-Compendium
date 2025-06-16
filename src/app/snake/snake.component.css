@@ -30,13 +30,13 @@
   text-align: center;
   font-size: 1.3rem;
   font-weight: 700;
-  color: #000; /* CHANGED to black */
+  color: #000;
   margin-bottom: 1rem;
   letter-spacing: 0.03em;
 }
 .score-label {
   font-weight: 600;
-  color: #000; /* CHANGED to black */
+  color: #000;
 }
 .score-value {
   color: #1a1a1a;
@@ -107,7 +107,7 @@
 .game-over-text {
   font-size: 2.2rem;
   font-weight: 900;
-  color: #000; /* CHANGED to black */
+  color: #000;
   text-shadow: 0 1px 10px #fff8;
 }
 .overlay-btn {
@@ -132,7 +132,7 @@
 
 .snake-instructions {
   text-align: center;
-  color: #000; /* CHANGED to black */
+  color: #000;
   margin-bottom: 1.1rem;
   font-size: 0.98rem;
   opacity: 0.8;
