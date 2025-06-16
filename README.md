@@ -10,11 +10,10 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 <details>
   <summary><strong>Conway's Game of Life Simulator</strong></summary>
-
-## Conway's Simulation
-
+  
+## Conway's Game of Life
+  
 ![Capture](https://github.com/user-attachments/assets/7e74d71d-86f0-4bb9-b631-e462ffae05fd)
-
 Based off Cambridge mathematician John Conway's [Game of Life]([url](https://playgameoflife.com/)), this cellular automaton became widely known when it was mentioned in an article published by Scientific American in 1970. It consists of a grid of cells which, based on a few mathematical rules, can live, die or multiply. Depending on the initial conditions, the cells form various patterns throughout the course of the game.
 
 The rules for each space: 
@@ -25,14 +24,21 @@ The rules for each space:
 </details>
 
 <details>
+  <summary><strong>Snake</strong></summary>
+  
+## Snake
+
+![Capture](https://github.com/user-attachments/assets/2276d350-9edf-49fb-914a-412b22c7baa3)
+</details>
+
+<details>
   <summary><strong>Sudoku</strong></summary>
-
+  
 ## Classic Sudoku
-
+  
 ![Capture](https://github.com/user-attachments/assets/3ecc467a-c761-4f6d-9aa0-3a57e965f9ab)
-
 A classic game of Sudoku, featuring the following:
-
+  
 - Interactive Sudoku board with keyboard and mouse support.
 - "Check Answers" button with error highlighting.
 - "Reveal Solution" toggle to view or hide the solution.
@@ -40,12 +46,9 @@ A classic game of Sudoku, featuring the following:
 - Difficulty selection (Easy/Medium/Hard).
 
 Challenge yourself or practice your puzzle-solving skills!
-
 </details>
 
-## Snake
 
-![Capture](https://github.com/user-attachments/assets/2276d350-9edf-49fb-914a-412b22c7baa3)
 
 ## Development Server in Browser
 
