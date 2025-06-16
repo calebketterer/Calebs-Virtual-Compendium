@@ -1,6 +1,6 @@
 # Caleb's Virtual Compendium
 
-![Capture](https://github.com/user-attachments/assets/cfd1e056-73d0-43ef-9f3f-3c5924ba2b9e)
+![Capture](https://github.com/user-attachments/assets/e2d56756-f9f7-4afd-980e-20d0f283d82f)
 
 <strong>Welcome!</strong> This project contains multiple interactive links, visualizations, and games- all created by me.  
 Visit the most recent deployment via Github Pages at [https://calebketterer.github.io/Calebs-Virtual-Compendium/](https://calebketterer.github.io/Calebs-Virtual-Compendium/).  
@@ -13,7 +13,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## Conway's Simulation
 
-![Capture](https://github.com/user-attachments/assets/6ccf45ca-c79d-4bd6-81b5-221c2aad75da)
+![Capture](https://github.com/user-attachments/assets/7e74d71d-86f0-4bb9-b631-e462ffae05fd)
 
 Based off Cambridge mathematician John Conway's [Game of Life]([url](https://playgameoflife.com/)), this cellular automaton became widely known when it was mentioned in an article published by Scientific American in 1970. It consists of a grid of cells which, based on a few mathematical rules, can live, die or multiply. Depending on the initial conditions, the cells form various patterns throughout the course of the game.
 
@@ -29,7 +29,7 @@ The rules for each space:
 
 ## Classic Sudoku
 
-![Capture](https://github.com/user-attachments/assets/80c2eaff-aa2c-40bc-bae8-3dde3732bb59)
+![Capture](https://github.com/user-attachments/assets/3ecc467a-c761-4f6d-9aa0-3a57e965f9ab)
 
 A classic game of Sudoku, featuring the following:
 
@@ -42,6 +42,10 @@ A classic game of Sudoku, featuring the following:
 Challenge yourself or practice your puzzle-solving skills!
 
 </details>
+
+## Snake
+
+![Capture](https://github.com/user-attachments/assets/2276d350-9edf-49fb-914a-412b22c7baa3)
 
 ## Development Server in Browser
 
