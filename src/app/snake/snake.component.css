@@ -8,17 +8,35 @@
   margin-top: 2rem;
   font-family: inherit;
 }
+
+.snake-title {
+  text-align: center;
+  font-size: 2.2rem;
+  font-family: inherit;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  margin-bottom: 0.7rem;
+  margin-top: 0.1rem;
+  background: linear-gradient(90deg, oklch(55.34% 0.1608 140.47) 0%, oklch(60% 0.17 140.47) 50%, oklch(43% 0.13 140.47) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: background 0.3s;
+  cursor: pointer;
+}
+
 .snake-score-top {
   text-align: center;
   font-size: 1.3rem;
   font-weight: 700;
-  color: #5a2d82;
+  color: #000; /* CHANGED to black */
   margin-bottom: 1rem;
   letter-spacing: 0.03em;
 }
 .score-label {
   font-weight: 600;
-  color: #663399;
+  color: #000; /* CHANGED to black */
 }
 .score-value {
   color: #1a1a1a;
@@ -26,8 +44,6 @@
   margin-left: 0.5rem;
 }
 
-/* --- Board & Grid --- */
-/* The calculation: 16 cells x 20px + 15 gaps x 2px = 320 + 30 = 350px */
 .snake-board {
   display: flex;
   flex-direction: column;
@@ -46,7 +62,7 @@
 }
 .snake-board:focus {
   box-shadow: 0 4px 20px 0 rgba(90,45,130,0.14);
-  outline: 2px solid #cc26d5;
+  outline: 2px solid oklch(55.34% 0.1608 140.47);
 }
 .snake-row {
   display: flex;
@@ -62,8 +78,12 @@
 }
 .empty-cell { background: #e6e6f3; }
 .snake-cell {
-  background: linear-gradient(135deg, #7702ff 60%, #ff41f8 100%);
-  box-shadow: 0 0 3px #cc26d5;
+  background: linear-gradient(135deg, 
+    oklch(55.34% 0.1608 140.47) 0%,   
+    oklch(60% 0.17 140.47) 60%,       
+    oklch(43% 0.13 140.47) 100%       
+  );
+  box-shadow: 0 0 6px 0 oklch(55.34% 0.1608 140.47 / 0.35);
 }
 .food-cell {
   background: linear-gradient(135deg, #f0060b 70%, #ff41f8 100%);
@@ -71,7 +91,6 @@
   box-shadow: 0 0 6px #f0060b88;
 }
 
-/* --- Overlay --- */
 .snake-overlay {
   position: absolute;
   inset: 0;
@@ -88,12 +107,12 @@
 .game-over-text {
   font-size: 2.2rem;
   font-weight: 900;
-  color: #3a3a3a;
+  color: #000; /* CHANGED to black */
   text-shadow: 0 1px 10px #fff8;
 }
 .overlay-btn {
   margin-top: 0.4rem;
-  background: linear-gradient(90deg, #7702ff 0%, #cc26d5 100%);
+  background: linear-gradient(90deg, oklch(55.34% 0.1608 140.47) 0%, oklch(60% 0.17 140.47) 100%);
   border: none;
   color: #fff;
   font-weight: 600;
@@ -101,20 +120,19 @@
   border-radius: 0.9rem;
   cursor: pointer;
   font-size: 1.05rem;
-  box-shadow: 0 0 8px #ccb6e6;
+  box-shadow: 0 0 8px oklch(55.34% 0.1608 140.47 / 0.28);
   outline: none;
   transition: background 0.18s, box-shadow 0.13s;
 }
 .overlay-btn:hover,
 .overlay-btn:focus {
-  background: linear-gradient(90deg, #cc26d5 0%, #7702ff 100%);
-  box-shadow: 0 0 16px #cc26d5;
+  background: linear-gradient(90deg, oklch(60% 0.17 140.47) 0%, oklch(43% 0.13 140.47) 100%);
+  box-shadow: 0 0 16px oklch(55.34% 0.1608 140.47 / 0.45);
 }
 
-/* --- Spacing fixes --- */
 .snake-instructions {
   text-align: center;
-  color: #5a2d82;
+  color: #000; /* CHANGED to black */
   margin-bottom: 1.1rem;
   font-size: 0.98rem;
   opacity: 0.8;
@@ -144,9 +162,9 @@
   gap: 0.18rem;
 }
 .ctrl-btn {
-  background: #f7f2fa;
-  border: 1px solid #cc26d5;
-  color: #5a2d82;
+  background: #e6fbe6;
+  border: 1px solid oklch(55.34% 0.1608 140.47);
+  color: #168741;
   border-radius: 0.65rem;
   margin: 0 0.12rem;
   font-size: 1.15rem;
@@ -159,7 +177,7 @@
 }
 .ctrl-btn:hover,
 .ctrl-btn:focus {
-  background: #cc26d5;
+  background: oklch(55.34% 0.1608 140.47);
   color: #fff;
 }
 .ng-diff-group {
@@ -169,7 +187,7 @@
   justify-content: center;
 }
 .snake-btn {
-  background: linear-gradient(90deg, #7702ff 0%, #cc26d5 100%);
+  background: linear-gradient(90deg, oklch(55.34% 0.1608 140.47) 0%, oklch(60% 0.17 140.47) 100%);
   border: none;
   color: #fff;
   font-weight: 600;
@@ -179,18 +197,18 @@
   transition: background 0.2s;
   font-size: 1rem;
   outline: none;
-  box-shadow: 0 0 8px #ccb6e6;
+  box-shadow: 0 0 8px oklch(55.34% 0.1608 140.47 / 0.20);
 }
 .snake-btn:hover {
-  background: linear-gradient(90deg, #cc26d5 0%, #7702ff 100%);
+  background: linear-gradient(90deg, oklch(60% 0.17 140.47) 0%, oklch(43% 0.13 140.47) 100%);
 }
 .snake-difficulty {
   padding: 0.35rem 0.7rem;
   border-radius: 0.7rem;
-  border: 1px solid #cc26d5;
+  border: 1px solid oklch(55.34% 0.1608 140.47);
   font-size: 1rem;
-  background: #f7f2fa;
-  color: #5a2d82;
+  background: #e6fbe6;
+  color: #168741;
   font-weight: 500;
-  box-shadow: 0 0 5px #ccb6e6;
+  box-shadow: 0 0 5px oklch(55.34% 0.1608 140.47 / 0.11);
 }

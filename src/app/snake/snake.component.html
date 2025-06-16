@@ -1,5 +1,5 @@
 <div class="snake-container">
-  <!-- Centered Score -->
+  <div class="snake-title" id="snakeTitle">Snake</div>
   <div class="snake-score-top">
     <span class="score-label">Score:</span>
     <span class="score-value">{{ score }}</span>
@@ -13,14 +13,16 @@
       <div class="game-over-text">Game Over!</div>
       <button class="snake-btn overlay-btn" (click)="resetGame(true)">New Game</button>
     </div>
+    <!-- Start overlay: transparent, only the button -->
+    <div class="snake-overlay" *ngIf="!gameStarted && !gameOver">
+      <button class="snake-btn overlay-btn" (click)="onStartButton()">Start Game</button>
+    </div>
   </div>
 
-  <!-- Instructional Text -->
   <div class="snake-instructions">
     <div class="snake-desc">Eat food and avoid hitting yourself or the wall!</div>
   </div>
 
-  <!-- Controls: On-screen WASD group & New Game/Difficulty, centered below -->
   <div class="snake-bottom-controls">
     <div class="wasd-btns">
       <button class="ctrl-btn" (click)="moveUp()" aria-label="Up">W</button>
