@@ -5,11 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { SudokuComponent } from './sudoku/sudoku.component';
 import { ConwayComponent } from './conway/conway.component';
 import { SnakeComponent } from './snake/snake.component';
+import { TetrisComponent } from './tetris/tetris.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, FormsModule, SudokuComponent, ConwayComponent, SnakeComponent],
+  imports: [RouterOutlet, CommonModule, FormsModule, SudokuComponent, ConwayComponent, SnakeComponent, TetrisComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
