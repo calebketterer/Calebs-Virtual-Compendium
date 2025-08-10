@@ -36,6 +36,8 @@
   color: transparent;
   user-select: none;
   transition: background-position 0.25s cubic-bezier(0.4,1,0.6,1);
+  animation: hueBreathing1 10s ease-in-out infinite;
+  cursor: pointer;
 }
 
 @keyframes fade-in {
@@ -116,7 +118,7 @@ input[type="range"]::-moz-range-thumb {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Styles from your original app.component.html's <style> block */
+/* Styles from original app.component.html's <style> block */
 :host {
     --bright-blue: oklch(51.01% 0.274 263.83);
     --electric-violet: oklch(53.18% 0.28 296.97);
@@ -127,6 +129,7 @@ input[type="range"]::-moz-range-thumb {
 
     --red: oklch(45% 0.25 30);
     --yellow: oklch(75% 0.2 110);
+    --green: oklch(55.34% 0.1608 140.47);
     --blue: oklch(50% 0.25 264);
     --violet: oklch(47.66% 0.246 305.88);
 
@@ -135,11 +138,34 @@ input[type="range"]::-moz-range-thumb {
     --gray-70: oklch(70.0% 0 0);
     --gray-40: oklch(40% 0 0);
 
-    --red-to-pink-to-purple-vertical-gradient: linear-gradient(
+    --red-to-pink-to-purple-vertical-gradient: linear-gradient( /*was old divider color. currently unused*/
         180deg,
         var(--red) 0%,
         var(--vivid-pink) 50%,
         var(--electric-violet) 100%
+    );
+
+    --red-to-yellow-to-green-vertical-gradient: linear-gradient( /*currently unused*/
+        180deg,
+        var(--red) 0%,
+        var(--yellow) 50%,
+        var(--green) 100%
+    );
+
+    --green-to-blue-to-violet-vertical-gradient: linear-gradient( /*currently unused*/
+        180deg,
+        var(--green) 0%,
+        var(--blue) 50%,
+        var(--violet) 100%
+    );
+
+    --rygbv-vertical-gradient: linear-gradient( /*currently used for divider*/
+        180deg,
+        var(--red) 0%,
+        var(--yellow) 25%,
+        var(--green) 50%,
+        var(--blue) 75%,
+        var(--violet) 100%
     );
 
     --red-to-pink-to-purple-horizontal-gradient: linear-gradient(
@@ -197,9 +223,31 @@ p {
 }
 
 .divider {
-    width: 1px;
-    background: var(--red-to-pink-to-purple-vertical-gradient);
-    margin-inline: 0.5rem;
+  width: 1px;
+  background: var(--rygbv-vertical-gradient);
+  margin-inline: 0.5rem;
+  background-size: 100% 200%;
+  animation: hueBreathing2 5s ease-in-out infinite;
+  cursor: pointer;
+}
+
+/* For Header */
+@keyframes hueBreathing1 { 
+  0% { filter: hue-rotate(0deg); }
+  25% { filter: hue-rotate(15deg); }
+  75% { filter: hue-rotate(-15deg); }
+  100% { filter: hue-rotate(0deg); }
+}
+
+/* For Divider */
+@keyframes hueBreathing2 { 
+  0% { filter: hue-rotate(0deg); }
+  50% { filter: hue-rotate(180deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+.divider.reverse {
+  animation-direction: reverse;
 }
 
 .pill-group {
