@@ -29,9 +29,11 @@ The rules for each space:
 ## Snake
 
 <img width="432" height="723" alt="2" src="https://github.com/user-attachments/assets/8af618a1-13cd-4370-bc8b-edbf00fd5e90" />
-The classic game of Snake that everyone has seen many times before.
+
+A classic game of Snake with the following features:
 
 - Difficulty selection (Easy/Medium/Hard) that effects snake speed.
+- Buttons to change direction and WASD support.
 - A score that increases with each target consumed.
 - An interactable title in the header.
 
@@ -44,6 +46,7 @@ Good luck with the Extreme difficulty!
 ## Classic Sudoku
   
 <img width="450" height="713" alt="Capture" src="https://github.com/user-attachments/assets/c96a5195-950d-4688-a4c0-f0d0bc14bb0f" />
+
 A classic game of Sudoku, featuring the following:
   
 - Interactive Sudoku board with keyboard and mouse support.
@@ -61,6 +64,7 @@ Challenge yourself or practice your puzzle-solving skills!
 ## Tetris
   
 <img width="496" height="730" alt="3" src="https://github.com/user-attachments/assets/9b8503f6-87f1-4f86-be04-f1c5feda1d0a" />
+
 A classic game of Tetris, featuring the following:
   
 - Interactive Tetris board with keyboard input.
