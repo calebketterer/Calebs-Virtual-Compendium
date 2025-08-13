@@ -138,11 +138,10 @@ export class AppComponent implements AfterViewInit {
     void el.offsetWidth;
     el.classList.add('shake');
   }
-reverse = false;
 
-toggleDirection() {
-  // Just flip the direction — animation keeps current progress
-  this.reverse = !this.reverse;
-}
+reverse = false;
+  toggleDirection() {
+    this.reverse = !this.reverse;
+  }
 }
 

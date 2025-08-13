@@ -1,23 +1,17 @@
-/* Body styles were global before, but Angular components manage their own styling.
-    For consistency with the original demo, applying it to the host or main div is fine,
-    but typically global body styles belong in styles.css.
-    This component's main container now has these styles.
-*/
 .main {
-    font-family: 'Inter', sans-serif; /* Using Inter font */
-    /* Removed background-color: #f0f4f8; to allow global body background to show through */
+    font-family: 'Inter', sans-serif;
     display: flex;
     flex-direction: column; /* Changed to column to stack selector and content */
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     margin: 0;
-    padding: 80px 20px 20px; /* Increased padding-top to add more space */
+    padding: 80px 20px 20px;
     box-sizing: border-box;
-    width: 100%; /* Ensure main takes full width */
-    /* Removed position: relative as view-selector-container is no longer absolutely positioned */
+    width: 100%;
 }
 
+/* --- Header --- */
 .animated-header {
   animation: fade-in 1.2s cubic-bezier(0.23,1,0.32,1) 0s 1 both;
   background: linear-gradient(
@@ -40,12 +34,27 @@
   cursor: pointer;
 }
 
+/* Breathing Animation For Header */
+@keyframes hueBreathing1 { 
+  0% { filter: hue-rotate(0deg); }
+  25% { filter: hue-rotate(15deg); }
+  75% { filter: hue-rotate(-15deg); }
+  100% { filter: hue-rotate(0deg); }
+}
+
+/* Fade-in Animation For Header */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(-24px) scale(0.95);}
   to   { opacity: 1; transform: translateY(0) scale(1);}
 }
 
-/* --- Begin: Shake Animation --- */
+/* --- Angular Logo --- */
+.angular-logo {
+    animation: fade-in 1.2s cubic-bezier(0.23,1,0.32,1) 0s 1 both;
+    animation: hueBreathing2 5s ease-in-out infinite;
+}
+
+/* --- Shake Animation --- */
 @keyframes shake {
   10%, 90% { transform: translateX(-2px); }
   20%, 80% { transform: translateX(4px); }
@@ -56,28 +65,62 @@
 .shake {
   animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
 }
-/* --- End: Shake Animation --- */
 
-/* Original content container - adapt styling as needed */
-.original-content-container {
+/* --- Dropdown Menu --- */
+.view-selector-container {
     width: 100%;
-    max-width: 700px; /* From your original .content */
-    margin-bottom: 2rem; /* Adjusted space below original content */
-    display: flex; /* Re-apply flex properties for the original content */
-    justify-content: space-around;
-    /* Add other original content styles here if they were scoped */
+    max-width: 700px; /* Align with original content container's max-width */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem; /* Space below the dropdown */
+    margin-top: 2rem; /* Space above the dropdown */
 }
 
-/* Canvas styling to make it responsive */
-canvas {
-    background-color: #ffffff; /* White background for the grid */
-    border-radius: 0.75rem; /* Rounded corners */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    display: block; /* Remove extra space below canvas */
-    width: 100%; /* Make canvas fill its container width (within max-width from parent flexbox) */
-    max-width: 800px; /* Max width for larger screens */
-    height: auto; /* Maintain aspect ratio */
-    border: 20px solid var(--gray-40); /* Added a subtle border around the canvas */
+.view-selector-dropdown {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--gray-70);
+    border-radius: 0.5rem;
+    background-color: var(--gray-70);
+    color: black;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Keep a subtle shadow for definition */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease; /* Add background transition */
+    width: 100%;
+    max-width: 300px; /* Limit max width for a cleaner look */
+}
+
+.view-selector-dropdown:hover {
+    border-color: var(--blue);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2); /* Subtle blue shadow on hover */
+    background-color: oklch(72% 0 0); /* Slightly lighter gray on hover */
+}
+
+.view-selector-dropdown:focus {
+    border-color: var(--bright-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); /* Focus ring */
+    background-color: oklch(75% 0 0); /* Slightly lighter gray on focus */
+}
+
+/* Styles for the options within the dropdown when it's open */
+.view-selector-dropdown option {
+    background-color: var(--gray-70); /* Set background to var(--gray-70) for options */
+    color: black; /* Ensure text is black for all options when dropdown is open */
+}
+
+.view-selector-dropdown option[value=""][disabled][selected] {
+    color: #ffffff; /* This rule will only apply if a hidden placeholder option is ever added back and explicitly set to selected */
+}
+
+.original-content-container {
+    width: 100%;
+    max-width: 700px;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-around;
 }
 
 /* Custom styling for the range input */
@@ -121,11 +164,8 @@ input[type="range"]::-moz-range-thumb {
 /* Styles from original app.component.html's <style> block */
 :host {
     --bright-blue: oklch(51.01% 0.274 263.83);
-    --electric-violet: oklch(53.18% 0.28 296.97);
-    --french-violet: oklch(47.66% 0.246 305.88);
-    --vivid-pink: oklch(69.02% 0.277 332.77);
-    --hot-red: oklch(55.34% 0.1608 140.47);
-    --orange-red: oklch(37.54% 0.2278 269.73);
+    --pink: oklch(69.02% 0.277 332.77);
+    --dark-blue: oklch(37.54% 0.2278 269.73);
 
     --red: oklch(45% 0.25 30);
     --yellow: oklch(75% 0.2 110);
@@ -141,8 +181,8 @@ input[type="range"]::-moz-range-thumb {
     --red-to-pink-to-purple-vertical-gradient: linear-gradient( /*was old divider color. currently unused*/
         180deg,
         var(--red) 0%,
-        var(--vivid-pink) 50%,
-        var(--electric-violet) 100%
+        var(--pink) 50%,
+        var(--violet) 100%
     );
 
     --red-to-yellow-to-green-vertical-gradient: linear-gradient( /*currently unused*/
@@ -168,11 +208,11 @@ input[type="range"]::-moz-range-thumb {
         var(--violet) 100%
     );
 
-    --red-to-pink-to-purple-horizontal-gradient: linear-gradient(
+    --dark-blue-to-pink-to-purple-horizontal-gradient: linear-gradient(
         90deg,
-        var(--orange-red) 0%,
-        var(--vivid-pink) 50%,
-        var(--electric-violet) 100%
+        var(--dark-blue) 0%,
+        var(--pink) 50%,
+        var(--violet) 100%
     );
 
     --pill-accent: var(--bright-blue);
@@ -222,6 +262,7 @@ p {
     margin-top: 1.5rem;
 }
 
+/* --- Divider --- */
 .divider {
   width: 1px;
   background: var(--rygbv-vertical-gradient);
@@ -231,15 +272,6 @@ p {
   cursor: pointer;
 }
 
-/* For Header */
-@keyframes hueBreathing1 { 
-  0% { filter: hue-rotate(0deg); }
-  25% { filter: hue-rotate(15deg); }
-  75% { filter: hue-rotate(-15deg); }
-  100% { filter: hue-rotate(0deg); }
-}
-
-/* For Divider */
 @keyframes hueBreathing2 { 
   0% { filter: hue-rotate(0deg); }
   50% { filter: hue-rotate(180deg); }
@@ -250,6 +282,7 @@ p {
   animation-direction: reverse;
 }
 
+/* --- Links --- */
 .pill-group {
     display: flex;
     flex-direction: column;
@@ -289,7 +322,7 @@ p {
     --pill-accent: var(--blue);
 }
 .pill-group .pill:nth-child(6n + 3) {
-    --pill-accent: var(--hot-red);
+    --pill-accent: var(--green);
 }
 .pill-group .pill:nth-child(6n + 4){
     --pill-accent: var(--yellow);
@@ -316,157 +349,4 @@ p {
 
 .social-links a:hover svg path {
     fill: var(--gray-900);
-}
-
-@media screen and (max-width: 650px) {
-    .content {
-        flex-direction: column;
-        width: max-content;
-    }
-
-    .divider {
-        height: 1px;
-        width: 100%;
-        background: var(--red-to-pink-to-purple-horizontal-gradient);
-        margin-block: 1.5rem;
-    }
-}
-
-/* --- Dropdown Menu Specific Styles --- */
-.view-selector-container {
-    width: 100%;
-    max-width: 700px; /* Align with original content container's max-width */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 2rem; /* Space below the dropdown */
-    margin-top: 2rem; /* Space above the dropdown */
-}
-
-/* Removed .view-selector-label styles as the label element is removed */
-
-.view-selector-dropdown {
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--gray-70);
-    border-radius: 0.5rem;
-    background-color: var(--gray-70); /* Changed to var(--gray-70) and transparency removed */
-    color: black; /* Text color is black for readability */
-    font-family: 'Inter', sans-serif;
-    font-size: 1rem;
-    cursor: pointer;
-    outline: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Keep a subtle shadow for definition */
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease; /* Add background transition */
-    width: 100%; /* Take full width of its container */
-    max-width: 300px; /* Limit max width for a cleaner look */
-}
-
-.view-selector-dropdown:hover {
-    border-color: var(--blue);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2); /* Subtle blue shadow on hover */
-    background-color: oklch(72% 0 0); /* Slightly lighter gray on hover */
-}
-
-.view-selector-dropdown:focus {
-    border-color: var(--bright-blue);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); /* Focus ring */
-    background-color: oklch(75% 0 0); /* Slightly lighter gray on focus */
-}
-
-/* Styles for the options within the dropdown when it's open */
-.view-selector-dropdown option {
-    background-color: var(--gray-70); /* Set background to var(--gray-70) for options */
-    color: black; /* Ensure text is black for all options when dropdown is open */
-}
-
-/*
-    The placeholder option is now removed, so this rule is no longer strictly needed for a 'hidden' placeholder.
-    However, if you want the *selected* "Main Site Info" text to appear invisible in the dropdown when closed,
-    this rule would still make it white against a white background.
-    For now, I've changed the main dropdown's color to var(--gray-90) to make all options readable.
-*/
-.view-selector-dropdown option[value=""][disabled][selected] {
-    color: #ffffff; /* This rule will only apply if a hidden placeholder option is ever added back and explicitly set to selected */
-}
-
-/* --- Conway's Game of Life Widget Specific Styles --- */
-
-/* Text colors for the Game of Life widget to match the main heading */
-.main h1.text-3xl.font-bold.text-gray-800.mb-6 {
-    color: var(--gray-90) !important; /* Using your defined white-like color variable */
-}
-
-/* For labels within the game widget */
-.main label.text-gray-700 {
-    color: var(--gray-90) !important; /* Using your defined white-like color variable */
-}
-
-/* For small text below the speed slider */
-.main .text-xs.text-gray-500 {
-    color: var(--gray-90) !important; /* Set to your white-like color variable */
-}
-
-/* For the message box text (bottommost text) */
-#messageBox {
-    color: var(--gray-90) !important; /* Force white color for the message box, overriding current text color */
-}
-
-
-/* Styling for Conway's Game of Life buttons to match the pill style */
-.main button {
-    font-weight: 600;
-    border: 0; /* Remove border for the new style */
-    position: relative;
-    overflow: hidden;
-    z-index: 1;
-    margin: 0.25rem; /* Add small space between buttons */
-    border-radius: 9999px; /* Make them fully rounded (pill-shaped) */
-    padding-inline: 1.25rem; /* More horizontal padding to match pill links */
-    padding-block: 0.625rem; /* More vertical padding */
-    transition: background 0.3s ease, box-shadow 0.3s ease;
-}
-
-.main button:active {
-    transform: translateY(1px); /* Slight press effect */
-}
-
-/* Individual button styles for Conway's Game of Life to mimic pill accents */
-.main button.bg-green-500 {
-    background-color: #d1fae5; /* Very light green (Tailwind green-100) */
-    color: #065f46; /* Dark green text (Tailwind green-800) */
-    box-shadow: 0 4px 6px rgba(6, 95, 70, 0.1), 0 1px 3px rgba(6, 95, 70, 0.05); /* Subtle shadow from darker color */
-}
-.main button.bg-green-500:hover {
-    background-color: #a7f3d0; /* Slightly darker green on hover (Tailwind green-200) */
-    box-shadow: 0 6px 8px rgba(6, 95, 70, 0.2), 0 2px 4px rgba(6, 95, 70, 0.1);
-}
-
-.main button.bg-red-500 {
-    background-color: #fee2e2; /* Very light red (Tailwind red-100) */
-    color: #991b1b; /* Dark red text (Tailwind red-800) */
-    box-shadow: 0 4px 6px rgba(153, 27, 27, 0.1), 0 1px 3px rgba(153, 27, 27, 0.05);
-}
-.main button.bg-red-500:hover {
-    background-color: #fecaca; /* Slightly darker red on hover (Tailwind red-200) */
-    box-shadow: 0 6px 8px rgba(153, 27, 27, 0.2), 0 2px 4px rgba(153, 27, 27, 0.1);
-}
-
-.main button.bg-yellow-500 {
-    background-color: #fffbeb; /* Very light yellow (Tailwind yellow-100) */
-    color: #92400e; /* Dark yellow text (Tailwind yellow-800) */
-    box-shadow: 0 4px 6px rgba(146, 64, 14, 0.1), 0 1px 3px rgba(146, 64, 14, 0.05);
-}
-.main button.bg-yellow-500:hover {
-    background-color: #fde68a; /* Slightly darker yellow on hover (Tailwind yellow-200) */
-    box-shadow: 0 6px 8px rgba(146, 64, 14, 0.2), 0 2px 4px rgba(146, 64, 14, 0.1);
-}
-
-.main button.bg-indigo-500 {
-    background-color: #e0e7ff; /* Very light indigo (Tailwind indigo-100) */
-    color: #3730a3; /* Dark indigo text (Tailwind indigo-800) */
-    box-shadow: 0 4px 6px rgba(55, 48, 163, 0.1), 0 1px 3px rgba(55, 48, 163, 0.05);
-}
-.main button.bg-indigo-500:hover {
-    background-color: #c7d2fe; /* Slightly darker indigo on hover (Tailwind indigo-200) */
-    box-shadow: 0 6px 8px #3730a333, 0 2px 4px rgba(55, 48, 163, 0.1);
 }
