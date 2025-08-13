@@ -28,7 +28,16 @@ The rules for each space:
   
 ## Snake
 
-![Capture](https://github.com/user-attachments/assets/2276d350-9edf-49fb-914a-412b22c7baa3)
+<img width="432" height="723" alt="2" src="https://github.com/user-attachments/assets/8af618a1-13cd-4370-bc8b-edbf00fd5e90" />
+
+A classic game of Snake with the following features:
+
+- Difficulty selection (Easy/Medium/Hard) that effects snake speed.
+- Buttons to change direction and WASD support.
+- A score that increases with each target consumed.
+- An interactable title in the header.
+
+Good luck with the Extreme difficulty!
 </details>
 
 <details>
@@ -36,7 +45,8 @@ The rules for each space:
   
 ## Classic Sudoku
   
-![Capture](https://github.com/user-attachments/assets/3ecc467a-c761-4f6d-9aa0-3a57e965f9ab)
+<img width="450" height="713" alt="Capture" src="https://github.com/user-attachments/assets/c96a5195-950d-4688-a4c0-f0d0bc14bb0f" />
+
 A classic game of Sudoku, featuring the following:
   
 - Interactive Sudoku board with keyboard and mouse support.
@@ -46,6 +56,21 @@ A classic game of Sudoku, featuring the following:
 - Difficulty selection (Easy/Medium/Hard).
 
 Challenge yourself or practice your puzzle-solving skills!
+</details>
+
+<details>
+  <summary><strong>Tetris</strong></summary>
+  
+## Tetris
+  
+<img width="496" height="730" alt="3" src="https://github.com/user-attachments/assets/9b8503f6-87f1-4f86-be04-f1c5feda1d0a" />
+
+A classic game of Tetris, featuring the following:
+  
+- Interactive Tetris board with keyboard input.
+- Scoreboard that adds 100 points with each row cleared.
+- Next share preview.
+
 </details>
 
 
