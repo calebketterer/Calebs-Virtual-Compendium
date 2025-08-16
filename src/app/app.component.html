@@ -11,6 +11,9 @@
     <div class="content original-content-container mb-8">
         <div class="left-side">
             <!-- BEGIN: Angular Logo -->
+            <a href="https://angular.dev/" target="_blank" rel="noopener noreferrer">
+                <!--- The target="_blank" opens link in new page. -->
+                <!--- The rel attribute sets the relationship between your page and the linked URL. Setting it to noopener noreferrer is to prevent a type of phishing known as tabnabbing. --->
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 982 239"
@@ -52,6 +55,7 @@
                     <clipPath id="a"><path fill="#fff" d="M0 0h982v239H0z" /></clipPath>
                 </defs>
             </svg>
+            </a>
             <!-- END: Angular Logo SVG -->
             <h1 #heyThere (click)="shakeHeyThere()" style="cursor:pointer;">Hey there, friend.</h1>
             <p #goodNews (click)="shakeGoodNews()" style="cursor:pointer;">
