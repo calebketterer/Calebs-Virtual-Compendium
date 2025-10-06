@@ -6,11 +6,12 @@ import { SudokuComponent } from './sudoku/sudoku.component';
 import { ConwayComponent } from './conway/conway.component';
 import { SnakeComponent } from './snake/snake.component';
 import { TetrisComponent } from './tetris/tetris.component';
+import { DiepComponent } from './diep/diep.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, FormsModule, SudokuComponent, ConwayComponent, SnakeComponent, TetrisComponent],
+  imports: [RouterOutlet, CommonModule, FormsModule, SudokuComponent, ConwayComponent, SnakeComponent, TetrisComponent, DiepComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
