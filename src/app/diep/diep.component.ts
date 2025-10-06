@@ -64,7 +64,7 @@ interface Enemy {
   styles: [`
     /* Custom CSS to ensure canvas border is visible and structure is nice */
     .diep-container {
-      /* Added min-h-screen for full view and flex centering */
+      font-family: 'Inter', sans-serif;
     }
     
     /* Ensure the canvas is the focus target for keyboard events */
@@ -83,7 +83,6 @@ interface Enemy {
         text-align: center;
         margin-top: 1rem; 
         color: #4a5568; /* Tailwind gray-700 equivalent */
-        font-family: 'Inter', sans-serif;
     }
     .diep-title {
         font-size: 1.875rem; /* text-3xl */
@@ -120,8 +119,7 @@ interface Enemy {
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-// FIX: Changed class name to 'App' to ensure correct Angular bootstrapping in the environment
-export class App implements AfterViewInit { 
+export class DiepComponent implements AfterViewInit { 
   @ViewChild('gameCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
   private ctx!: CanvasRenderingContext2D;
   private animationFrameId: number = 0;
@@ -130,7 +128,7 @@ export class App implements AfterViewInit {
   width = 800;
   height = 600;
 
-  // Time tracking for accurate 1 HP/second regen
+  // Time tracking for accurate game loop calculations
   private lastTime = performance.now(); 
 
   // Game State Properties
@@ -183,7 +181,8 @@ export class App implements AfterViewInit {
       return;
     }
     
-    if (event.key === ' ' || event.key.toLowerCase() === 'k') {
+    // Space or 'k' for shooting when not mouse aiming (or as a backup)
+    if ((event.key === ' ' || event.key.toLowerCase() === 'k') && !this.mouseAiming) {
       this.shootBullet();
       event.preventDefault(); 
     }
@@ -201,14 +200,20 @@ export class App implements AfterViewInit {
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
     const rect = this.canvasRef.nativeElement.getBoundingClientRect();
+    // Calculate mouse position relative to the canvas
     this.mousePos.x = event.clientX - rect.left;
     this.mousePos.y = event.clientY - rect.top;
   }
 
   @HostListener('document:mousedown', ['$event'])
   onMouseDown(event: MouseEvent) {
-    if (this.mouseAiming && event.button === 0 && !this.isPaused && !this.gameOver) {
-      this.mouseDown = true;
+    // Check if the click is within the canvas bounds before setting mouseDown for autofire
+    const rect = this.canvasRef.nativeElement.getBoundingClientRect();
+    if (event.clientX >= rect.left && event.clientX <= rect.right &&
+        event.clientY >= rect.top && event.clientY <= rect.bottom) {
+          if (this.mouseAiming && event.button === 0 && !this.isPaused && !this.gameOver) {
+            this.mouseDown = true;
+          }
     }
     this.onClick(event);
   }
@@ -226,11 +231,13 @@ export class App implements AfterViewInit {
       if (this.gameOver) return;
       this.isPaused = !this.isPaused;
       if (this.isPaused) {
+          // If pausing, ensure one final draw to display the overlay
           this.draw();
+          cancelAnimationFrame(this.animationFrameId);
       } else {
           this.canvasRef.nativeElement.focus();
           this.lastTime = performance.now(); // Reset time when unpausing
-          this.gameLoop(); 
+          this.gameLoop(); // Restart the loop
       }
   }
 
@@ -247,9 +254,11 @@ export class App implements AfterViewInit {
     const speed = 8;
     let angle = this.player.angle;
     
+    // Determine the angle based on aiming mode
     if (this.mouseAiming) {
       angle = Math.atan2(this.mousePos.y - this.player.y, this.mousePos.x - this.player.x);
     } else {
+      // Use the last angle derived from movement keys
       angle = this.lastAngle;
     }
     
@@ -261,7 +270,7 @@ export class App implements AfterViewInit {
       dx: Math.cos(angle) * speed,
       dy: Math.sin(angle) * speed,
       radius: 6,
-      color: '#f39c12'
+      color: '#f39c12' // Orange color for bullets
     });
   }
 
@@ -293,13 +302,13 @@ export class App implements AfterViewInit {
     // Set flag when a regular wave starts
     this.isRegularWaveActive = true; 
 
-    // Check for a chance to spawn the large purple enemy (10% chance per wave)
+    // Check for a chance to spawn the large purple enemy (10% chance per wave, but only if not preventing)
     const spawnBoss = !preventBossSpawn && this.waveCount > 0 && Math.random() < 0.1;
     let regularEnemyCount = count;
     
     if (spawnBoss) {
         this.spawnSingleEnemy(canvasWidth, canvasHeight, spawnPadding, true);
-        regularEnemyCount = Math.max(0, count - 1); // Replace one regular enemy
+        regularEnemyCount = Math.max(0, count - 1); // Replace one regular enemy with a boss
     }
 
     // Spawn regular enemies
@@ -325,16 +334,17 @@ export class App implements AfterViewInit {
         radius = 18 + Math.random() * 10; // 18 to 28
         color = '#e74c3c'; // Red
 
-        // Health Scaling: Smallest (r=18) has ~90 HP. Largest (r=28) has ~135 HP.
+        // Health Scaling based on size
         maxHealth = Math.floor(radius * 4.5 + 10); 
         
-        // Score Scaling: Smallest (r=18) has ~10 points. Largest (r=28) has ~25 points.
+        // Score Scaling based on size
         scoreValue = Math.floor(10 + (radius - 18) * 1.5);
     }
 
     let x: number, y: number;
     const edge = Math.floor(Math.random() * 4); // 0: Top, 1: Right, 2: Bottom, 3: Left
 
+    // Determine off-screen spawn coordinates
     if (edge === 0) { // Top
         x = Math.random() * canvasWidth;
         y = -spawnPadding - radius;
@@ -395,9 +405,11 @@ export class App implements AfterViewInit {
     if (moved) {
       const len = Math.sqrt(dx * dx + dy * dy);
       if (len > 0) {
+        // Move player
         this.player.x += (dx / len) * this.player.maxSpeed;
         this.player.y += (dy / len) * this.player.maxSpeed;
         
+        // Non-mouse aiming: rotate tank barrel to direction of movement
         if (!this.mouseAiming) {
             const newAngle = Math.atan2(dy, dx);
             if (!isNaN(newAngle)) {
@@ -408,17 +420,20 @@ export class App implements AfterViewInit {
       }
     }
     
-    // Continuous Mouse Aiming
+    // Continuous Mouse Aiming: rotate tank barrel towards the cursor
     if (this.mouseAiming) {
       this.player.angle = Math.atan2(this.mousePos.y - this.player.y, this.mousePos.x - this.player.x);
     }
 
-    // Clamp player position
+    // Clamp player position (prevent going off-screen)
     this.player.x = Math.max(this.player.radius, Math.min(this.width - this.player.radius, this.player.x));
     this.player.y = Math.max(this.player.radius, Math.min(this.height - this.player.radius, this.player.y));
 
     // --- Only run main game logic if not dead ---
     if (!this.gameOver) {
+        // Player Health Regeneration (0.5 HP/second, independent of max health)
+        this.player.health = Math.min(this.player.maxHealth, this.player.health + (0.5 * deltaTime / 1000));
+
         // 2. Bullets Update
         this.bullets.forEach(bullet => {
           bullet.x += bullet.dx;
@@ -426,7 +441,7 @@ export class App implements AfterViewInit {
         });
         this.bullets = this.bullets.filter(b => b.x > 0 && b.x < this.width && b.y > 0 && b.y < this.height);
 
-        // 3. Mouse Aiming: Auto-fire
+        // 3. Mouse Aiming: Auto-fire when mouse is down
         if (this.mouseAiming && this.mouseDown) {
           this.shootBullet();
         }
@@ -449,6 +464,7 @@ export class App implements AfterViewInit {
           }
 
           if (dist > 0) {
+            // Normalized movement vector toward player
             enemy.x += (dx / dist) * speed; 
             enemy.y += (dy / dist) * speed;
           }
@@ -465,10 +481,10 @@ export class App implements AfterViewInit {
             const dist = Math.sqrt(dx * dx + dy * dy);
             
             if (dist < bullet.radius + enemy.radius) {
-              enemy.health -= 15; 
+              enemy.health -= 15; // Bullet damage
               hit = true; 
               
-              // BOSS MINION SPAWN LOGIC: 50% chance per hit
+              // BOSS MINION SPAWN LOGIC: 50% chance per hit if it's the boss
               if (enemy.isBoss && Math.random() < 0.5) { 
                   this.spawnBossMinion(enemy.x, enemy.y);
               }
@@ -488,7 +504,9 @@ export class App implements AfterViewInit {
           const dy = enemy.y - this.player.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < enemy.radius + this.player.radius) {
-            this.player.health -= enemy.isBoss ? 1.5 : 0.5; // Bosses deal more damage
+            // Apply damage based on enemy type (scaled by delta time for consistency)
+            const damage = enemy.isBoss ? (1.5 * deltaTime / 16.67) : (0.5 * deltaTime / 16.67);
+            this.player.health -= damage; 
           }
         });
 
@@ -499,17 +517,18 @@ export class App implements AfterViewInit {
         const hasBossOrMinions = this.enemies.some(e => e.isBoss || e.color === '#d2b4de');
 
         if (this.enemies.length === 0) {
-            // Case A: Everything is clear
+            // Case A: Everything is clear, start next wave with new spawn count
             this.enemySpawnCount++; 
             this.waveCount++;
-            this.isRegularWaveActive = false;
+            this.isRegularWaveActive = false; // Reset for next wave roll
             this.spawnEnemies(this.enemySpawnCount, false); // Allow boss roll
         } else if (this.isRegularWaveActive && !hasRegularEnemies) {
-            // Case B: Only bosses (and minions) remain, regular wave is cleared.
+            // Case B: Only bosses (and minions) remain, regular part of wave cleared.
+            // Start next "wave" immediately, but prevent a *new* boss from spawning if one already exists.
             this.enemySpawnCount++;
             this.waveCount++;
             this.isRegularWaveActive = false; 
-            this.spawnEnemies(this.enemySpawnCount, !hasBossOrMinions); // Prevent new boss roll if one is already present
+            this.spawnEnemies(this.enemySpawnCount, hasBossOrMinions); 
         }
 
 
@@ -518,8 +537,9 @@ export class App implements AfterViewInit {
           this.player.health = 0;
           this.gameOver = true; 
           this.deathAnimationTimeStart = Date.now();
+          // Store current enemies for the cleanup animation
           this.enemiesRemainingForAnimation = [...this.enemies]; 
-          this.enemies = []; 
+          this.enemies = []; // Clear current enemies list
         }
     } else {
         // Game Over, handle death animation
@@ -529,13 +549,14 @@ export class App implements AfterViewInit {
     }
   }
 
+  // Slowly clears remaining enemies from the screen after player death
   handleDeathAnimation(now: number) {
       if (this.deathAnimationTimeStart === null) return;
       
       const timeElapsed = now - this.deathAnimationTimeStart;
       
       if (timeElapsed >= this.deathAnimationDuration) {
-          this.enemiesRemainingForAnimation = [];
+          this.enemiesRemainingForAnimation = []; // End animation
           this.deathAnimationTimeStart = null;
           return;
       }
@@ -547,7 +568,7 @@ export class App implements AfterViewInit {
       const healthX = 20;
       const healthY = 20;
       
-      // Fix: Ensure text is high contrast (white) over the dark pause/game over overlay
+      // Determine text color based on overlay status
       const isOverlayActive = this.isPaused || (this.gameOver && this.deathAnimationTimeStart === null);
       const uiTextColor = isOverlayActive ? '#fff' : (this.isDarkMode ? '#ecf0f1' : '#333');
 
@@ -624,16 +645,17 @@ export class App implements AfterViewInit {
     });
 
     // --- 4. Draw Enemies and Health Bars ---
-    let enemiesToDraw = this.enemies;
+    let enemiesToDraw: Enemy[];
     if (this.gameOver && this.deathAnimationTimeStart !== null) {
+        // Death animation: enemies disappear sequentially
         const totalEnemies = this.enemiesRemainingForAnimation.length;
         const timeElapsed = Date.now() - (this.deathAnimationTimeStart || 0);
         const enemiesToDisappear = Math.floor((timeElapsed / this.deathAnimationDuration) * totalEnemies);
         enemiesToDraw = this.enemiesRemainingForAnimation.slice(enemiesToDisappear);
     } else if (this.gameOver && this.deathAnimationTimeStart === null) {
-        enemiesToDraw = []; 
+        enemiesToDraw = []; // All cleared after animation
     } else {
-        enemiesToDraw = this.enemies;
+        enemiesToDraw = this.enemies; // Regular gameplay
     }
 
 
@@ -644,7 +666,7 @@ export class App implements AfterViewInit {
       this.ctx.fillStyle = enemy.color;
       this.ctx.fill();
       
-      // Set unique stroke colors/widths
+      // Set unique stroke colors/widths for different enemy types
       let strokeColor = '#c0392b';
       let lineWidth = 2;
       let shadowBlur = 0;
@@ -653,8 +675,8 @@ export class App implements AfterViewInit {
           strokeColor = '#8e44ad'; // Darker purple
           lineWidth = 4;
           shadowBlur = 10;
-      } else if (enemy.color === '#d2b4de') {
-          strokeColor = '#9b59b6'; // Purple for minions
+      } else if (enemy.color === '#d2b4de') { // Minions
+          strokeColor = '#9b59b6'; 
           lineWidth = 1.5;
       }
       
@@ -670,15 +692,15 @@ export class App implements AfterViewInit {
           this.ctx.shadowBlur = 0;
       }
 
-      // Draw Aesthetic Health Bar
-      if (enemy.health < enemy.maxHealth && !enemy.isBoss) { // Only show for regular/minions
+      // Draw Aesthetic Health Bar (only for non-bosses/non-full health)
+      if (enemy.health < enemy.maxHealth && !enemy.isBoss) { 
           const barWidth = enemy.radius * 2;
           const healthPercent = enemy.health / enemy.maxHealth;
           const healthBarX = enemy.x - enemy.radius;
           const healthBarY = enemy.y - enemy.radius - 15;
           const healthBarHeight = 6;
           
-          // Background Bar (Sunken effect)
+          // Background Bar
           this.ctx.fillStyle = '#1e1e1e';
           this.ctx.fillRect(healthBarX, healthBarY, barWidth, healthBarHeight);
           
@@ -695,6 +717,29 @@ export class App implements AfterViewInit {
           this.ctx.strokeStyle = '#95a5a6';
           this.ctx.lineWidth = 1;
           this.ctx.strokeRect(healthBarX, healthBarY, barWidth, healthBarHeight);
+      }
+      
+      // Draw boss health bar (different style)
+      if (enemy.isBoss && enemy.health < enemy.maxHealth) {
+          const barWidth = 100;
+          const healthPercent = enemy.health / enemy.maxHealth;
+          const healthBarX = enemy.x - barWidth / 2;
+          const healthBarY = enemy.y - enemy.radius - 20;
+          const healthBarHeight = 10;
+          
+          // Background Bar
+          this.ctx.fillStyle = '#34495e';
+          this.ctx.fillRect(healthBarX, healthBarY, barWidth, healthBarHeight);
+          
+          // Health Fill (Purple Boss color)
+          this.ctx.fillStyle = '#9b59b6';
+          const fillWidth = barWidth * healthPercent;
+          this.ctx.fillRect(healthBarX, healthBarY, fillWidth, healthBarHeight);
+          
+          this.ctx.font = '10px Inter, sans-serif';
+          this.ctx.fillStyle = '#fff';
+          this.ctx.textAlign = 'center';
+          this.ctx.fillText(`BOSS HP: ${Math.ceil(enemy.health)}`, enemy.x, healthBarY + healthBarHeight + 10);
       }
     });
     
@@ -773,7 +818,6 @@ export class App implements AfterViewInit {
     }
 
     // --- 9. Draw UI Overlay (Health, Score, Wave) - Always draw last to ensure visibility ---
-    // This is now drawn after the pause screen if paused, making it visible over the overlay.
     this.drawUIOverlay();
     
     // --- 10. Draw In-Game Pause Button (Drawn last for layering fix) ---
@@ -859,7 +903,7 @@ export class App implements AfterViewInit {
         y >= toggleBtnY && y <= toggleBtnY + toggleBtnH
       ) {
         this.isDarkMode = !this.isDarkMode;
-        this.draw(); 
+        this.draw(); // Redraw immediately to show the change
         return;
       }
       
@@ -882,9 +926,15 @@ export class App implements AfterViewInit {
         return;
       }
     }
+    
+    // 4. Autofire on click if mouse aiming is enabled and game is running (outside of UI checks)
+    if (this.mouseAiming && !this.isPaused && !this.gameOver) {
+        this.shootBullet();
+    }
   }
 
   restartGame() {
+    // Reset all game state variables to initial values
     this.player = { 
       x: 400, y: 300, radius: 20, angle: 0, 
       maxSpeed: 3, color: '#3498db', health: 100, 
@@ -906,9 +956,9 @@ export class App implements AfterViewInit {
     this.enemiesRemainingForAnimation = [];
     this.isRegularWaveActive = false; 
     
-    this.lastTime = performance.now(); // Reset time
+    this.lastTime = performance.now(); // Reset time for accurate game loop
     this.spawnEnemies(this.enemySpawnCount, false);
     this.canvasRef.nativeElement.focus();
-    this.gameLoop();
+    this.gameLoop(); // Start the game loop again
   }
 }
