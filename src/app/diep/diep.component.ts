@@ -35,7 +35,7 @@ interface Enemy {
 }
 
 @Component({
-  selector: 'app-root', // MANDATORY: Use 'app-root' for the main application component
+  selector: 'app-diep',
   standalone: true,
   imports: [CommonModule],
   template: `
