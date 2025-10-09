@@ -25,7 +25,7 @@ interface Bullet {
 }
 
 // Define EnemyType enum (outside the class or in a separate file if using one)
-type EnemyType = 'REGULAR' | 'BOSS' | 'MINION' | 'FLANKER' | 'SNIPER';
+type EnemyType = 'REGULAR' | 'BOSS' | 'MINION' | 'FLANKER' | 'SNIPER' | 'AURA';
 
 interface Enemy {
   x: number;
@@ -40,6 +40,9 @@ interface Enemy {
   // Flanker/Sniper Specific
   speedMultiplier?: number; // For Flanker
   lastShotTime?: number; // For Sniper
+  // NEW PROPERTIES for Aura random movement
+  targetX?: number; // Random target X coordinate for wandering
+  targetY?: number; // Random target Y coordinate for wandering
 }
 
 @Component({
@@ -63,7 +66,7 @@ interface Enemy {
         <div class="diep-ui text-center mt-4 text-gray-700">
           <h2 class="diep-title">Diep Singleplayer</h2>
           <p class="diep-controls">Controls: WASD to move, Space or Click to shoot</p>
-          <p class="diep-instructions-light">Press 'M' to toggle aiming mode. Press 'P' to toggle pause.</p>
+          <p class="diep-instructions-light">Press 'P' to toggle the pause menu.</p>
           <p class="diep-instructions-bold">Watch out for the <span class="text-purple-boss">purple</span> boss enemies and their <span class="text-purple-minion">minions</span>!</p>
         </div>
       </div>
@@ -164,6 +167,13 @@ export class DiepComponent implements AfterViewInit {
   private lastShotTime: number = 0; 
   private enemySpawnCount = 5;
   waveCount = 0; 
+
+  private enemySpawnWeights: { type: EnemyType, weight: number }[] = [
+      { type: 'REGULAR', weight: 50 }, 
+      { type: 'SNIPER', weight: 10 },
+      { type: 'FLANKER', weight: 25 },
+      { type: 'AURA', weight: 5 },
+    ];
 
   // Death Animation State
   private deathAnimationTimeStart: number | null = null;
@@ -340,12 +350,12 @@ killEnemy(enemy: Enemy) {
   }
 
   spawnSingleEnemy(canvasWidth: number, canvasHeight: number, spawnPadding: number, isBoss: boolean) {
-    let radius: number;
-    let maxHealth: number;
-    let scoreValue: number;
-    let color: string;
-    let type: EnemyType;
-    let speedMultiplier = 1;
+    let radius: number = 20; 
+    let maxHealth: number = 50;
+    let scoreValue: number = 10;
+    let color: string = '#e74c3c'; // Red
+    let type: EnemyType = 'REGULAR'; // Ensure type is always set
+    let speedMultiplier = 1;
 
     if (isBoss) {
         // Boss Enemy Stats (Purple)
@@ -355,28 +365,56 @@ killEnemy(enemy: Enemy) {
         color = '#9b59b6'; // Purple
         type = 'BOSS';
     } else {
-        // Roll for Regular (70%), Sniper (10%), or Tracker (20%)
-        const roll = Math.random();
-        
-        if (roll < 0.7) { // 70% chance: Regular Enemy (Red)
-            type = 'REGULAR';
-            radius = 18 + Math.random() * 10;
-            color = '#e74c3c'; // Red
-            maxHealth = Math.floor(radius * 4.5 + 10);
-            scoreValue = Math.floor(10 + (radius - 18) * 1.5);
-        } else if (roll < 0.8) { // 10% chance: Sniper Enemy (Green -> RED) - Shoots
-            type = 'SNIPER'; 
-            radius = 20;
-            color = '#e74c3c'; // RED (Same as regular enemy to blend in)
-            maxHealth = 80;
-            scoreValue = 75;
-        } else { // 20% chance: Tracker Enemy (Pink/Purple Triangle) - Fast, chases
-            type = 'FLANKER'; // Renaming the role to FLANKER for speed, but using the aesthetic of the diep.io 'Tracker'
-            radius = 8 + Math.random() * 5; // Small size: 8 to 13 pixels
-            color = '#e75480'; // Pink/Rose
-            speedMultiplier = 2.5; // VERY fast
-            maxHealth = 20; // Low Health
-            scoreValue = 30;
+        // --- Weighted Random Selection Logic ---
+        const totalWeight = this.enemySpawnWeights.reduce((sum, item) => sum + item.weight, 0);
+        let randomRoll = Math.random() * totalWeight;
+        let selectedEnemyType: EnemyType = 'REGULAR'; 
+
+        for (const item of this.enemySpawnWeights) {
+            if (randomRoll < item.weight) {
+                selectedEnemyType = item.type;
+                break;
+            }
+            randomRoll -= item.weight;
+        }
+        // --- End of Selection Logic ---
+
+        type = selectedEnemyType; // Set the determined type
+
+        // --- Apply Stats based on the Selected Type (This uses the OLD STATS) ---
+        switch (type) {
+            case 'REGULAR':
+                // Original REGULAR STATS from lines 310-313
+                radius = 18 + Math.random() * 10;
+                color = '#e74c3c'; 
+                maxHealth = Math.floor(radius * 4.5 + 10);
+                scoreValue = Math.floor(10 + (radius - 18) * 1.5);
+                break;
+            case 'SNIPER':
+                // Original SNIPER STATS from lines 314-319
+                radius = 20;
+                color = '#e74c3c';
+                maxHealth = 80;
+                scoreValue = 75;
+                break;
+            case 'FLANKER': // Your "Tracker"
+                // Original FLANKER STATS from lines 320-325
+                radius = 8 + Math.random() * 5; 
+                color = '#e75480'; 
+                speedMultiplier = 2.5; 
+                maxHealth = 20; 
+                scoreValue = 30;
+                break;
+            case 'AURA':
+                // Original AURA STATS from lines 329-334
+                radius = 40; 
+                color = '#33cc33'; 
+                maxHealth = 250; 
+                scoreValue = 150;
+                break;
+            default:
+                type = 'REGULAR'; // Fallback
+                break;
         }
     }
 
@@ -397,6 +435,13 @@ killEnemy(enemy: Enemy) {
         y = Math.random() * canvasHeight;
     }
 
+    let targetX, targetY;
+    if (type === 'AURA') {
+        // Set an initial target within the visible canvas bounds
+        targetX = canvasWidth * Math.random();
+        targetY = canvasHeight * Math.random();
+    }
+
     this.enemies.push({
         x: x,
         y: y,
@@ -409,6 +454,8 @@ killEnemy(enemy: Enemy) {
         type: type, 
         speedMultiplier: speedMultiplier, // Only used by Flanker (the small pink triangle)
         lastShotTime: type === 'SNIPER' ? performance.now() : undefined, // Only used by Sniper
+        targetX: targetX, // NEW: Initial target
+        targetY: targetY  // NEW: Initial target
     });
   }
 
@@ -556,6 +603,35 @@ this.enemies.forEach(enemy => {
         enemy.y += (dy / dist) * currentSpeed * moveDirection;
     }
     break;
+        case 'AURA':
+            speed = 0.5; // Very slow movement
+
+            const auraDistanceTolerance = 10;
+            const canvasWidth = this.canvasRef.nativeElement.width;
+            const canvasHeight = this.canvasRef.nativeElement.height;
+            
+            // Check if the Aura has reached its current target (or if targets are null)
+            const targetDx = (enemy.targetX || 0) - enemy.x;
+            const targetDy = (enemy.targetY || 0) - enemy.y;
+            const targetDist = Math.sqrt(targetDx * targetDx + targetDy * targetDy);
+
+            if (targetDist < auraDistanceTolerance || !enemy.targetX) {
+                // Re-acquire a new random target within the canvas
+                enemy.targetX = enemy.radius + Math.random() * (canvasWidth - 2 * enemy.radius);
+                enemy.targetY = enemy.radius + Math.random() * (canvasHeight - 2 * enemy.radius);
+            }
+            
+            // Re-calculate direction towards the NEW target
+            const finalDx = enemy.targetX! - enemy.x; 
+            const finalDy = enemy.targetY! - enemy.y;
+            const finalDist = Math.sqrt(finalDx * finalDx + finalDy * finalDy);
+            
+            if (finalDist > 0) {
+                enemy.x += (finalDx / finalDist) * speed;
+                enemy.y += (finalDy / finalDist) * speed;
+            }
+            // NO BREAK here: Aura movement logic is contained above.
+            break;
         case 'REGULAR':
         default:
             speed = 1.5;
@@ -655,6 +731,23 @@ this.enemies.forEach(enemy => {
     }
 });
 this.enemies = enemiesToKeep; // Update the enemy list
+
+        // 6.5 Aura Enemy Proximity Damage (AoE)
+        const auraDamage = 0.5; // Damage per frame/update cycle
+        const auraRadius = 100; // Player must be within this distance of an Aura's center
+
+        this.enemies.forEach(enemy => {
+            if (enemy.type === 'AURA') {
+                const dx = enemy.x - this.player.x;
+                const dy = enemy.y - this.player.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                // Check if the player is within the Aura's damage radius
+                if (dist < enemy.radius + auraRadius) {
+                    this.player.health -= auraDamage; 
+                }
+            }
+        });
 
         // 7. Post-Collision Cleanup & Wave Progression
         this.enemies = this.enemies.filter(e => e.health > 0);
@@ -806,6 +899,16 @@ this.enemies = enemiesToKeep; // Update the enemy list
 
 
     enemiesToDraw.forEach(enemy => {
+      // --- Draw AURA EFFECT ---
+    if (enemy.type === 'AURA') {
+        const auraRadius = 100; // Must match the value used in update()
+        
+        this.ctx.beginPath();
+        this.ctx.arc(enemy.x, enemy.y, enemy.radius + auraRadius, 0, Math.PI * 2);
+        // Use a lighter, translucent green color
+        this.ctx.fillStyle = 'rgba(51, 204, 51, 0.15)'; 
+        this.ctx.fill();
+    }
     if (enemy.type === 'FLANKER') { // Draw the fast pink enemy as a TRIANGLE
         this.ctx.save();
         this.ctx.translate(enemy.x, enemy.y);
@@ -884,7 +987,10 @@ this.enemies = enemiesToKeep; // Update the enemy list
         } else if (enemy.type === 'REGULAR') { // Regular (Red)
             strokeColor = '#c0392b';
             lineWidth = 2;
-        }
+        } else if (enemy.type === 'AURA') {
+        strokeColor = '#33cc33'; 
+        lineWidth = 2.5; 
+    }
         
         this.ctx.strokeStyle = strokeColor;
         this.ctx.lineWidth = lineWidth;
