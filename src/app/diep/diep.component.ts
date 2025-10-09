@@ -1,135 +1,16 @@
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, HostListener, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-// Define Game Object Interfaces for better type safety
-interface Player {
-  x: number;
-  y: number;
-  radius: number;
-  angle: number; // Rotation angle (radians)
-  maxSpeed: number;
-  color: string;
-  health: number;
-  maxHealth: number;
-  fireRate: number; // Cooldown in ms
-}
-
-interface Bullet {
-  x: number;
-  y: number;
-  dx: number;
-  dy: number;
-  radius: number;
-  color: string;
-  ownerType: 'PLAYER' | 'ENEMY'; 
-}
-
-// Define EnemyType enum (outside the class or in a separate file if using one)
-type EnemyType = 'REGULAR' | 'BOSS' | 'MINION' | 'FLANKER' | 'SNIPER' | 'AURA';
-
-interface Enemy {
-  x: number;
-  y: number;
-  radius: number;
-  color: string;
-  health: number;
-  maxHealth: number;
-  scoreValue: number;
-  isBoss: boolean; // Keep for now, but new 'type' is better
-  type: EnemyType; // <-- NEW PROPERTY
-  // Flanker/Sniper Specific
-  speedMultiplier?: number; // For Flanker
-  lastShotTime?: number; // For Sniper
-  // NEW PROPERTIES for Aura random movement
-  targetX?: number; // Random target X coordinate for wandering
-  targetY?: number; // Random target Y coordinate for wandering
-}
+import { Player, Bullet, Enemy, EnemyType } from './diep.interfaces';
 
 @Component({
   selector: 'app-diep',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="diep-container bg-gray-50 min-h-screen p-4 flex flex-col items-center justify-center font-inter">
-      <div class="bg-white p-6 rounded-xl shadow-2xl transition-all duration-300 transform hover:scale-[1.01] flex flex-col items-center">
-        
-        <!-- Canvas for Game Rendering -->
-        <canvas 
-          #gameCanvas 
-          [attr.width]="width" 
-          [attr.height]="height" 
-          tabindex="0"
-          class="block rounded-lg shadow-inner border-2 border-gray-300"
-        ></canvas>
-        
-        <!-- Game UI Information - Now styled by explicit CSS rules below -->
-        <div class="diep-ui text-center mt-4 text-gray-700">
-          <h2 class="diep-title">Diep Singleplayer</h2>
-          <p class="diep-controls">Controls: WASD to move, Space or Click to shoot</p>
-          <p class="diep-instructions-light">Press 'P' to toggle the pause menu.</p>
-          <p class="diep-instructions-bold">Watch out for the <span class="text-purple-boss">purple</span> boss enemies and their <span class="text-purple-minion">minions</span>!</p>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [`
-    /* Custom CSS to ensure canvas border is visible and structure is nice */
-    .diep-container {
-      font-family: 'Inter', sans-serif;
-    }
-    
-    /* Ensure the canvas is the focus target for keyboard events */
-    .diep-container:focus-within canvas {
-      border-color: #3498db;
-      box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
-    }
-
-    /* Override canvas default styles for aesthetic consistency */
-    canvas {
-      outline: none;
-    }
-
-    /* --- EXPLICIT STYLING FOR GAME UI TEXT BELOW CANVAS --- */
-    .diep-ui {
-        text-align: center;
-        margin-top: 1rem; 
-        color: #4a5568; /* Tailwind gray-700 equivalent */
-    }
-    .diep-title {
-        font-size: 1.875rem; /* text-3xl */
-        font-weight: 800; /* font-extrabold */
-        color: #3498db; /* Blue */
-        margin-bottom: 0.5rem;
-    }
-    .diep-controls {
-        font-size: 1.125rem; /* text-lg */
-        font-weight: 500; /* font-medium */
-        margin-top: 0;
-        margin-bottom: 0.5rem;
-    }
-    .diep-instructions-light {
-        font-size: 0.875rem; /* text-sm */
-        font-style: italic;
-        color: #a0aec0; /* Tailwind gray-500 equivalent */
-        margin-top: 0;
-        margin-bottom: 0.25rem;
-    }
-    .diep-instructions-bold {
-        font-size: 0.875rem; /* text-sm */
-        font-style: italic;
-        font-weight: 700; /* font-bold */
-        margin-top: 0;
-        margin-bottom: 0.25rem;
-    }
-    .text-purple-boss {
-        color: #9b59b6;
-    }
-    .text-purple-minion {
-        color: #d2b4de;
-    }
-  `],
+  templateUrl: './diep.component.html',
+  styleUrls: ['./diep.component.css'], 
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class DiepComponent implements AfterViewInit { 
   @ViewChild('gameCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
   private ctx!: CanvasRenderingContext2D;

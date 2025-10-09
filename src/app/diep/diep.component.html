@@ -1,9 +1,21 @@
-<div class="diep-container">
-  <canvas #gameCanvas width="800" height="600" tabindex="0"></canvas>
-  <div class="diep-ui">
-    <h2>Diep Singleplayer</h2>
-    <p>Controls: WASD to move, Space to shoot</p>
-    <p>Enemies chase you. Survive as long as you can!</p>
-    <p>Health bar and score are shown in-game.</p>
-  </div>
-</div>
+<div class="diep-container bg-gray-50 min-h-screen p-4 flex flex-col items-center justify-center font-inter">
+      <div class="bg-white p-6 rounded-xl shadow-2xl transition-all duration-300 transform hover:scale-[1.01] flex flex-col items-center">
+        
+        <!-- Canvas for Game Rendering -->
+        <canvas 
+          #gameCanvas 
+          [attr.width]="width" 
+          [attr.height]="height" 
+          tabindex="0"
+          class="block rounded-lg shadow-inner border-2 border-gray-300"
+        ></canvas>
+        
+        <!-- Game UI Information - Now styled by explicit CSS rules below -->
+        <div class="diep-ui text-center mt-4 text-gray-700">
+          <h2 class="diep-title">Diep Singleplayer</h2>
+          <p class="diep-controls">Controls: WASD to move, Space or Click to shoot</p>
+          <p class="diep-instructions-light">Press 'P' to toggle the pause menu.</p>
+          <p class="diep-instructions-bold">Watch out for the <span class="text-purple-boss">purple</span> boss enemies and their <span class="text-purple-minion">minions</span>!</p>
+        </div>
+      </div>
+    </div>
