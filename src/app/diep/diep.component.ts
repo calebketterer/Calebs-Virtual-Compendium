@@ -21,7 +21,11 @@ interface Bullet {
   dy: number;
   radius: number;
   color: string;
+  ownerType: 'PLAYER' | 'ENEMY'; 
 }
+
+// Define EnemyType enum (outside the class or in a separate file if using one)
+type EnemyType = 'REGULAR' | 'BOSS' | 'MINION' | 'FLANKER' | 'SNIPER';
 
 interface Enemy {
   x: number;
@@ -30,8 +34,12 @@ interface Enemy {
   color: string;
   health: number;
   maxHealth: number;
-  scoreValue: number; // Points awarded upon destruction
-  isBoss: boolean; // Flag for the large purple boss enemy
+  scoreValue: number;
+  isBoss: boolean; // Keep for now, but new 'type' is better
+  type: EnemyType; // <-- NEW PROPERTY
+  // Flanker/Sniper Specific
+  speedMultiplier?: number; // For Flanker
+  lastShotTime?: number; // For Sniper
 }
 
 @Component({
@@ -270,8 +278,9 @@ export class DiepComponent implements AfterViewInit {
       dx: Math.cos(angle) * speed,
       dy: Math.sin(angle) * speed,
       radius: 6,
-      color: '#f39c12' // Orange color for bullets
-    });
+      color: '#f39c12', // Orange color for bullets
+      ownerType: 'PLAYER' // <-- SET OWNER
+});
   }
 
   // Spawns a minion from the boss enemy
@@ -289,9 +298,22 @@ export class DiepComponent implements AfterViewInit {
           health: minionMaxHealth,
           maxHealth: minionMaxHealth,
           scoreValue: minionScore,
-          isBoss: false 
+          isBoss: false,
+          type: 'MINION' 
       });
   }
+
+killEnemy(enemy: Enemy) {
+    this.score += enemy.scoreValue; 
+    
+    // To trigger a death animation/effect, we can simply ensure its health is 0
+    // and rely on the existing filter logic in the main loop, 
+    // but a more visible effect requires a separate system.
+
+    // For now, let's keep it simple: mark its health to 0 and rely on the existing cleanup.
+    // If you want a more elaborate "pop" effect, we'd need to add a particle system.
+    enemy.health = 0; 
+}
 
   // Spawns enemies randomly off-screen
   spawnEnemies(count: number, preventBossSpawn: boolean) {
@@ -303,7 +325,7 @@ export class DiepComponent implements AfterViewInit {
     this.isRegularWaveActive = true; 
 
     // Check for a chance to spawn the large purple enemy (10% chance per wave, but only if not preventing)
-    const spawnBoss = !preventBossSpawn && this.waveCount > 0 && Math.random() < 0.1;
+    const spawnBoss = !preventBossSpawn && this.waveCount > 0 && Math.random() < 0.2;
     let regularEnemyCount = count;
     
     if (spawnBoss) {
@@ -322,29 +344,45 @@ export class DiepComponent implements AfterViewInit {
     let maxHealth: number;
     let scoreValue: number;
     let color: string;
+    let type: EnemyType;
+    let speedMultiplier = 1;
 
     if (isBoss) {
-        // Purple Boss Stats
-        radius = 50; 
-        maxHealth = 500; 
+        // Boss Enemy Stats (Purple)
+        radius = 50;
+        maxHealth = 500;
         scoreValue = 1000;
         color = '#9b59b6'; // Purple
+        type = 'BOSS';
     } else {
-        // Regular Enemy Stats (Red, dynamic scaling)
-        radius = 18 + Math.random() * 10; // 18 to 28
-        color = '#e74c3c'; // Red
-
-        // Health Scaling based on size
-        maxHealth = Math.floor(radius * 4.5 + 10); 
+        // Roll for Regular (70%), Sniper (10%), or Tracker (20%)
+        const roll = Math.random();
         
-        // Score Scaling based on size
-        scoreValue = Math.floor(10 + (radius - 18) * 1.5);
+        if (roll < 0.7) { // 70% chance: Regular Enemy (Red)
+            type = 'REGULAR';
+            radius = 18 + Math.random() * 10;
+            color = '#e74c3c'; // Red
+            maxHealth = Math.floor(radius * 4.5 + 10);
+            scoreValue = Math.floor(10 + (radius - 18) * 1.5);
+        } else if (roll < 0.8) { // 10% chance: Sniper Enemy (Green -> RED) - Shoots
+            type = 'SNIPER'; 
+            radius = 20;
+            color = '#e74c3c'; // RED (Same as regular enemy to blend in)
+            maxHealth = 80;
+            scoreValue = 75;
+        } else { // 20% chance: Tracker Enemy (Pink/Purple Triangle) - Fast, chases
+            type = 'FLANKER'; // Renaming the role to FLANKER for speed, but using the aesthetic of the diep.io 'Tracker'
+            radius = 8 + Math.random() * 5; // Small size: 8 to 13 pixels
+            color = '#e75480'; // Pink/Rose
+            speedMultiplier = 2.5; // VERY fast
+            maxHealth = 20; // Low Health
+            scoreValue = 30;
+        }
     }
 
     let x: number, y: number;
-    const edge = Math.floor(Math.random() * 4); // 0: Top, 1: Right, 2: Bottom, 3: Left
+    const edge = Math.floor(Math.random() * 4); 
 
-    // Determine off-screen spawn coordinates
     if (edge === 0) { // Top
         x = Math.random() * canvasWidth;
         y = -spawnPadding - radius;
@@ -367,7 +405,10 @@ export class DiepComponent implements AfterViewInit {
         health: maxHealth,
         maxHealth: maxHealth,
         scoreValue: scoreValue,
-        isBoss: isBoss
+        isBoss: isBoss,
+        type: type, 
+        speedMultiplier: speedMultiplier, // Only used by Flanker (the small pink triangle)
+        lastShotTime: type === 'SNIPER' ? performance.now() : undefined, // Only used by Sniper
     });
   }
 
@@ -446,29 +487,87 @@ export class DiepComponent implements AfterViewInit {
           this.shootBullet();
         }
 
-        // 4. Enemy AI: Move toward player and Boss Regen
-        this.enemies.forEach(enemy => {
-          const dx = this.player.x - enemy.x;
-          const dy = this.player.y - enemy.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          
-          let speed: number;
-          if (enemy.isBoss) {
-            // Boss regeneration: 1 HP per second (1 HP / 1000 ms * deltaTime)
-            enemy.health = Math.min(enemy.maxHealth, enemy.health + (1 * deltaTime / 1000));
-            speed = 0.75; // Boss enemies move slowest
-          } else if (enemy.color === '#d2b4de') {
-            speed = 3.5; // Minions move fastest 
-          } else {
-            speed = 1.5; // Regular enemies move average speed
-          }
+        // 4. Enemy AI: Move toward player and Boss Regen & New Enemy Types
+const now = performance.now(); 
+const sniperBulletSpeed = 10; 
 
-          if (dist > 0) {
-            // Normalized movement vector toward player
-            enemy.x += (dx / dist) * speed; 
-            enemy.y += (dy / dist) * speed;
-          }
-        });
+this.enemies.forEach(enemy => {
+    const dx = this.player.x - enemy.x;
+    const dy = this.player.y - enemy.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    
+    let speed: number = 0;
+    
+    switch (enemy.type) {
+        case 'BOSS':
+            enemy.health = Math.min(enemy.maxHealth, enemy.health + (1 * deltaTime / 1000));
+            speed = 0.75;
+            break;
+        case 'MINION':
+            speed = 3.5;
+            break;
+        case 'FLANKER': // The fast pink triangle
+            speed = 1.5 * (enemy.speedMultiplier || 1); 
+            break;
+        case 'SNIPER': // The slow red circle that shoots and retreats
+    const firingRange = 400;
+    const evasionRange = 250; 
+    const moveSpeed = 1.0;
+    
+    let moveDirection = 0; // 0 = stationary, 1 = towards, -1 = away
+    let currentSpeed = 0; // Use a new variable for movement speed
+
+    if (dist > firingRange) {
+        // Too far: Move toward the player
+        currentSpeed = moveSpeed;
+        moveDirection = 1;
+    } else if (dist < evasionRange) {
+        // Too close: Move AWAY from the player (Evasion)
+        currentSpeed = moveSpeed;
+        moveDirection = -1; 
+    } else {
+        // Optimal range (150-300): Stop to shoot
+        currentSpeed = 0;
+        moveDirection = 0;
+
+        // Sniper Firing Logic: Only fire when in optimal range
+        const sniperFireRate = 3500; 
+        if (now - (enemy.lastShotTime || 0) > sniperFireRate) {
+            const angle = Math.atan2(dy, dx);
+            
+            this.bullets.push({
+                x: enemy.x,
+                y: enemy.y,
+                dx: Math.cos(angle) * sniperBulletSpeed,
+                dy: Math.sin(angle) * sniperBulletSpeed,
+                radius: 5,
+                color: enemy.color,
+                ownerType: 'ENEMY'
+            });
+            enemy.lastShotTime = now;
+        }
+    }
+    
+    // Applying the calculated movement and direction
+    if (dist > 0 && currentSpeed > 0) { // Check currentSpeed instead of generic 'speed'
+        // dx/dist and dy/dist is the normalized vector TOWARDS the player.
+        // Multiplying by -1 reverses the movement vector (moves away).
+        enemy.x += (dx / dist) * currentSpeed * moveDirection; 
+        enemy.y += (dy / dist) * currentSpeed * moveDirection;
+    }
+    break;
+        case 'REGULAR':
+        default:
+            speed = 1.5;
+            break;
+    }
+    
+    if (dist > 0 && speed > 0) {
+        // Normalized movement vector toward player
+        enemy.x += (dx / dist) * speed;
+        enemy.y += (dy / dist) * speed;
+    }
+  });
 
         // 5. Collision Detection (Bullets vs Enemies)
         const newBullets: Bullet[] = [];
@@ -476,6 +575,9 @@ export class DiepComponent implements AfterViewInit {
         this.bullets.forEach(bullet => {
           let hit = false;
           this.enemies.forEach(enemy => {
+            if (bullet.ownerType === 'ENEMY') { 
+                    return; // Skip collision check for enemy-fired bullets
+                }
             const dx = bullet.x - enemy.x;
             const dy = bullet.y - enemy.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
@@ -498,17 +600,61 @@ export class DiepComponent implements AfterViewInit {
         });
         this.bullets = newBullets;
 
+// 5.5 Collision Detection (Enemy Bullets vs Player)
+const playerHitBullets: Bullet[] = [];
+let playerHit = false;
+
+this.bullets.forEach(bullet => {
+    // Only check collision for bullets owned by enemies
+    if (bullet.ownerType === 'ENEMY') {
+        const dx = bullet.x - this.player.x;
+        const dy = bullet.y - this.player.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < bullet.radius + this.player.radius) {
+            // Player takes damage
+            this.player.health -= 10; // Sniper bullets deal 10 damage
+            playerHit = true;
+            // The bullet is NOT added to playerHitBullets, causing it to despawn
+        } else {
+            playerHitBullets.push(bullet);
+        }
+    } else {
+        // Keep player-owned bullets for the next check (they were already filtered in step 5)
+        playerHitBullets.push(bullet);
+    }
+});
+
+this.bullets = playerHitBullets;
+
         // 6. Player-Enemy Collision (Damage)
-        this.enemies.forEach(enemy => {
-          const dx = enemy.x - this.player.x;
-          const dy = enemy.y - this.player.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < enemy.radius + this.player.radius) {
-            // Apply damage based on enemy type (scaled by delta time for consistency)
-            const damage = enemy.isBoss ? (1.5 * deltaTime / 16.67) : (0.5 * deltaTime / 16.67);
-            this.player.health -= damage; 
-          }
-        });
+        const enemiesToKeep: Enemy[] = [];
+        const collisionDamageFraction = 0.25; // Enemy deals 25% of its max health as damage
+
+this.enemies.forEach(enemy => {
+    const dx = enemy.x - this.player.x;
+    const dy = enemy.y - this.player.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < enemy.radius + this.player.radius) {
+        // Collision occurred!
+        
+        // 1. Player takes fractional damage
+        const damageToPlayer = enemy.health * collisionDamageFraction; 
+        this.player.health -= damageToPlayer; 
+        
+        // 2. Enemy dies instantly
+        // Call the new helper to handle score update and health set to 0
+        this.killEnemy(enemy); 
+        
+        // NOTE: The enemy is NOT added to enemiesToKeep, removing it from the game.
+
+    } else {
+        // No collision with player, keep this enemy for the next frame
+        enemiesToKeep.push(enemy);
+    }
+});
+this.enemies = enemiesToKeep; // Update the enemy list
 
         // 7. Post-Collision Cleanup & Wave Progression
         this.enemies = this.enemies.filter(e => e.health > 0);
@@ -660,37 +806,98 @@ export class DiepComponent implements AfterViewInit {
 
 
     enemiesToDraw.forEach(enemy => {
-      // Draw Enemy Body (Circle)
-      this.ctx.beginPath();
-      this.ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
-      this.ctx.fillStyle = enemy.color;
-      this.ctx.fill();
-      
-      // Set unique stroke colors/widths for different enemy types
-      let strokeColor = '#c0392b';
-      let lineWidth = 2;
-      let shadowBlur = 0;
-      
-      if (enemy.isBoss) {
-          strokeColor = '#8e44ad'; // Darker purple
-          lineWidth = 4;
-          shadowBlur = 10;
-      } else if (enemy.color === '#d2b4de') { // Minions
-          strokeColor = '#9b59b6'; 
-          lineWidth = 1.5;
-      }
-      
-      this.ctx.strokeStyle = strokeColor;
-      this.ctx.lineWidth = lineWidth;
-      this.ctx.stroke();
-      
-      // Add a shadow effect for the boss
-      if (shadowBlur > 0) {
-          this.ctx.shadowBlur = shadowBlur;
-          this.ctx.shadowColor = enemy.color;
-          this.ctx.fill(); // Refill for shadow effect
-          this.ctx.shadowBlur = 0;
-      }
+    if (enemy.type === 'FLANKER') { // Draw the fast pink enemy as a TRIANGLE
+        this.ctx.save();
+        this.ctx.translate(enemy.x, enemy.y);
+        
+        // Calculate angle to point toward the player
+        const dx = this.player.x - enemy.x;
+        const dy = this.player.y - enemy.y;
+        const angle = Math.atan2(dy, dx);
+        this.ctx.rotate(angle + Math.PI / 2); // Rotate to point forward
+
+        this.ctx.beginPath();
+        // Vertices for an equilateral triangle
+        this.ctx.moveTo(0, -enemy.radius); 
+        this.ctx.lineTo(-enemy.radius * 0.866, enemy.radius * 0.5); 
+        this.ctx.lineTo(enemy.radius * 0.866, enemy.radius * 0.5); 
+        this.ctx.closePath(); 
+        
+        this.ctx.fillStyle = enemy.color;
+        this.ctx.fill();
+        this.ctx.strokeStyle = '#9b59b6'; // Purple stroke
+        this.ctx.lineWidth = 1.5;
+        this.ctx.stroke();
+        this.ctx.restore();
+        
+    } else { // Draw as a CIRCLE (Regular, Boss, Minion, Sniper)
+        this.ctx.beginPath();
+        this.ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
+        this.ctx.fillStyle = enemy.color;
+        this.ctx.fill();
+
+        if (enemy.type === 'SNIPER') {
+        
+        // 1. Calculate angle and save context
+        const dx = this.player.x - enemy.x;
+        const dy = this.player.y - enemy.y;
+        const angle = Math.atan2(dy, dx);
+        
+        this.ctx.save();
+        this.ctx.translate(enemy.x, enemy.y);
+        this.ctx.rotate(angle);
+
+        // 2. DRAW BARREL FIRST (to be underneath the body)
+        this.ctx.fillStyle = '#95a5a6'; // Light Gray
+        this.ctx.beginPath();
+        
+        const barrelWidth = 14; 
+        const barrelLength = enemy.radius * 2.0; 
+        const barrelStartOffset = enemy.radius * 0.5;
+        
+        this.ctx.rect(-barrelStartOffset, -barrelWidth / 2, barrelLength, barrelWidth);
+        this.ctx.fill();
+        this.ctx.restore();
+        
+        // 3. Draw the enemy body circle ON TOP of the barrel
+        this.ctx.beginPath();
+        this.ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
+        this.ctx.fillStyle = enemy.color; // Red
+        this.ctx.fill();
+    }
+        
+        // Set unique stroke colors/widths for different circle types
+        let strokeColor = '#c0392b';
+        let lineWidth = 2;
+        let shadowBlur = 0;
+        
+        if (enemy.isBoss) { 
+            strokeColor = '#8e44ad';
+            lineWidth = 4;
+            shadowBlur = 10;
+        } else if (enemy.color === '#d2b4de') { // Minions
+            strokeColor = '#9b59b6';
+            lineWidth = 1.5;
+        } else if (enemy.type === 'SNIPER') { // <-- ADD THIS BACK
+            strokeColor = '#c0392b'; // Use the same dark red as the regular enemy stroke
+            lineWidth = 2;
+        } else if (enemy.type === 'REGULAR') { // Regular (Red)
+            strokeColor = '#c0392b';
+            lineWidth = 2;
+        }
+        
+        this.ctx.strokeStyle = strokeColor;
+        this.ctx.lineWidth = lineWidth;
+        this.ctx.stroke();
+        
+        // Boss Shadow Effect
+        if (shadowBlur > 0) {
+            this.ctx.shadowBlur = shadowBlur;
+            this.ctx.shadowColor = enemy.color;
+            this.ctx.fill();
+            this.ctx.shadowBlur = 0;
+        }
+    }
 
       // Draw Aesthetic Health Bar (only for non-bosses/non-full health)
       if (enemy.health < enemy.maxHealth && !enemy.isBoss) { 
