@@ -41,19 +41,23 @@ export class DiepComponent implements AfterViewInit {
   mouseDown = false;
   isPaused = false; 
   isDarkMode = true; 
+  public mouseX: number = 0;
+  public mouseY: number = 0; 
   
   // New state variables for wave progression
   isRegularWaveActive: boolean = false; 
 
   private lastShotTime: number = 0; 
   private enemySpawnCount = 5;
-  waveCount = 0; 
+  public currentWave: number = 0; // Initialize to 0 or 1, depending on your game's starting logic
+  public waveCount: number = 0; // Assuming this tracks enemies remaining, as seen in your code snippet
 
   private enemySpawnWeights: { type: EnemyType, weight: number }[] = [
-      { type: 'REGULAR', weight: 50 }, 
-      { type: 'SNIPER', weight: 10 },
-      { type: 'FLANKER', weight: 25 },
-      { type: 'AURA', weight: 5 },
+      { type: 'REGULAR', weight: 40 }, // 40%
+      { type: 'SNIPER', weight: 10}, // 10%
+      { type: 'CRASHER', weight: 30 }, // 30%
+      { type: 'AURA', weight: 10 }, // 10%
+      { type: 'SMASHER', weight: 10 }, // 10%
     ];
 
   // Death Animation State
@@ -215,13 +219,18 @@ killEnemy(enemy: Enemy) {
     // Set flag when a regular wave starts
     this.isRegularWaveActive = true; 
 
-    // Check for a chance to spawn the large purple enemy (10% chance per wave, but only if not preventing)
-    const spawnBoss = !preventBossSpawn && this.waveCount > 0 && Math.random() < 0.2;
+    // 1. Determine if a boss spawn should be attempted (chance, flag, and waveCount > 0)
+    const bossAttempt = !preventBossSpawn && this.waveCount > 0 && Math.random() < 0.2;
     let regularEnemyCount = count;
     
-    if (spawnBoss) {
-        this.spawnSingleEnemy(canvasWidth, canvasHeight, spawnPadding, true);
-        regularEnemyCount = Math.max(0, count - 1); // Replace one regular enemy with a boss
+    // 🛑 FIX: Add the wave check to the boss spawn attempt 🛑
+    // The purple miniboss/BOSS can only spawn if bossAttempt is true AND the current wave is > 5.
+    const spawnMiniboss = bossAttempt && this.currentWave > 5;
+    
+    if (spawnMiniboss) {
+        // The 'true' flag here in spawnSingleEnemy triggers the purple miniboss logic.
+        this.spawnSingleEnemy(canvasWidth, canvasHeight, spawnPadding, true); 
+        regularEnemyCount = Math.max(0, count - 1); // Replace one regular enemy with the boss
     }
 
     // Spawn regular enemies
@@ -262,24 +271,25 @@ killEnemy(enemy: Enemy) {
 
         type = selectedEnemyType; // Set the determined type
 
-        // --- Apply Stats based on the Selected Type (This uses the OLD STATS) ---
+        // --- Apply Stats based on the Selected Type ---
         switch (type) {
             case 'REGULAR':
-                // Original REGULAR STATS from lines 310-313
-                radius = 18 + Math.random() * 10;
+                radius = 10 + Math.random() * 20;
                 color = '#e74c3c'; 
                 maxHealth = Math.floor(radius * 4.5 + 10);
                 scoreValue = Math.floor(10 + (radius - 18) * 1.5);
+                // New Max Range is 20 (30 - 10)
+                const newMaxRange = 20; 
+                const normalizedRadius = (radius - 10) / newMaxRange; 
+                speedMultiplier = 5 - normalizedRadius * 2.0; 
                 break;
             case 'SNIPER':
-                // Original SNIPER STATS from lines 314-319
                 radius = 20;
                 color = '#e74c3c';
                 maxHealth = 80;
                 scoreValue = 75;
                 break;
-            case 'FLANKER': // Your "Tracker"
-                // Original FLANKER STATS from lines 320-325
+            case 'CRASHER':
                 radius = 8 + Math.random() * 5; 
                 color = '#e75480'; 
                 speedMultiplier = 2.5; 
@@ -287,11 +297,16 @@ killEnemy(enemy: Enemy) {
                 scoreValue = 30;
                 break;
             case 'AURA':
-                // Original AURA STATS from lines 329-334
-                radius = 40; 
+                radius = 20 + Math.random() * 20;
                 color = '#33cc33'; 
-                maxHealth = 250; 
-                scoreValue = 150;
+                maxHealth = Math.floor(250 + 4.5 * (radius - 35));
+                scoreValue = Math.floor(150 + (radius - 35) * 5);
+                break;
+            case 'SMASHER':
+                radius = 22;
+                color = '#f1c40f'; // Yellow
+                maxHealth = 200;
+                scoreValue = 100;
                 break;
             default:
                 type = 'REGULAR'; // Fallback
@@ -323,6 +338,10 @@ killEnemy(enemy: Enemy) {
         targetY = canvasHeight * Math.random();
     }
 
+    // For Flankers
+    const baseAttackRange = 150;
+    const rangeVariation = 50;
+
     this.enemies.push({
         x: x,
         y: y,
@@ -333,10 +352,13 @@ killEnemy(enemy: Enemy) {
         scoreValue: scoreValue,
         isBoss: isBoss,
         type: type, 
-        speedMultiplier: speedMultiplier, // Only used by Flanker (the small pink triangle)
+        speedMultiplier: speedMultiplier, // Only used by Crasher (the small pink triangle)
         lastShotTime: type === 'SNIPER' ? performance.now() : undefined, // Only used by Sniper
         targetX: targetX, // NEW: Initial target
-        targetY: targetY  // NEW: Initial target
+        targetY: targetY,  // NEW: Initial target
+        rotationAngle: type === 'SMASHER' ? 0 : undefined,
+        smasherOrbitDirection	: type === 'SMASHER' ? (Math.random() < 0.5 ? 1 : -1) : undefined,
+        smasherAttackRange: type === 'SMASHER' ? baseAttackRange + (Math.random() - 0.5) * rangeVariation : undefined,
     });
   }
 
@@ -416,16 +438,24 @@ killEnemy(enemy: Enemy) {
         }
 
         // 4. Enemy AI: Move toward player and Boss Regen & New Enemy Types
-const now = performance.now(); 
-const sniperBulletSpeed = 10; 
+    const now = performance.now(); 
+    const sniperBulletSpeed = 10; 
 
-this.enemies.forEach(enemy => {
+for (const enemy of this.enemies) {
     const dx = this.player.x - enemy.x;
     const dy = this.player.y - enemy.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
     
-    let speed: number = 0;
-    
+    let baseMovementSpeed = 1.5; 
+    let speed: number = baseMovementSpeed; 
+
+    if (enemy.type === 'REGULAR' && enemy.speedMultiplier) {
+    const regularEnemyBaseSpeed = 0.5;
+    speed = regularEnemyBaseSpeed * enemy.speedMultiplier;
+} else {
+    speed = baseMovementSpeed;
+}
+
     switch (enemy.type) {
         case 'BOSS':
             enemy.health = Math.min(enemy.maxHealth, enemy.health + (1 * deltaTime / 1000));
@@ -434,56 +464,57 @@ this.enemies.forEach(enemy => {
         case 'MINION':
             speed = 3.5;
             break;
-        case 'FLANKER': // The fast pink triangle
+        case 'CRASHER': // The fast pink triangle
             speed = 1.5 * (enemy.speedMultiplier || 1); 
             break;
         case 'SNIPER': // The slow red circle that shoots and retreats
-    const firingRange = 400;
-    const evasionRange = 250; 
-    const moveSpeed = 1.0;
-    
-    let moveDirection = 0; // 0 = stationary, 1 = towards, -1 = away
-    let currentSpeed = 0; // Use a new variable for movement speed
-
-    if (dist > firingRange) {
-        // Too far: Move toward the player
-        currentSpeed = moveSpeed;
-        moveDirection = 1;
-    } else if (dist < evasionRange) {
-        // Too close: Move AWAY from the player (Evasion)
-        currentSpeed = moveSpeed;
-        moveDirection = -1; 
-    } else {
-        // Optimal range (150-300): Stop to shoot
-        currentSpeed = 0;
-        moveDirection = 0;
-
-        // Sniper Firing Logic: Only fire when in optimal range
-        const sniperFireRate = 3500; 
-        if (now - (enemy.lastShotTime || 0) > sniperFireRate) {
-            const angle = Math.atan2(dy, dx);
+            const firingRange = 400;
+            const sniperEvasionRange = 250; 
+            const moveSpeed = 1.0;
             
-            this.bullets.push({
-                x: enemy.x,
-                y: enemy.y,
-                dx: Math.cos(angle) * sniperBulletSpeed,
-                dy: Math.sin(angle) * sniperBulletSpeed,
-                radius: 5,
-                color: enemy.color,
-                ownerType: 'ENEMY'
-            });
-            enemy.lastShotTime = now;
-        }
-    }
-    
-    // Applying the calculated movement and direction
-    if (dist > 0 && currentSpeed > 0) { // Check currentSpeed instead of generic 'speed'
-        // dx/dist and dy/dist is the normalized vector TOWARDS the player.
-        // Multiplying by -1 reverses the movement vector (moves away).
-        enemy.x += (dx / dist) * currentSpeed * moveDirection; 
-        enemy.y += (dy / dist) * currentSpeed * moveDirection;
-    }
-    break;
+            let moveDirection = 0; // 0 = stationary, 1 = towards, -1 = away
+            let currentSpeed = 0; // Use a new variable for movement speed
+
+            if (dist > firingRange) {
+                // Too far: Move toward the player
+                currentSpeed = moveSpeed;
+                moveDirection = 1;
+            } else if (dist < sniperEvasionRange) {
+                // Too close: Move AWAY from the player (Evasion)
+                currentSpeed = moveSpeed;
+                moveDirection = -1; 
+            } else {
+                // Optimal range (150-300): Stop to shoot
+                currentSpeed = 0;
+                moveDirection = 0;
+
+                // Sniper Firing Logic: Only fire when in optimal range
+                const sniperFireRate = 3500; 
+                if (now - (enemy.lastShotTime || 0) > sniperFireRate) {
+                    const angle = Math.atan2(dy, dx);
+                    
+                    this.bullets.push({
+                        x: enemy.x,
+                        y: enemy.y,
+                        dx: Math.cos(angle) * sniperBulletSpeed,
+                        dy: Math.sin(angle) * sniperBulletSpeed,
+                        radius: 5,
+                        color: enemy.color,
+                        ownerType: 'ENEMY'
+                    });
+                    enemy.lastShotTime = now;
+                }
+            }
+            
+            // Applying the calculated movement and direction
+            if (dist > 0 && currentSpeed > 0) { // Check currentSpeed instead of generic 'speed'
+                // dx/dist and dy/dist is the normalized vector TOWARDS the player.
+                // Multiplying by -1 reverses the movement vector (moves away).
+                enemy.x += (dx / dist) * currentSpeed * moveDirection; 
+                enemy.y += (dy / dist) * currentSpeed * moveDirection;
+            }
+            break;
+
         case 'AURA':
             speed = 0.5; // Very slow movement
 
@@ -513,18 +544,143 @@ this.enemies.forEach(enemy => {
             }
             // NO BREAK here: Aura movement logic is contained above.
             break;
-        case 'REGULAR':
-        default:
-            speed = 1.5;
-            break;
+
+        case 'SMASHER':
+            const flankSpeed = 2;
+            const attackSpeed = 2;
+            const playerAngle = Math.atan2(this.mouseY - this.player.y, this.mouseX - this.player.x);
+            const flankerAngle = Math.atan2(dy, dx); // Angle of the vector from SMASHER to Player
+            const attackRange = 150; // Distance to player to initiate final attack
+            const flankCircleRadius = 400; // How far the SMASHER tries to orbit
+
+            // --- NEW: DODGE LOGIC TRIGGER ---
+                    // Angle from Player's Cannon to SMASHER
+            // NOTE: This logic ensures SMASHER is in the PLAYER's firing cone.
+            let angleDifference = playerAngle - flankerAngle;
+            if (angleDifference > Math.PI) angleDifference -= 2 * Math.PI;
+            if (angleDifference < -Math.PI) angleDifference += 2 * Math.PI;
+
+            const evasionCone = Math.PI / 6; // 30 degrees wide (tighter, less sporadic)
+            const evasionRange = 350;       // Dodge if SMASHER is within 350px
+
+            // 🛑 NEW TRIGGER CONDITION 🛑
+            // Only trigger a dodge if:
+            // 1. The SMASHER is within the evasion range, AND
+            // 2. The SMASHER is within the player's firing cone (angleDifference < evasionCone), AND
+            // 3. The player is actively shooting (ideal) OR the SMASHER is very close (backup trigger).
+            
+            // NOTE: If you have a 'this.isShooting' boolean, use it!
+            const isPlayerAimingAtMe = (Math.abs(angleDifference) < evasionCone);
+            
+            // Fallback trigger if 'isShooting' is not available:
+            const isImminentThreat = (dist < 150); 
+            
+            if (dist < evasionRange && isPlayerAimingAtMe && (isImminentThreat /* || this.isShooting */)) { 
+                if (enemy.smasherState !== 'DODGE') {
+                    enemy.smasherState = 'DODGE';
+                    enemy.dodgeEndTime = now + 150; // Shorter, faster dart (150ms)
+                }
+            }
+            // --- END DODGE TRIGGER ---
+            
+            // --- DODGE MOVEMENT STATE ---
+            if (enemy.smasherState === 'DODGE') {
+                // 🛑 FIX: Increase the speed multiplier for a bigger dart 🛑
+                speed = attackSpeed * 2.5; // (Increased from 1.5 to 2.5)
+                
+                if (now < enemy.dodgeEndTime!) {
+                    // ... (rest of the lateral movement logic) ...
+                    
+                    continue; // Keep this to prevent generic movement!
+                } else {
+                    // Dodge finished, reset state to APPROACH to re-evaluate the situation
+                    enemy.smasherState = 'APPROACH'; 
+                    enemy.dodgeEndTime = undefined;
+                }
+            }
+            // --- END DODGE MOVEMENT STATE ---
+
+             // 🛑 NEW: FLANKING & APPROACH LOGIC (Circling Orbit) 🛑
+    if (enemy.smasherState === 'APPROACH' || enemy.smasherState === 'FLANK' || !enemy.smasherState) {
+        
+        enemy.smasherState = 'FLANK';
+        speed = flankSpeed;
+
+        // --- 1. DETERMINE DESIRED ORBIT LOCATION ---
+        // Find the angle from the Player to the Enemy
+        const angleToEnemy = Math.atan2(dy, dx);
+        
+        // Target a point on the orbit circle, using the random direction
+        // If smasherOrbitDirection	 is 1, it adds PI/2 (CCW); if -1, it subtracts PI/2 (CW)
+        const rotationAngle = enemy.smasherOrbitDirection	! * (Math.PI / 2);
+        const targetOrbitAngle = angleToEnemy + rotationAngle; 
+        
+        const desiredX = this.player.x + Math.cos(targetOrbitAngle) * flankCircleRadius;
+        const desiredY = this.player.y + Math.sin(targetOrbitAngle) * flankCircleRadius;
+        
+        // --- 2. MOVE TOWARDS ORBIT LOCATION ---
+        const moveDx = desiredX - enemy.x;
+        const moveDy = desiredY - enemy.y;
+        const moveDist = Math.sqrt(moveDx * moveDx + moveDy * moveDy);
+
+        if (moveDist > 0) {
+            enemy.x += (moveDx / moveDist) * speed;
+            enemy.y += (moveDy / moveDist) * speed;
+        }
+        
+        // --- 3. CHECK FOR ATTACK LAUNCH ---
+        // Launch attack after 1-2 rotations or if the player is very close to the orbit
+          if (dist < enemy.smasherAttackRange!) {  
+            // Player is too close, launch final charge now!
+            enemy.smasherState = 'ATTACK';
+        }
+
+        const rotationSpeed = 0.026; 
+        enemy.rotationAngle! += rotationSpeed;
+        if (enemy.rotationAngle! > Math.PI * 2) {
+            enemy.rotationAngle! -= Math.PI * 2;
+        }
+
+        // We use continue here because the flanking movement is fully handled.
+        continue; 
     }
     
+    // Phase 3: ATTACK (Final Charge)
+    if (enemy.smasherState === 'ATTACK') {
+        speed = attackSpeed;
+        
+        // Fall-through to generic movement (which now ONLY happens for ATTACK)
+        if (dist > 0 && speed > 0) {
+            enemy.x += (dx / dist) * speed;
+            enemy.y += (dy / dist) * speed;
+        }
+
+        // Reset to APPROACH if it misses and gets too far away.
+        const resetDistance = flankCircleRadius * 1.5; 
+        if (dist > resetDistance) {
+            enemy.smasherState = 'APPROACH';
+        }
+
+        const rotationSpeed = 0.026; 
+        enemy.rotationAngle! += rotationSpeed;
+        if (enemy.rotationAngle! > Math.PI * 2) {
+            enemy.rotationAngle! -= Math.PI * 2;
+    }
+    }
+    
+    break;
+        case 'REGULAR':
+        default:
+            break;
+    }
+
     if (dist > 0 && speed > 0) {
         // Normalized movement vector toward player
         enemy.x += (dx / dist) * speed;
         enemy.y += (dy / dist) * speed;
     }
-  });
+
+  };
 
         // 5. Collision Detection (Bullets vs Enemies)
         const newBullets: Bullet[] = [];
@@ -790,7 +946,7 @@ this.enemies = enemiesToKeep; // Update the enemy list
         this.ctx.fillStyle = 'rgba(51, 204, 51, 0.15)'; 
         this.ctx.fill();
     }
-    if (enemy.type === 'FLANKER') { // Draw the fast pink enemy as a TRIANGLE
+    if (enemy.type === 'CRASHER') { // Draw the fast pink enemy as a TRIANGLE
         this.ctx.save();
         this.ctx.translate(enemy.x, enemy.y);
         
@@ -814,7 +970,59 @@ this.enemies = enemiesToKeep; // Update the enemy list
         this.ctx.stroke();
         this.ctx.restore();
         
-    } else { // Draw as a CIRCLE (Regular, Boss, Minion, Sniper)
+    }
+    else if (enemy.type === 'SMASHER') {
+    
+    // CRITICAL STEP 1: Save the context state
+    this.ctx.save();
+    
+    // CRITICAL STEP 2: Translate the canvas origin to the enemy's center
+    this.ctx.translate(enemy.x, enemy.y);
+    
+    // CRITICAL STEP 3: Apply the rotation
+    // Use the non-null assertion (!) as we ensured rotationAngle is initialized
+    this.ctx.rotate(enemy.rotationAngle!);
+
+    const hexRadius = enemy.radius;
+    
+    // 1. Draw the Black Hexagon (Outer Shape) - Drawn around (0, 0)
+    this.ctx.beginPath();
+    this.ctx.fillStyle = '#000000'; // Black fill
+    this.ctx.strokeStyle = '#2c3e50'; // Dark stroke
+    this.ctx.lineWidth = 2;
+    
+    // Draw 6-sided polygon (Hexagon)
+    for (let i = 0; i < 6; i++) {
+        // Start angle is offset by PI/6 to ensure a flat top
+        const angle = i * Math.PI / 3 + Math.PI / 6; 
+        const x = hexRadius * Math.cos(angle);
+        const y = hexRadius * Math.sin(angle);
+        
+        // Coordinates MUST be relative to (0, 0)
+        if (i === 0) {
+            this.ctx.moveTo(x, y);
+        } else {
+            this.ctx.lineTo(x, y);
+        }
+    }
+    this.ctx.closePath();
+    this.ctx.fill();
+    this.ctx.stroke();
+
+    // 2. Draw the Red Inner Circle - Drawn at (0, 0)
+    // Using 0.9 as specified (hexRadius * 0.9 for the inner circle)
+    const innerRadius = hexRadius * 0.9; 
+    
+    this.ctx.beginPath();
+    // Center MUST be (0, 0) after translation
+    this.ctx.arc(0, 0, innerRadius, 0, Math.PI * 2); 
+    this.ctx.fillStyle = '#e74c3c'; // Red fill
+    this.ctx.fill();
+    
+    // CRITICAL STEP 4: Restore the canvas state (undo translate and rotate)
+    this.ctx.restore();
+
+}  else { // Draw as a CIRCLE (Regular, Boss, Minion, Sniper)
         this.ctx.beginPath();
         this.ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
         this.ctx.fillStyle = enemy.color;
@@ -933,7 +1141,7 @@ this.enemies = enemiesToKeep; // Update the enemy list
           this.ctx.font = '10px Inter, sans-serif';
           this.ctx.fillStyle = '#fff';
           this.ctx.textAlign = 'center';
-          this.ctx.fillText(`BOSS HP: ${Math.ceil(enemy.health)}`, enemy.x, healthBarY + healthBarHeight + 10);
+          this.ctx.fillText(`MINI BOSS HP: ${Math.ceil(enemy.health)}`, enemy.x, healthBarY + healthBarHeight + 10);
       }
     });
     

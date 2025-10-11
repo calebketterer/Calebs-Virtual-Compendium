@@ -23,7 +23,7 @@ export interface Bullet {
 }
 
 // Define EnemyType enum (using type alias for flexibility)
-export type EnemyType = 'REGULAR' | 'BOSS' | 'MINION' | 'FLANKER' | 'SNIPER' | 'AURA';
+export type EnemyType = 'REGULAR' | 'BOSS' | 'MINION' | 'CRASHER' | 'SNIPER' | 'AURA' | 'SMASHER';
 
 export interface Enemy {
   x: number;
@@ -35,9 +35,15 @@ export interface Enemy {
   scoreValue: number;
   isBoss: boolean; 
   type: EnemyType; 
-  speedMultiplier?: number; // For Flanker
+  speedMultiplier?: number; // For Crasher
   lastShotTime?: number; // For Sniper
   // For Aura's random movement
   targetX?: number; // Random target X coordinate for wandering
   targetY?: number; // Random target Y coordinate for wandering
+  //For Flankers
+  smasherState?: 'APPROACH' | 'FLANK' | 'ATTACK'| 'DODGE'; 
+  dodgeEndTime?: number;
+  rotationAngle?: number;
+  smasherOrbitDirection	?: 1 | -1;
+  smasherAttackRange?: number; 
 }
