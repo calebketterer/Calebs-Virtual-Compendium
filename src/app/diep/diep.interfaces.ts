@@ -47,3 +47,8 @@ export interface Enemy {
   smasherOrbitDirection	?: 1 | -1;
   smasherAttackRange?: number; 
 }
+
+export interface EnemySpawnWeight {
+    type: EnemyType;
+    weight: number;
+}
