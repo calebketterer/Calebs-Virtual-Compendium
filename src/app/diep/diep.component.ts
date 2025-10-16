@@ -53,14 +53,6 @@ export class DiepComponent implements AfterViewInit {
   public currentWave: number = 0; // Initialize to 0 or 1, depending on your game's starting logic
   public waveCount: number = 0; // Assuming this tracks enemies remaining, as seen in your code snippet
 
-  private enemySpawnWeights: { type: EnemyType, weight: number }[] = [
-      { type: 'REGULAR', weight: 40 }, // 40%
-      { type: 'SNIPER', weight: 10}, // 10%
-      { type: 'CRASHER', weight: 30 }, // 30%
-      { type: 'AURA', weight: 10 }, // 10%
-      { type: 'SMASHER', weight: 10 }, // 10%
-    ];
-
   // Death Animation State
   private deathAnimationTimeStart: number | null = null;
   private deathAnimationDuration = 1000; 
@@ -194,17 +186,8 @@ export class DiepComponent implements AfterViewInit {
 
 killEnemy(enemy: Enemy) {
     this.score += enemy.scoreValue; 
-    
-    // To trigger a death animation/effect, we can simply ensure its health is 0
-    // and rely on the existing filter logic in the main loop, 
-    // but a more visible effect requires a separate system.
-
-    // For now, let's keep it simple: mark its health to 0 and rely on the existing cleanup.
-    // If you want a more elaborate "pop" effect, we'd need to add a particle system.
     enemy.health = 0; 
 }
-
-  // Spawns enemies randomly off-screen
 
   // --- Game Loop and Update ---
 
@@ -315,20 +298,15 @@ for (const enemy of this.enemies) {
             currentEnemy.y += (dy / dist) * finalSpeed;
         }
     };
-    // ------------------------------------------
-
-    // Note: The global 'speed' variable and pre-switch speed calculations are now removed.
 
     switch (enemy.type) {
         case 'BOSS':
             // Boss Regen Logic
             enemy.health = Math.min(enemy.maxHealth, enemy.health + (1 * deltaTime / 1000));
-            // Movement via helper
             moveTowardsPlayer(enemy, 0.75);
             break;
 
         case 'MINION':
-            // Movement via helper
             moveTowardsPlayer(enemy, 3.5);
             break;
 

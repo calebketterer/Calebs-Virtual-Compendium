@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Enemy, EnemyType, EnemySpawnWeight, Player } from './diep.interfaces';
-// import { drawEnemy } from '../drawing/enemy-renderer'; // REMOVED: Unused import
 
 // Assuming your original component defines an array like this for weighted spawning
 const ENEMY_SPAWN_WEIGHTS: EnemySpawnWeight[] = [
@@ -39,7 +38,7 @@ export class EnemySpawnerService {
             maxHealth = 500;
             scoreValue = 1000;
             color = '#9b59b6'; // Purple
-            type = 'BOSS'; // Assuming MINIBOSS is classified as 'BOSS' here
+            type = 'BOSS';
         } else {
             // --- Weighted Random Selection Logic ---
             const totalWeight = ENEMY_SPAWN_WEIGHTS.reduce((sum, item) => sum + item.weight, 0);
