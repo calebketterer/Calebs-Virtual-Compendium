@@ -168,6 +168,46 @@ export class DiepComponent implements AfterViewInit {
     this.canvasRef.nativeElement.focus();
     // The gameLoop is already running from ngAfterViewInit, which will now proceed past the start menu state.
   }
+  
+  // ** NEW: Reusable State Reset Logic **
+  /**
+   * Resets all primary game state variables to their initial values.
+   */
+  private resetState(startGameImmediately: boolean) {
+    this.player = { 
+      x: 400, y: 300, radius: 20, angle: 0, 
+      maxSpeed: 3, color: '#3498db', health: 100, 
+      maxHealth: 100, fireRate: 150 
+    };
+    this.bullets = [];
+    this.enemies = [];
+    this.keys = {};
+    this.score = 0;
+    this.gameOver = false;
+    this.isPaused = false;
+    this.lastAngle = 0;
+    this.mouseAiming = true; 
+    this.mouseDown = false;
+    this.lastShotTime = 0; 
+    this.enemySpawnCount = 5; 
+    this.waveCount = 0; 
+    this.deathAnimationTimeStart = null; 
+    this.enemiesRemainingForAnimation = [];
+    this.isRegularWaveActive = false; 
+
+    // The only difference between REPLAY (true) and MAIN MENU (false)
+    this.isGameStarted = startGameImmediately; 
+  }
+  
+  /**
+   * Resets the game state and returns to the initial Start Menu.
+   */
+  public returnToMainMenu() {
+    this.resetState(false); // Set isGameStarted to false
+    this.lastTime = performance.now(); // Reset time
+    this.canvasRef.nativeElement.focus();
+    this.gameLoop(); // Restart the loop (it will now draw the Start Menu)
+  }
 
   // --- Game Logic Functions ---
 
@@ -637,18 +677,31 @@ killEnemy(enemy: Enemy) {
       return;
     }
     
-    // Check 3: Replay Button (Game Over)
+    // Check 3: Game Over Buttons (ONLY active when game is over and animation is complete)
     if (this.gameOver && this.deathAnimationTimeStart === null) {
+      // REPLAY Button check
       const btnX_go = this.width / 2 - 80;
-      const btnY_go = this.height / 2 + 60;
+      const btnY_go = this.height / 2 + 60; // REPLAY Y-start
       const btnW_go = 160;
       const btnH_go = 45;
-
+      
       if (
         x >= btnX_go && x <= btnX_go + btnW_go &&
         y >= btnY_go && y <= btnY_go + btnH_go
       ) {
-        this.restartGame();
+        this.restartGame(); // Calls resetState(true)
+        return;
+      }
+      
+      // ** NEW: MAIN MENU Button check **
+      // Assuming a 15px gap below the Replay button (Y+60 + H+45 + Gap+15 = Y+120)
+      const menuBtnY_go = this.height / 2 + 120; // MAIN MENU Y-start
+
+      if (
+        x >= btnX_go && x <= btnX_go + btnW_go &&
+        y >= menuBtnY_go && y <= menuBtnY_go + btnH_go
+      ) {
+        this.returnToMainMenu(); // Calls resetState(false)
         return;
       }
     }
@@ -660,30 +713,8 @@ killEnemy(enemy: Enemy) {
   }
 
   restartGame() {
-    // Reset all game state variables to initial values
-    this.player = { 
-      x: 400, y: 300, radius: 20, angle: 0, 
-      maxSpeed: 3, color: '#3498db', health: 100, 
-      maxHealth: 100, fireRate: 150 
-    };
-    this.bullets = [];
-    this.enemies = [];
-    this.keys = {};
-    this.score = 0;
-    this.gameOver = false;
-    this.isPaused = false;
-    this.lastAngle = 0;
-    this.mouseAiming = true; 
-    this.mouseDown = false;
-    this.lastShotTime = 0; 
-    this.enemySpawnCount = 5; 
-    this.waveCount = 0; 
-    this.deathAnimationTimeStart = null; 
-    this.enemiesRemainingForAnimation = [];
-    this.isRegularWaveActive = false; 
-    
-    // Set to true to begin gameplay immediately after "REPLAY" click
-    this.isGameStarted = true; 
+    // ** UPDATED to use resetState **
+    this.resetState(true); // Set to true to begin gameplay immediately after "REPLAY" click
     
     this.lastTime = performance.now(); // Reset time for accurate game loop
     this.spawner.spawnEnemies(
