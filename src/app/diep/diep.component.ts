@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, HostListener
 import { CommonModule } from '@angular/common';
 import { Player, Bullet, Enemy, EnemyType } from './diep.interfaces';
 import { EnemySpawnerService } from './diep.enemy-spawner';
+import { DiepMenus } from './diep.menus';
+import { DiepEntities } from './diep.entities';
 
 @Component({
   selector: 'app-diep',
@@ -712,379 +714,54 @@ this.enemies = enemiesToKeep; // Update the enemy list
   }
 
   draw() {
-    // 1. Set Canvas Background based on Dark Mode
+    const menuState = {
+      ctx: this.ctx,
+      width: this.width,
+      height: this.height,
+      gameOver: this.gameOver,
+      isPaused: this.isPaused,
+      score: this.score,
+      isDarkMode: this.isDarkMode,
+      deathAnimationTimeStart: this.deathAnimationTimeStart,
+    };
+    
+    // --- 1. Set Canvas Background based on Dark Mode ---
     this.ctx.fillStyle = this.isDarkMode ? '#1e1e1e' : '#f4f4f4';
     this.ctx.fillRect(0, 0, this.width, this.height);
     
     // --- 2. Draw Player Tank ---
-    if (!this.gameOver) {
-      this.ctx.save();
-      this.ctx.translate(this.player.x, this.player.y);
-      this.ctx.rotate(this.player.angle);
-
-      // Draw Barrel (Cannon) 
-      this.ctx.fillStyle = '#2980b9'; 
-      this.ctx.beginPath();
-      const barrelWidth = 14; 
-      const barrelLength = this.player.radius * 2.5; 
-      this.ctx.rect(-this.player.radius * 0.5, -barrelWidth / 2, barrelLength, barrelWidth);
-      this.ctx.fill();
-      
-      // Draw Tank Body
-      this.ctx.beginPath();
-      this.ctx.arc(0, 0, this.player.radius, 0, Math.PI * 2);
-      this.ctx.fillStyle = this.player.color;
-      this.ctx.fill();
-      
-      this.ctx.restore();
-    }
+    DiepEntities.drawPlayer(this.ctx, this.player, this.gameOver);
 
     // --- 3. Draw Bullets ---
-    this.bullets.forEach(bullet => {
-      this.ctx.beginPath();
-      this.ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
-      this.ctx.fillStyle = bullet.color;
-      this.ctx.shadowBlur = 5;
-      this.ctx.shadowColor = bullet.color;
-      this.ctx.fill();
-      this.ctx.shadowBlur = 0; 
-    });
+    DiepEntities.drawBullets(this.ctx, this.bullets);
 
     // --- 4. Draw Enemies and Health Bars ---
     let enemiesToDraw: Enemy[];
     if (this.gameOver && this.deathAnimationTimeStart !== null) {
-        // Death animation: enemies disappear sequentially
+        // DEATH ANIMATION LOGIC (Keep this preparation logic, it's state manipulation)
         const totalEnemies = this.enemiesRemainingForAnimation.length;
         const timeElapsed = Date.now() - (this.deathAnimationTimeStart || 0);
         const enemiesToDisappear = Math.floor((timeElapsed / this.deathAnimationDuration) * totalEnemies);
         enemiesToDraw = this.enemiesRemainingForAnimation.slice(enemiesToDisappear);
     } else if (this.gameOver && this.deathAnimationTimeStart === null) {
-        enemiesToDraw = []; // All cleared after animation
+        enemiesToDraw = [];
     } else {
-        enemiesToDraw = this.enemies; // Regular gameplay
+        enemiesToDraw = this.enemies;
     }
-
-
-    enemiesToDraw.forEach(enemy => {
-      // --- Draw AURA EFFECT ---
-    if (enemy.type === 'AURA') {
-        const auraRadius = 100; // Must match the value used in update()
-        
-        this.ctx.beginPath();
-        this.ctx.arc(enemy.x, enemy.y, enemy.radius + auraRadius, 0, Math.PI * 2);
-        // Use a lighter, translucent green color
-        this.ctx.fillStyle = 'rgba(51, 204, 51, 0.15)'; 
-        this.ctx.fill();
-    }
-    if (enemy.type === 'CRASHER') { // Draw the fast pink enemy as a TRIANGLE
-        this.ctx.save();
-        this.ctx.translate(enemy.x, enemy.y);
-        
-        // Calculate angle to point toward the player
-        const dx = this.player.x - enemy.x;
-        const dy = this.player.y - enemy.y;
-        const angle = Math.atan2(dy, dx);
-        this.ctx.rotate(angle + Math.PI / 2); // Rotate to point forward
-
-        this.ctx.beginPath();
-        // Vertices for an equilateral triangle
-        this.ctx.moveTo(0, -enemy.radius); 
-        this.ctx.lineTo(-enemy.radius * 0.866, enemy.radius * 0.5); 
-        this.ctx.lineTo(enemy.radius * 0.866, enemy.radius * 0.5); 
-        this.ctx.closePath(); 
-        
-        this.ctx.fillStyle = enemy.color;
-        this.ctx.fill();
-        this.ctx.strokeStyle = '#9b59b6'; // Purple stroke
-        this.ctx.lineWidth = 1.5;
-        this.ctx.stroke();
-        this.ctx.restore();
-        
-    }
-    else if (enemy.type === 'SMASHER') {
-    
-    // CRITICAL STEP 1: Save the context state
-    this.ctx.save();
-    
-    // CRITICAL STEP 2: Translate the canvas origin to the enemy's center
-    this.ctx.translate(enemy.x, enemy.y);
-    
-    // CRITICAL STEP 3: Apply the rotation
-    // Use the non-null assertion (!) as we ensured rotationAngle is initialized
-    this.ctx.rotate(enemy.rotationAngle!);
-
-    const hexRadius = enemy.radius;
-    
-    // 1. Draw the Black Hexagon (Outer Shape) - Drawn around (0, 0)
-    this.ctx.beginPath();
-    this.ctx.fillStyle = '#000000'; // Black fill
-    this.ctx.strokeStyle = '#2c3e50'; // Dark stroke
-    this.ctx.lineWidth = 2;
-    
-    // Draw 6-sided polygon (Hexagon)
-    for (let i = 0; i < 6; i++) {
-        // Start angle is offset by PI/6 to ensure a flat top
-        const angle = i * Math.PI / 3 + Math.PI / 6; 
-        const x = hexRadius * Math.cos(angle);
-        const y = hexRadius * Math.sin(angle);
-        
-        // Coordinates MUST be relative to (0, 0)
-        if (i === 0) {
-            this.ctx.moveTo(x, y);
-        } else {
-            this.ctx.lineTo(x, y);
-        }
-    }
-    this.ctx.closePath();
-    this.ctx.fill();
-    this.ctx.stroke();
-
-    // 2. Draw the Red Inner Circle - Drawn at (0, 0)
-    // Using 0.9 as specified (hexRadius * 0.9 for the inner circle)
-    const innerRadius = hexRadius * 0.9; 
-    
-    this.ctx.beginPath();
-    // Center MUST be (0, 0) after translation
-    this.ctx.arc(0, 0, innerRadius, 0, Math.PI * 2); 
-    this.ctx.fillStyle = '#e74c3c'; // Red fill
-    this.ctx.fill();
-    
-    // CRITICAL STEP 4: Restore the canvas state (undo translate and rotate)
-    this.ctx.restore();
-
-}  else { // Draw as a CIRCLE (Regular, Boss, Minion, Sniper)
-        this.ctx.beginPath();
-        this.ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
-        this.ctx.fillStyle = enemy.color;
-        this.ctx.fill();
-
-        if (enemy.type === 'SNIPER') {
-        
-        // 1. Calculate angle and save context
-        const dx = this.player.x - enemy.x;
-        const dy = this.player.y - enemy.y;
-        const angle = Math.atan2(dy, dx);
-        
-        this.ctx.save();
-        this.ctx.translate(enemy.x, enemy.y);
-        this.ctx.rotate(angle);
-
-        // 2. DRAW BARREL FIRST (to be underneath the body)
-        this.ctx.fillStyle = '#95a5a6'; // Light Gray
-        this.ctx.beginPath();
-        
-        const barrelWidth = 14; 
-        const barrelLength = enemy.radius * 2.0; 
-        const barrelStartOffset = enemy.radius * 0.5;
-        
-        this.ctx.rect(-barrelStartOffset, -barrelWidth / 2, barrelLength, barrelWidth);
-        this.ctx.fill();
-        this.ctx.restore();
-        
-        // 3. Draw the enemy body circle ON TOP of the barrel
-        this.ctx.beginPath();
-        this.ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
-        this.ctx.fillStyle = enemy.color; // Red
-        this.ctx.fill();
-    }
-        
-        // Set unique stroke colors/widths for different circle types
-        let strokeColor = '#c0392b';
-        let lineWidth = 2;
-        let shadowBlur = 0;
-        
-        if (enemy.isBoss) { 
-            strokeColor = '#8e44ad';
-            lineWidth = 4;
-            shadowBlur = 10;
-        } else if (enemy.color === '#d2b4de') { // Minions
-            strokeColor = '#9b59b6';
-            lineWidth = 1.5;
-        } else if (enemy.type === 'SNIPER') { // <-- ADD THIS BACK
-            strokeColor = '#c0392b'; // Use the same dark red as the regular enemy stroke
-            lineWidth = 2;
-        } else if (enemy.type === 'REGULAR') { // Regular (Red)
-            strokeColor = '#c0392b';
-            lineWidth = 2;
-        } else if (enemy.type === 'AURA') {
-        strokeColor = '#33cc33'; 
-        lineWidth = 2.5; 
-    }
-        
-        this.ctx.strokeStyle = strokeColor;
-        this.ctx.lineWidth = lineWidth;
-        this.ctx.stroke();
-        
-        // Boss Shadow Effect
-        if (shadowBlur > 0) {
-            this.ctx.shadowBlur = shadowBlur;
-            this.ctx.shadowColor = enemy.color;
-            this.ctx.fill();
-            this.ctx.shadowBlur = 0;
-        }
-    }
-
-      // Draw Aesthetic Health Bar (only for non-bosses/non-full health)
-      if (enemy.health < enemy.maxHealth && !enemy.isBoss) { 
-          const barWidth = enemy.radius * 2;
-          const healthPercent = enemy.health / enemy.maxHealth;
-          const healthBarX = enemy.x - enemy.radius;
-          const healthBarY = enemy.y - enemy.radius - 15;
-          const healthBarHeight = 6;
-          
-          // Background Bar
-          this.ctx.fillStyle = '#1e1e1e';
-          this.ctx.fillRect(healthBarX, healthBarY, barWidth, healthBarHeight);
-          
-          // Health Fill
-          let healthColor = '#2ecc71'; // Green
-          if (healthPercent < 0.5) healthColor = '#f1c40f'; // Yellow
-          if (healthPercent < 0.2) healthColor = '#e74c3c'; // Red
-          this.ctx.fillStyle = healthColor;
-          
-          const fillWidth = barWidth * healthPercent;
-          this.ctx.fillRect(healthBarX, healthBarY, fillWidth, healthBarHeight);
-          
-          // Border
-          this.ctx.strokeStyle = '#95a5a6';
-          this.ctx.lineWidth = 1;
-          this.ctx.strokeRect(healthBarX, healthBarY, barWidth, healthBarHeight);
-      }
-      
-      // Draw boss health bar (different style)
-      if (enemy.isBoss && enemy.health < enemy.maxHealth) {
-          const barWidth = 100;
-          const healthPercent = enemy.health / enemy.maxHealth;
-          const healthBarX = enemy.x - barWidth / 2;
-          const healthBarY = enemy.y - enemy.radius - 20;
-          const healthBarHeight = 10;
-          
-          // Background Bar
-          this.ctx.fillStyle = '#34495e';
-          this.ctx.fillRect(healthBarX, healthBarY, barWidth, healthBarHeight);
-          
-          // Health Fill (Purple Boss color)
-          this.ctx.fillStyle = '#9b59b6';
-          const fillWidth = barWidth * healthPercent;
-          this.ctx.fillRect(healthBarX, healthBarY, fillWidth, healthBarHeight);
-          
-          this.ctx.font = '10px Inter, sans-serif';
-          this.ctx.fillStyle = '#fff';
-          this.ctx.textAlign = 'center';
-          this.ctx.fillText(`MINI BOSS HP: ${Math.ceil(enemy.health)}`, enemy.x, healthBarY + healthBarHeight + 10);
-      }
-    });
+  
+    DiepEntities.drawEnemiesWithBars(this.ctx, enemiesToDraw, this.player);
     
     // --- 7. Game Over Screen ---
-    if (this.gameOver && this.deathAnimationTimeStart === null) {
-      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-      this.ctx.fillRect(0, 0, this.width, this.height);
-
-      this.ctx.font = 'bold 64px Inter, sans-serif';
-      this.ctx.fillStyle = '#f1c40f'; 
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText('GAME OVER', this.width / 2, this.height / 2 - 40);
-
-      this.ctx.font = '32px Inter, sans-serif';
-      this.ctx.fillStyle = '#ecf0f1';
-      this.ctx.fillText('Final Score: ' + this.score, this.width / 2, this.height / 2 + 10);
-
-      // Draw Replay Button
-      const btnX = this.width / 2 - 80;
-      const btnY = this.height / 2 + 60;
-      const btnW = 160;
-      const btnH = 45;
-
-      this.ctx.fillStyle = '#e74c3c'; 
-      this.ctx.fillRect(btnX, btnY, btnW, btnH);
-      
-      this.ctx.strokeStyle = '#c0392b';
-      this.ctx.lineWidth = 3;
-      this.ctx.strokeRect(btnX, btnY, btnW, btnH);
-
-      this.ctx.font = 'bold 24px Inter, sans-serif';
-      this.ctx.fillStyle = '#fff';
-      this.ctx.fillText('REPLAY', this.width / 2, btnY + 30);
-    }
+    DiepMenus.drawGameOverScreen(menuState);
 
     // --- 8. Pause Screen ---
-    if (this.isPaused) {
-      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-      this.ctx.fillRect(0, 0, this.width, this.height);
-
-      this.ctx.font = 'bold 64px Inter, sans-serif';
-      this.ctx.fillStyle = '#f39c12'; 
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText('PAUSED', this.width / 2, this.height / 2 - 100);
-
-      // Draw RESUME Button (Center)
-      const playBtnX = this.width / 2 - 80;
-      const playBtnY = this.height / 2 - 40;
-      const playBtnW = 160;
-      const playBtnH = 45;
-      
-      this.ctx.fillStyle = '#2ecc71'; 
-      this.ctx.fillRect(playBtnX, playBtnY, playBtnW, playBtnH);
-      this.ctx.font = 'bold 24px Inter, sans-serif';
-      this.ctx.fillStyle = '#fff';
-      this.ctx.fillText('RESUME', this.width / 2, playBtnY + 30);
-      
-      // Draw Dark Mode Toggle Button (Below Resume)
-      const toggleBtnW = 280; // Increased width for text
-      const toggleBtnX = this.width / 2 - (toggleBtnW / 2); // Center it
-      const toggleBtnY = this.height / 2 + 40;
-      const toggleBtnH = 45;
-
-      this.ctx.fillStyle = this.isDarkMode ? '#34495e' : '#ecf0f1'; // Color based on target mode
-      this.ctx.fillRect(toggleBtnX, toggleBtnY, toggleBtnW, toggleBtnH);
-      this.ctx.strokeStyle = '#fff';
-      this.ctx.lineWidth = 2;
-      this.ctx.strokeRect(toggleBtnX, toggleBtnY, toggleBtnW, toggleBtnH);
-
-      this.ctx.font = 'bold 18px Inter, sans-serif'; // Reduced font size
-      this.ctx.fillStyle = this.isDarkMode ? '#ecf0f1' : '#333'; // Text color
-      
-      // Updated text for clarity
-      const toggleText = this.isDarkMode ? 'CLICK FOR LIGHT MODE 🌞' : 'CLICK FOR DARK MODE 🌙';
-      this.ctx.fillText(toggleText, this.width / 2, toggleBtnY + 30);
-    }
+    DiepMenus.drawPauseScreen(menuState);
 
     // --- 9. Draw UI Overlay (Health, Score, Wave) - Always draw last to ensure visibility ---
     this.drawUIOverlay();
     
     // --- 10. Draw In-Game Pause Button (Drawn last for layering fix) ---
-    if (!this.gameOver) {
-      const btnRadius = 20;
-      const btnX = this.width / 2; // Center
-      const btnY = 35; // Top center
-
-      this.ctx.fillStyle = 'rgba(52, 152, 219, 0.9)'; // Blue background
-      this.ctx.beginPath();
-      this.ctx.arc(btnX, btnY, btnRadius, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      this.ctx.fillStyle = '#fff';
-      if (this.isPaused) {
-        // Draw Play icon (Triangle)
-        this.ctx.beginPath();
-        this.ctx.moveTo(btnX - 5, btnY - 8);
-        this.ctx.lineTo(btnX - 5, btnY + 8);
-        this.ctx.lineTo(btnX + 7, btnY);
-        this.ctx.closePath();
-        this.ctx.fill();
-      } else {
-        // Draw Pause icon (two vertical lines)
-        this.ctx.fillRect(btnX - 6, btnY - 8, 4, 16);
-        this.ctx.fillRect(btnX + 2, btnY - 8, 4, 16);
-      }
-      
-      // Add a border when paused to make it stand out against the dark overlay
-      if (this.isPaused) {
-        this.ctx.strokeStyle = '#fff';
-        this.ctx.lineWidth = 2;
-        this.ctx.stroke();
-      }
-    }
+    DiepMenus.drawInGamePauseButton(menuState);
   }
 
   // --- Utility/Control Functions ---
