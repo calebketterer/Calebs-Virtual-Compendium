@@ -146,15 +146,10 @@ export class DiepEntities {
         } else { // Draw as a CIRCLE (Regular, Boss, Minion, Sniper)
             
             // Handle SNIPER barrel drawing before the body circle
-            if (enemy.type === 'SNIPER') {
-                // 1. Calculate angle and save context
-                const dx = player.x - enemy.x;
-                const dy = player.y - player.y;
-                const angle = Math.atan2(dy, dx);
-                
+            if (enemy.type === 'SNIPER') {   
                 ctx.save();
                 ctx.translate(enemy.x, enemy.y);
-                ctx.rotate(angle);
+                ctx.rotate(enemy.rotationAngle!); 
 
                 // 2. DRAW BARREL FIRST (to be underneath the body)
                 ctx.fillStyle = '#95a5a6'; // Light Gray
@@ -164,6 +159,7 @@ export class DiepEntities {
                 const barrelLength = enemy.radius * 2.0; 
                 const barrelStartOffset = enemy.radius * 0.5;
                 
+                // Draw the barrel horizontally centered at the tank's origin
                 ctx.rect(-barrelStartOffset, -barrelWidth / 2, barrelLength, barrelWidth);
                 ctx.fill();
                 ctx.restore();
