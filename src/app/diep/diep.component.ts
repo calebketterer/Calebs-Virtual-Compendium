@@ -49,8 +49,8 @@ export class DiepComponent implements AfterViewInit {
   public mouseX: number = 0;
   public mouseY: number = 0; 
 
-  // HIGH SCORE STATE
-  public topScores: HighScore[] = [];
+  // HIGH SCORE STATE
+  public topScores: HighScore[] = [];
 
   // State to control when the game logic starts
   isGameStarted: boolean = false; 
@@ -70,11 +70,15 @@ export class DiepComponent implements AfterViewInit {
 
   constructor(
         private spawner: EnemySpawnerService,
-        private highScoresService: HighScoresService 
+        private highScoresService: HighScoresService 
     ) { }
 
   ngAfterViewInit() {
     this.ctx = this.canvasRef.nativeElement.getContext('2d')!;
+    
+    // FIX 1: Load high scores immediately for display on the Start Menu and Pause Menu.
+    this.topScores = this.highScoresService.getHighScores();
+    
     // Initial enemy spawn logic removed. Game starts only after clicking START GAME button.
     this.canvasRef.nativeElement.focus(); 
     this.gameLoop(); // Start the loop to draw the initial start menu
@@ -177,8 +181,9 @@ export class DiepComponent implements AfterViewInit {
   
   // ** NEW: Reusable State Reset Logic **
   /**
-   * Resets all primary game state variables to their initial values.
-   */
+   * Resets all primary game state variables to their initial values.
+   * NOTE: High scores (this.topScores) are NOT reset here, as they are persistent.
+   */
   private resetState(startGameImmediately: boolean) {
     this.player = { 
       x: 400, y: 300, radius: 20, angle: 0, 
@@ -200,15 +205,20 @@ export class DiepComponent implements AfterViewInit {
     this.deathAnimationTimeStart = null; 
     this.enemiesRemainingForAnimation = [];
     this.isRegularWaveActive = false; 
-    this.topScores = [];
+    // FIX APPLIED HERE: Removing 'this.topScores = [];' so scores persist across games.
     this.isGameStarted = startGameImmediately; 
   }
   
   /**
-   * Resets the game state and returns to the initial Start Menu.
-   */
+   * Resets the game state and returns to the initial Start Menu.
+   */
   public returnToMainMenu() {
-    this.resetState(false); // Set isGameStarted to false
+    this.resetState(false); 
+    
+    // FIX 2: Re-fetch scores immediately after resetting the state to populate the main menu display.
+    // This ensures that the *latest* scores (including the one from the just-ended game) are shown.
+    this.topScores = this.highScoresService.getHighScores(); 
+
     this.lastTime = performance.now(); // Reset time
     this.canvasRef.nativeElement.focus();
     this.gameLoop(); // Restart the loop (it will now draw the Start Menu)
@@ -484,11 +494,11 @@ killEnemy(enemy: Enemy) {
 
         // 8. Game Over Check & Animation Start
         if (this.player.health <= 0) {
-            if (!this.gameOver) { // Only run once when player dies
-                // 🚨 HIGH SCORE LOGIC: Add the score and retrieve the new top list <-- NEW LOGIC
-                this.highScoresService.addHighScore(this.score);
-                this.topScores = this.highScoresService.getHighScores();
-            }
+            if (!this.gameOver) { // Only run once when player dies
+                // 🚨 HIGH SCORE LOGIC: Add the score and retrieve the new top list
+                this.highScoresService.addHighScore(this.score);
+                this.topScores = this.highScoresService.getHighScores();
+            }
           this.player.health = 0;
           this.gameOver = true; 
           this.deathAnimationTimeStart = Date.now();
@@ -566,7 +576,7 @@ killEnemy(enemy: Enemy) {
       score: this.score,
       isDarkMode: this.isDarkMode,
       deathAnimationTimeStart: this.deathAnimationTimeStart,
-      topScores: this.topScores,
+      topScores: this.topScores,
     };
     
     // --- 1. Set Canvas Background based on Dark Mode ---

@@ -17,7 +17,7 @@ interface MenuState {
   score: number;
   isDarkMode: boolean;
   deathAnimationTimeStart: number | null;
-  topScores: HighScore[]; // NEW: Array of saved high scores for display
+  topScores: HighScore[]; // Array of saved high scores for display
 }
 
 /** Defines the clickable area of a button. */
@@ -39,6 +39,73 @@ export interface GameOverButtons {
  * UI elements, menus, and overlays onto the canvas context.
  */
 export class DiepMenus {
+
+  /**
+   * Helper function to draw the standardized high score list in two columns (Score and Date).
+   * This function is reused by both the Game Over and Pause screens.
+   * @param ctx The canvas rendering context.
+   * @param listCenterX The X coordinate for the center of the list title/columns.
+   * @param listTitleY The Y coordinate for the list title.
+   * @param topScores The array of high scores to display.
+   * @param highlightScore The score to highlight (if applicable, typically null for pause screen).
+   * @param titleColor The color for the "HIGH SCORES" title.
+   */
+  private static drawHighScoreList(
+    ctx: CanvasRenderingContext2D,
+    listCenterX: number,
+    listTitleY: number,
+    topScores: HighScore[],
+    highlightScore: number | null,
+    titleColor: string
+  ): void {
+    // Title
+    ctx.font = 'bold 24px Inter, sans-serif';
+    ctx.fillStyle = titleColor;
+    ctx.textAlign = 'center';
+    ctx.fillText('HIGH SCORES', listCenterX, listTitleY);
+
+    // Starting Y position for the first score list element
+    let listY = listTitleY + 35; 
+
+    // Check if there are any scores to display
+    if (topScores.length === 0) {
+      ctx.font = '16px Inter, sans-serif';
+      ctx.fillStyle = '#bdc3c7'; // Light grey text
+      ctx.textAlign = 'center';
+      ctx.fillText('No Scores Yet', listCenterX, listY);
+    } else {
+      // Define column X positions relative to listCenterX for cleaner separation
+      const scoreRightX = listCenterX - 15; // Score ends here (Right-aligned)
+      const dateLeftX = listCenterX + 15; // Date starts here (Left-aligned)
+
+      // Draw the scores
+      topScores.forEach((scoreEntry: HighScore, index: number) => {
+        const dateObj = new Date(scoreEntry.date);
+        const dateString = dateObj.toLocaleDateString('en-US', {
+          month: 'numeric', day: 'numeric', year: '2-digit'
+        });
+
+        // Determine if this is the new high score (highlight only on Game Over screen)
+        const isHighlighted = (highlightScore !== null && scoreEntry.score === highlightScore && index === 0);
+
+        ctx.font = isHighlighted ? 'bold 16px Inter, sans-serif' : '16px Inter, sans-serif';
+        ctx.fillStyle = isHighlighted ? '#2ecc71' : '#bdc3c7'; // Highlight color vs default list color
+
+        // Draw Score - R-aligned for column 1
+        ctx.textAlign = 'right';
+        ctx.fillText(scoreEntry.score.toString(), scoreRightX, listY);
+
+        // Draw Date - L-aligned for column 2
+        ctx.textAlign = 'left';
+        ctx.fillText(dateString, dateLeftX, listY);
+
+        listY += 20; // Space for the next line
+      });
+    }
+
+    // Restore textAlign to center
+    ctx.textAlign = 'center';
+  }
 
   /**
    * Draws the Start Menu overlay screen, including the game title and the START button.
@@ -90,7 +157,7 @@ export class DiepMenus {
   }
 
   /**
-   * Draws the Game Over overlay screen, including the final score, High Scores list, 
+   * Draws the Game Over overlay screen, including the final score, High Scores list,
    * and the Replay and Main Menu buttons.
    * @param state The current game state and canvas context.
    * @returns The coordinates of the clickable buttons, or null if the screen is not active.
@@ -104,77 +171,42 @@ export class DiepMenus {
       ctx.fillRect(0, 0, width, height);
 
       // --- 1. GAME OVER TITLE (CENTERED AND HIGH) ---
-      const titleY = height / 2 - 150;
       ctx.font = 'bold 64px Inter, sans-serif';
       ctx.fillStyle = '#f1c40f'; // Yellow color
       ctx.textAlign = 'center';
       ctx.fillText('GAME OVER', width / 2, height / 2 - 40);
 
       // --- 2. FINAL SCORE (CENTERED AND HIGH) ---
-      const scoreY = height / 2 - 100;
       ctx.font = '32px Inter, sans-serif';
       ctx.fillStyle = '#ecf0f1';
       ctx.fillText('Final Score: ' + score, width / 2, height / 2 + 10);
-      
+
       // --- 3. HIGH SCORES LIST (RIGHT SIDE QUADRANT) ---
-      
-      // Control the horizontal position using a ratio (0.5 is center, 0.75 is right)
-      const hsListXRatio = 0.75; 
-      const listCenterX = width * hsListXRatio; 
-      
-      // Title offset is 0 as we want the title centered over the two columns.
-      const hsTitleOffsetX = 14; 
-      
-      let listTitleY = height / 2 + 80; 
-      
-      ctx.font = 'bold 20px Inter, sans-serif';
-      ctx.fillStyle = '#3498db'; // Blue color
-      ctx.textAlign = 'center'; 
-      ctx.fillText('HIGH SCORES', listCenterX + hsTitleOffsetX, listTitleY); 
-      
-      // The vertical starting position of the first score entry.
-      let listY = listTitleY + 25; 
 
-      // Define column X positions relative to listCenterX for cleaner separation
-      const scoreRightX = listCenterX - 15; // Score ends here (Right-aligned)
-      const dateLeftX = listCenterX + 15; // Date starts here (Left-aligned)
+      // Horizontal position setup: right side (0.75)
+      const hsListXRatio = 0.875;
+      const listCenterX = width * hsListXRatio;
 
-      // Draw the scores
-      topScores.forEach((scoreEntry: HighScore, index: number) => {
-        // --- MODIFIED: Date formatting to exclude time and use 2-digit year ---
-        const dateObj = new Date(scoreEntry.date);
-        const dateString = dateObj.toLocaleDateString('en-US', {
-          month: 'numeric', day: 'numeric', year: '2-digit' // Now 2-digit year
-        });
-        // ------------------------------------------------------------------------
+      // Vertical position setup: centered with the pause menu items
+      let listTitleY = height / 2 - 200;
 
-        // Determine if this is the new score (it will be the first one in the list if tied)
-        const isNewScore = (scoreEntry.score === score && index === 0);
-        
-        ctx.font = isNewScore ? 'bold 16px Inter, sans-serif' : '16px Inter, sans-serif';
-        ctx.fillStyle = isNewScore ? '#2ecc71' : '#bdc3c7'; // Highlight new high score
-        
-        // Removed: Draw Rank (1-5) 
-        // Original: ctx.fillText(`${index + 1}.`, rankRightX, listY);
-
-        // Draw Score - R-aligned for column 1
-        ctx.textAlign = 'right';
-        ctx.fillText(scoreEntry.score.toString(), scoreRightX, listY);
-
-        // Draw Date/Time (Now just Date) - L-aligned for column 2
-        ctx.textAlign = 'left';
-        ctx.fillText(dateString, dateLeftX, listY);
-
-        listY += 20; // Space for the next line
-      });
+      // Use the reusable helper function
+      DiepMenus.drawHighScoreList(
+        ctx,
+        listCenterX,
+        listTitleY,
+        topScores,
+        score, // Pass current score for highlighting
+        '#3498db' // Blue title color
+      );
 
       // --- 4. BUTTONS (ALIGNED WITH diep.component.ts CLICK AREAS) ---
       const btnW = 160;
       const btnH = 45;
       const btnX = width / 2 - 80; // Common X for centering
-      
+
       // REPLAY Button Y. Set to height / 2 + 60 to match click detection logic.
-      const replayBtnY = height / 2 + 60; 
+      const replayBtnY = height / 2 + 60;
 
       // 1. Draw REPLAY Button
       ctx.fillStyle = '#e74c3c'; // Red color for the replay button
@@ -191,7 +223,7 @@ export class DiepMenus {
 
       // 2. Draw MAIN MENU Button
       // MAIN MENU Button Y. Set to height / 2 + 120 to match click detection logic.
-      const menuBtnY = height / 2 + 120; 
+      const menuBtnY = height / 2 + 120;
 
       ctx.fillStyle = '#2c3e50'; // Dark blue/gray for the main menu button
       ctx.fillRect(btnX, menuBtnY, btnW, btnH);
@@ -219,18 +251,19 @@ export class DiepMenus {
    * @param state The current game state and canvas context.
    */
   public static drawPauseScreen(state: MenuState): void {
-    const { ctx, width, height, isPaused, isDarkMode } = state;
+    const { ctx, width, height, isPaused, isDarkMode, topScores } = state;
 
     if (isPaused) {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
       ctx.fillRect(0, 0, width, height);
 
+      // --- 1. PAUSED TITLE (CENTERED) ---
       ctx.font = 'bold 64px Inter, sans-serif';
       ctx.fillStyle = '#f39c12';
       ctx.textAlign = 'center';
       ctx.fillText('PAUSED', width / 2, height / 2 - 100);
 
-      // Draw RESUME Button (Center)
+      // --- 2. RESUME Button (Center-Left quadrant) ---
       const playBtnX = width / 2 - 80;
       const playBtnY = height / 2 - 40;
       const playBtnW = 160;
@@ -242,7 +275,7 @@ export class DiepMenus {
       ctx.fillStyle = '#fff';
       ctx.fillText('RESUME', width / 2, playBtnY + 30);
 
-      // Draw Dark Mode Toggle Button (Below Resume)
+      // --- 3. Dark Mode Toggle Button (Below Resume) ---
       const toggleBtnW = 280; // Increased width for text
       const toggleBtnX = width / 2 - (toggleBtnW / 2); // Center it
       const toggleBtnY = height / 2 + 40;
@@ -260,6 +293,28 @@ export class DiepMenus {
       // Updated text for clarity
       const toggleText = isDarkMode ? 'CLICK FOR LIGHT MODE 🌞' : 'CLICK FOR DARK MODE 🌙';
       ctx.fillText(toggleText, width / 2, toggleBtnY + 30);
+
+      // --- 4. HIGH SCORES LIST (Right side quadrant) ---
+
+      // Horizontal position setup: right side (0.75)
+      const hsListXRatio = 0.875;
+      const listCenterX = width * hsListXRatio;
+
+      // Vertical position setup: centered with the pause menu items
+      let listTitleY = height / 2 - 200;
+
+      // Use the reusable helper function
+      DiepMenus.drawHighScoreList(
+        ctx,
+        listCenterX,
+        listTitleY,
+        topScores,
+        null, // No highlighting on pause screen
+        '#f39c12' // Yellow title color
+      );
+
+      // Restore textAlign to center for button drawing logic
+      ctx.textAlign = 'center';
     }
   }
 
