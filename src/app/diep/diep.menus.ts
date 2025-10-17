@@ -1,3 +1,5 @@
+import { HighScore } from './diep.interfaces';
+
 /**
  * diep.menus.ts
  *
@@ -15,24 +17,22 @@ interface MenuState {
   score: number;
   isDarkMode: boolean;
   deathAnimationTimeStart: number | null;
+  topScores: HighScore[]; // NEW: Array of saved high scores for display
 }
-
-// --- NEW INTERFACES for Click Detection ---
 
 /** Defines the clickable area of a button. */
 interface ButtonArea {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
 }
 
 /** Defines the collection of buttons drawn on the game over screen. */
 export interface GameOverButtons {
-    replay: ButtonArea;
-    mainMenu: ButtonArea;
+  replay: ButtonArea;
+  mainMenu: ButtonArea;
 }
-// ------------------------------------------
 
 /**
  * Utility class containing all methods responsible for drawing
@@ -48,7 +48,6 @@ export class DiepMenus {
   public static drawStartMenu(state: MenuState): void {
     const { ctx, width, height, isGameStarted } = state;
 
-    // Only draw if the game has not started
     if (!isGameStarted) {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.9)'; // Dark overlay
       ctx.fillRect(0, 0, width, height);
@@ -91,35 +90,93 @@ export class DiepMenus {
   }
 
   /**
-   * Draws the Game Over overlay screen, including the final score and the Replay and Main Menu buttons.
-   * It now returns the bounding box coordinates for click detection.
+   * Draws the Game Over overlay screen, including the final score, High Scores list, 
+   * and the Replay and Main Menu buttons.
    * @param state The current game state and canvas context.
    * @returns The coordinates of the clickable buttons, or null if the screen is not active.
    */
   public static drawGameOverScreen(state: MenuState): GameOverButtons | null {
-    const { ctx, width, height, gameOver, deathAnimationTimeStart, score } = state;
+    const { ctx, width, height, gameOver, deathAnimationTimeStart, score, topScores } = state;
 
     // Only draw if the game is over and the death animation has finished/not started
     if (gameOver && deathAnimationTimeStart === null) {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
       ctx.fillRect(0, 0, width, height);
 
+      // --- 1. GAME OVER TITLE (CENTERED AND HIGH) ---
+      const titleY = height / 2 - 150;
       ctx.font = 'bold 64px Inter, sans-serif';
       ctx.fillStyle = '#f1c40f'; // Yellow color
       ctx.textAlign = 'center';
       ctx.fillText('GAME OVER', width / 2, height / 2 - 40);
 
+      // --- 2. FINAL SCORE (CENTERED AND HIGH) ---
+      const scoreY = height / 2 - 100;
       ctx.font = '32px Inter, sans-serif';
       ctx.fillStyle = '#ecf0f1';
       ctx.fillText('Final Score: ' + score, width / 2, height / 2 + 10);
+      
+      // --- 3. HIGH SCORES LIST (RIGHT SIDE QUADRANT) ---
+      
+      // Control the horizontal position using a ratio (0.5 is center, 0.75 is right)
+      const hsListXRatio = 0.75; 
+      const listCenterX = width * hsListXRatio; 
+      
+      // Title offset is 0 as we want the title centered over the two columns.
+      const hsTitleOffsetX = 14; 
+      
+      let listTitleY = height / 2 + 80; 
+      
+      ctx.font = 'bold 20px Inter, sans-serif';
+      ctx.fillStyle = '#3498db'; // Blue color
+      ctx.textAlign = 'center'; 
+      ctx.fillText('HIGH SCORES', listCenterX + hsTitleOffsetX, listTitleY); 
+      
+      // The vertical starting position of the first score entry.
+      let listY = listTitleY + 25; 
 
+      // Define column X positions relative to listCenterX for cleaner separation
+      const scoreRightX = listCenterX - 15; // Score ends here (Right-aligned)
+      const dateLeftX = listCenterX + 15; // Date starts here (Left-aligned)
+
+      // Draw the scores
+      topScores.forEach((scoreEntry: HighScore, index: number) => {
+        // --- MODIFIED: Date formatting to exclude time and use 2-digit year ---
+        const dateObj = new Date(scoreEntry.date);
+        const dateString = dateObj.toLocaleDateString('en-US', {
+          month: 'numeric', day: 'numeric', year: '2-digit' // Now 2-digit year
+        });
+        // ------------------------------------------------------------------------
+
+        // Determine if this is the new score (it will be the first one in the list if tied)
+        const isNewScore = (scoreEntry.score === score && index === 0);
+        
+        ctx.font = isNewScore ? 'bold 16px Inter, sans-serif' : '16px Inter, sans-serif';
+        ctx.fillStyle = isNewScore ? '#2ecc71' : '#bdc3c7'; // Highlight new high score
+        
+        // Removed: Draw Rank (1-5) 
+        // Original: ctx.fillText(`${index + 1}.`, rankRightX, listY);
+
+        // Draw Score - R-aligned for column 1
+        ctx.textAlign = 'right';
+        ctx.fillText(scoreEntry.score.toString(), scoreRightX, listY);
+
+        // Draw Date/Time (Now just Date) - L-aligned for column 2
+        ctx.textAlign = 'left';
+        ctx.fillText(dateString, dateLeftX, listY);
+
+        listY += 20; // Space for the next line
+      });
+
+      // --- 4. BUTTONS (ALIGNED WITH diep.component.ts CLICK AREAS) ---
       const btnW = 160;
       const btnH = 45;
       const btnX = width / 2 - 80; // Common X for centering
+      
+      // REPLAY Button Y. Set to height / 2 + 60 to match click detection logic.
+      const replayBtnY = height / 2 + 60; 
 
       // 1. Draw REPLAY Button
-      const replayBtnY = height / 2 + 60;
-
       ctx.fillStyle = '#e74c3c'; // Red color for the replay button
       ctx.fillRect(btnX, replayBtnY, btnW, btnH);
 
@@ -129,10 +186,12 @@ export class DiepMenus {
 
       ctx.font = 'bold 24px Inter, sans-serif';
       ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
       ctx.fillText('REPLAY', width / 2, replayBtnY + 30);
 
       // 2. Draw MAIN MENU Button
-      const menuBtnY = replayBtnY + btnH + 15; // Positioned 15px below the REPLAY button
+      // MAIN MENU Button Y. Set to height / 2 + 120 to match click detection logic.
+      const menuBtnY = height / 2 + 120; 
 
       ctx.fillStyle = '#2c3e50'; // Dark blue/gray for the main menu button
       ctx.fillRect(btnX, menuBtnY, btnW, btnH);
@@ -160,7 +219,6 @@ export class DiepMenus {
    * @param state The current game state and canvas context.
    */
   public static drawPauseScreen(state: MenuState): void {
-    // Note: isGameStarted is not destructured here but is part of the state for consistency
     const { ctx, width, height, isPaused, isDarkMode } = state;
 
     if (isPaused) {

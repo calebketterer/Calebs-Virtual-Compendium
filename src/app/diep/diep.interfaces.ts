@@ -56,3 +56,8 @@ export interface EnemySpawnWeight {
     type: EnemyType;
     weight: number;
 }
+
+export interface HighScore {
+  score: number;
+  date: string; // ISO 8601 string for persistent storage
+}

@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, HostListener, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Player, Bullet, Enemy, EnemyType } from './diep.interfaces';
+import { Player, Bullet, Enemy, HighScore } from './diep.interfaces';
 import { EnemySpawnerService } from './diep.enemy-spawner';
 import { DiepMenus } from './diep.menus';
 import { DiepEntities } from './diep.entities';
 import { DiepEnemyLogic } from './diep.enemy-logic';
+import { HighScoresService } from './diep.high-scores.service';
 
 @Component({
   selector: 'app-diep',
@@ -47,10 +48,14 @@ export class DiepComponent implements AfterViewInit {
   isDarkMode = true; 
   public mouseX: number = 0;
   public mouseY: number = 0; 
-  // NEW: State to control when the game logic starts
+
+  // HIGH SCORE STATE
+  public topScores: HighScore[] = [];
+
+  // State to control when the game logic starts
   isGameStarted: boolean = false; 
   
-  // New state variables for wave progression
+  // State variables for wave progression
   isRegularWaveActive: boolean = false; 
 
   private lastShotTime: number = 0; 
@@ -64,7 +69,8 @@ export class DiepComponent implements AfterViewInit {
   private enemiesRemainingForAnimation: Enemy[] = [];
 
   constructor(
-        private spawner: EnemySpawnerService 
+        private spawner: EnemySpawnerService,
+        private highScoresService: HighScoresService 
     ) { }
 
   ngAfterViewInit() {
@@ -194,8 +200,7 @@ export class DiepComponent implements AfterViewInit {
     this.deathAnimationTimeStart = null; 
     this.enemiesRemainingForAnimation = [];
     this.isRegularWaveActive = false; 
-
-    // The only difference between REPLAY (true) and MAIN MENU (false)
+    this.topScores = [];
     this.isGameStarted = startGameImmediately; 
   }
   
@@ -479,6 +484,11 @@ killEnemy(enemy: Enemy) {
 
         // 8. Game Over Check & Animation Start
         if (this.player.health <= 0) {
+            if (!this.gameOver) { // Only run once when player dies
+                // 🚨 HIGH SCORE LOGIC: Add the score and retrieve the new top list <-- NEW LOGIC
+                this.highScoresService.addHighScore(this.score);
+                this.topScores = this.highScoresService.getHighScores();
+            }
           this.player.health = 0;
           this.gameOver = true; 
           this.deathAnimationTimeStart = Date.now();
@@ -556,6 +566,7 @@ killEnemy(enemy: Enemy) {
       score: this.score,
       isDarkMode: this.isDarkMode,
       deathAnimationTimeStart: this.deathAnimationTimeStart,
+      topScores: this.topScores,
     };
     
     // --- 1. Set Canvas Background based on Dark Mode ---
@@ -693,7 +704,6 @@ killEnemy(enemy: Enemy) {
         return;
       }
       
-      // ** NEW: MAIN MENU Button check **
       // Assuming a 15px gap below the Replay button (Y+60 + H+45 + Gap+15 = Y+120)
       const menuBtnY_go = this.height / 2 + 120; // MAIN MENU Y-start
 
@@ -713,7 +723,6 @@ killEnemy(enemy: Enemy) {
   }
 
   restartGame() {
-    // ** UPDATED to use resetState **
     this.resetState(true); // Set to true to begin gameplay immediately after "REPLAY" click
     
     this.lastTime = performance.now(); // Reset time for accurate game loop
