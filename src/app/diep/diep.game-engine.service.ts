@@ -58,8 +58,7 @@ export class DiepGameEngineService {
   // UI State
   public topScores: HighScore[] = [];
 
-  // Time tracking for accurate game loop calculations
-  private lastTime = performance.now();
+  // DELETED: private lastTime property (now managed by component)
 
   constructor(
     private spawner: EnemySpawnerService,
@@ -111,7 +110,7 @@ export class DiepGameEngineService {
     if (this.isGameStarted) return;
     
     this.isGameStarted = true;
-    this.lastTime = performance.now();
+    // DELETED: lastTime initialization (now handled by component)
     
     // Perform initial enemy spawn
     this.spawner.spawnEnemies(
@@ -155,7 +154,7 @@ export class DiepGameEngineService {
     
     this.isPaused = !this.isPaused;
     if (!this.isPaused) {
-      this.lastTime = performance.now(); // Reset time when unpausing
+      // DELETED: lastTime reset (now handled by component)
     }
     return this.isPaused;
   }
@@ -213,12 +212,14 @@ export class DiepGameEngineService {
 
   /**
    * The primary physics and logic update function, called by the component's game loop.
+   * @param deltaTime The time elapsed since the last frame (in milliseconds).
    */
-  public update() {
-    // 0. Calculate Delta Time
-    const now = performance.now();
-    const deltaTime = now - this.lastTime;
-    this.lastTime = now;
+  public update(deltaTime: number) { // MODIFIED: Accepts deltaTime from component
+    
+    // --- Delta Time Normalization ---
+    // This factor (F) scales movement to be consistent, as if running at 60 FPS (1000/60ms)
+    const FPS_60_TIME = 1000 / 60; // Approx 16.666ms
+    const F = deltaTime / FPS_60_TIME; 
 
     // Handle Death Animation regardless of pause state, but only if running
     if (this.gameOver && this.deathAnimationTimeStart !== null) {
@@ -241,8 +242,9 @@ export class DiepGameEngineService {
     if (moved) {
       const len = Math.sqrt(dx * dx + dy * dy);
       if (len > 0) {
-        this.player.x += (dx / len) * this.player.maxSpeed;
-        this.player.y += (dy / len) * this.player.maxSpeed;
+        // SCALED: Movement speed multiplied by the normalization factor (F)
+        this.player.x += (dx / len) * this.player.maxSpeed * F;
+        this.player.y += (dy / len) * this.player.maxSpeed * F;
         
         if (!this.mouseAiming) {
           const newAngle = Math.atan2(dy, dx);
@@ -262,13 +264,14 @@ export class DiepGameEngineService {
     this.player.x = Math.max(this.player.radius, Math.min(this.width - this.player.radius, this.player.x));
     this.player.y = Math.max(this.player.radius, Math.min(this.height - this.player.radius, this.player.y));
 
-    // Player Health Regeneration
+    // Player Health Regeneration (already normalized to seconds, using passed deltaTime)
     this.player.health = Math.min(this.player.maxHealth, this.player.health + (0.5 * deltaTime / 1000));
 
     // 2. Bullets Update
     this.bullets.forEach(bullet => {
-      bullet.x += bullet.dx;
-      bullet.y += bullet.dy;
+      // SCALED: Bullet speed multiplied by the normalization factor (F)
+      bullet.x += bullet.dx * F;
+      bullet.y += bullet.dy * F;
     });
     this.bullets = this.bullets.filter(b => b.x > 0 && b.x < this.width && b.y > 0 && b.y < this.height);
 
@@ -278,11 +281,12 @@ export class DiepGameEngineService {
     }
 
     // 4. Enemy AI: Move toward player, Boss Regen, & Other Enemy Logic
+    // Passing the correct deltaTime to the enemy logic service
     DiepEnemyLogic.updateAllEnemies(
       this.enemies, 
       this.bullets, 
       this.player, 
-      deltaTime,
+      deltaTime, // CORRECTED: Use the passed deltaTime
       this.width,
       this.height,
       performance.now() // Using a fresh 'now' for internal enemy cooldowns

@@ -1,15 +1,16 @@
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, HostListener, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+// Only required external dependencies: Drawing utilities and the Game Engine
 import { DiepMenus } from './diep.menus';
 import { DiepEntities } from './diep.entities';
 import { DiepGameEngineService } from './diep.game-engine.service'; 
-import { Enemy } from './diep.interfaces';
+import { DiepButtonHandlerService } from './diep.button-handler.service'; 
+import { Enemy } from './diep.interfaces'; 
 
 @Component({
   selector: 'app-diep',
   standalone: true,
   imports: [CommonModule],
-  // --- Always use external files ---
   templateUrl: './diep.component.html',
   styleUrls: ['./diep.component.css'], 
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,14 +20,17 @@ export class DiepComponent implements AfterViewInit {
   @ViewChild('gameCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
   private ctx!: CanvasRenderingContext2D;
   private animationFrameId: number = 0;
+  // CRITICAL: Time tracker for frame independence
+  private lastTime: number = 0; 
 
   // Read canvas dimensions from the service now, but keep local for template binding
   width = 800;
   height = 600;
 
-  // Injection of the Game Engine Service - this service holds ALL game state and logic
+  // Injection of the Game Engine Service and the new Button Handler
   constructor(
-    public gameEngine: DiepGameEngineService // Inject the new service publicly for template access
+    public gameEngine: DiepGameEngineService, // Inject the new service publicly for template access
+    private buttonHandler: DiepButtonHandlerService // Inject the button handler
   ) { 
     this.width = gameEngine.width;
     this.height = gameEngine.height;
@@ -35,12 +39,11 @@ export class DiepComponent implements AfterViewInit {
   ngAfterViewInit() {
     this.ctx = this.canvasRef.nativeElement.getContext('2d')!;
     this.canvasRef.nativeElement.focus(); 
-    this.gameLoop(); // Start the loop to draw the initial start menu
+    this.lastTime = performance.now(); // Initialize time tracking
+    this.gameLoop(this.lastTime); // Start the loop 
   }
 
   // --- Input Listeners (HostListener) ---
-  // The component captures input and updates the service's state directly, 
-  // or calls a control method on the service.
 
   @HostListener('window:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
@@ -50,7 +53,9 @@ export class DiepComponent implements AfterViewInit {
     if (key === 'p') {
       const wasPaused = this.gameEngine.togglePause();
       if (!wasPaused) { // If unpaused, resume the loop
-        this.gameLoop();
+        // When unpausing, we manually start the loop with the current time
+        // to prevent a massive deltaTime jump in the next frame.
+        this.gameLoop(performance.now()); 
       }
       event.preventDefault(); 
       return;
@@ -104,32 +109,46 @@ export class DiepComponent implements AfterViewInit {
 
   // --- Game Loop and Update ---
 
-  gameLoop() {
+  /**
+   * The core game loop using requestAnimationFrame.
+   * Calculates deltaTime and passes it to the engine for frame-rate independence.
+   */
+  gameLoop(time: number) {
     // Check only for pause and game start status from the engine
     if (this.gameEngine.isPaused) {
       this.draw(); // Draw final paused frame
+      this.lastTime = 0; // Reset lastTime so a huge delta doesn't happen on resume
       return;
     }
     
-    // Delegate ALL physics and state logic to the engine
-    this.gameEngine.update();
+    // Calculate Delta Time for frame-rate independent movement
+    let deltaTime = time - this.lastTime;
+    
+    // If lastTime is 0 (i.e., just unpaused or starting up), reset the timer.
+    // Clamp deltaTime to a small, safe value (e.g., 1/60th of a second) to prevent large jumps
+    if (this.lastTime === 0) {
+        this.lastTime = time;
+        deltaTime = 1000 / 60; // Use a default delta for the first frame after a reset/pause
+    } else {
+        this.lastTime = time;
+    }
+    
+    // Delegate ALL physics and state logic to the engine, passing the time difference
+    this.gameEngine.update(deltaTime); 
     
     this.draw();
     
     // Only continue the loop if the death animation is running or the game is active/not over
     if (!this.gameEngine.gameOver || (this.gameEngine.gameOver && this.gameEngine.deathAnimationTimeStart !== null)) {
-      this.animationFrameId = requestAnimationFrame(() => this.gameLoop());
+      // Pass the current time to the recursive call
+      this.animationFrameId = requestAnimationFrame((newTime) => this.gameLoop(newTime)); 
     } else if (this.gameEngine.gameOver && this.gameEngine.deathAnimationTimeStart === null) {
       // Game over state reached and animation finished, stop the loop
       cancelAnimationFrame(this.animationFrameId);
     }
   }
 
-  // --- Drawing Functions ---
-  
-  /**
-   * Draws the main HUD elements (Health, Score, Wave Count).
-   */
+  // --- Drawing Functions remain unchanged ---
   drawUIOverlay() {
     const g = this.gameEngine; // Reference the engine for clean access
 
@@ -154,6 +173,7 @@ export class DiepComponent implements AfterViewInit {
     this.ctx.fillStyle = '#fff';
     this.ctx.textAlign = 'left';
     this.ctx.fillText(`PLAYER HEALTH: ${Math.ceil(g.player.health)}%`, healthX + 5, healthY + 14);
+
 
     // Score (Top Right)
     this.ctx.font = 'bold 20px Inter, sans-serif';
@@ -200,7 +220,7 @@ export class DiepComponent implements AfterViewInit {
       DiepEntities.drawBullets(this.ctx, g.bullets);
 
       // --- 4. Draw Enemies and Health Bars ---
-      let enemiesToDraw: Enemy[]; // FIXED: Explicitly typed as Enemy[]
+      let enemiesToDraw: Enemy[]; 
       if (g.gameOver && g.deathAnimationTimeStart !== null) {
         // DEATH ANIMATION LOGIC (Reads from engine's state)
         const totalEnemies = g.enemiesRemainingForAnimation.length;
@@ -235,105 +255,37 @@ export class DiepComponent implements AfterViewInit {
     DiepMenus.drawInGamePauseButton(menuState as any);
   }
 
-  // --- Button Click Handler (Temporary: Will be moved in Phase 2) ---
+  // --- Button Click Handler (Now delegated to a service) ---
 
   /**
-   * Handles all mouse click logic for UI buttons and shooting.
+   * Handles all mouse click logic for UI buttons and shooting by delegating to the ButtonHandlerService.
    */
   handleClick(event: MouseEvent) {
-    const g = this.gameEngine;
-    
-    // Get mouse position relative to canvas
     const rect = this.canvasRef.nativeElement.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    // 0. Start Game Button (ONLY active when game has NOT started)
-    if (!g.isGameStarted) {
-      const startBtnW = 200;
-      const startBtnH = 55;
-      const startBtnX = this.width / 2 - (startBtnW / 2);
-      const startBtnY = this.height / 2 + 20;
-
-      if (
-        x >= startBtnX && x <= startBtnX + startBtnW &&
-        y >= startBtnY && y <= startBtnY + startBtnH
-      ) {
-        g.startGame(); // DELEGATE to service
+    // First, check for button presses using the dedicated service.
+    // The service handles all the coordinate checks and state changes (start, pause, restart).
+    const buttonWasClicked = this.buttonHandler.handleCanvasClick(
+      x, 
+      y, 
+      this.width, 
+      this.height, 
+      () => this.gameLoop(performance.now()) // Pass current time when resuming loop
+    );
+    
+    // If a button was clicked, we return early to prevent the autofire/shooting logic.
+    if (buttonWasClicked) {
+      // Focus canvas if game is active, so keyboard controls still work after unpausing
+      if (this.gameEngine.isGameStarted && !this.gameEngine.gameOver) {
         this.canvasRef.nativeElement.focus();
-        return;
-      }
-    }
-    
-    // 1. Small Top-Center Pause/Play button
-    const btnRadius = 20;
-    const btnX = this.width / 2;
-    const btnY = 35;
-    const distToPauseBtn = Math.sqrt(Math.pow(x - btnX, 2) + Math.pow(y - btnY, 2));
-
-    if (g.isGameStarted && !g.gameOver && distToPauseBtn < btnRadius) {
-      const wasPaused = g.togglePause(); // DELEGATE to service
-      if (!wasPaused) this.gameLoop(); // Resume loop if unpaused
-      return;
-    }
-
-    // 2. Pause Menu Buttons 
-    if (g.isPaused) {
-      // Resume Button
-      const playBtnX = this.width / 2 - 80;
-      const playBtnY = this.height / 2 - 40;
-      const playBtnW = 160;
-      const playBtnH = 45;
-      
-      if (x >= playBtnX && x <= playBtnX + playBtnW &&
-          y >= playBtnY && y <= playBtnY + playBtnH) {
-        g.togglePause(); // DELEGATE to service
-        this.gameLoop(); // Resume loop
-        return;
-      }
-
-      // Dark Mode Toggle Button
-      const toggleBtnW = 280;
-      const toggleBtnX = this.width / 2 - (toggleBtnW / 2);
-      const toggleBtnY = this.height / 2 + 40;
-      const toggleBtnH = 45;
-
-      if (x >= toggleBtnX && x <= toggleBtnX + toggleBtnW &&
-          y >= toggleBtnY && y <= toggleBtnY + toggleBtnH) {
-        g.toggleDarkMode(); // DELEGATE to service
-        this.draw(); 
-        return;
       }
       return;
     }
-    
-    // 3. Game Over Buttons 
-    if (g.gameOver && g.deathAnimationTimeStart === null) {
-      // REPLAY Button check
-      const btnX_go = this.width / 2 - 80;
-      const btnY_go = this.height / 2 + 60; 
-      const btnW_go = 160;
-      const btnH_go = 45;
-      
-      if (x >= btnX_go && x <= btnX_go + btnW_go &&
-          y >= btnY_go && y <= btnY_go + btnH_go) {
-        g.restartGame(); // DELEGATE to service
-        this.gameLoop();
-        return;
-      }
-      
-      // MAIN MENU Button check
-      const menuBtnY_go = this.height / 2 + 120;
 
-      if (x >= btnX_go && x <= btnX_go + btnW_go &&
-          y >= menuBtnY_go && y <= menuBtnY_go + btnH_go) {
-        g.returnToMainMenu(); // DELEGATE to service
-        this.gameLoop();
-        return;
-      }
-    }
-    
-    // 4. Autofire on click 
+    // 4. Autofire on click (Only runs if no UI button was clicked)
+    const g = this.gameEngine;
     if (g.mouseAiming && !g.isPaused && !g.gameOver && g.isGameStarted) {
       g.shootBullet();
     }
