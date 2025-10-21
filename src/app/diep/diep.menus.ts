@@ -4,6 +4,8 @@ import { HighScore } from './diep.interfaces';
  * diep.menus.ts
  *
  * Provides functions for drawing various UI elements, menus, and overlays onto the canvas context.
+ *
+ * NOTE: Button drawing logic is now static and does not depend on hover state.
  */
 
 // Define an interface to enforce which game state variables are required for drawing the menus.
@@ -65,12 +67,12 @@ export class DiepMenus {
     ctx.fillText('HIGH SCORES', listCenterX, listTitleY);
 
     // Starting Y position for the first score list element
-    let listY = listTitleY + 35; 
+    let listY = listTitleY + 35;
 
     // Check if there are any scores to display
     if (topScores.length === 0) {
       ctx.font = '16px Inter, sans-serif';
-      ctx.fillStyle = '#bdc3c7'; // Light grey text
+      ctx.fillStyle = '#bdc3c7'; // Light grey text for 'No Scores Yet'
       ctx.textAlign = 'center';
       ctx.fillText('No Scores Yet', listCenterX, listY);
     } else {
@@ -79,17 +81,26 @@ export class DiepMenus {
       const dateLeftX = listCenterX + 15; // Date starts here (Left-aligned)
 
       // Draw the scores
-      topScores.forEach((scoreEntry: HighScore, index: number) => {
+      topScores.forEach((scoreEntry: HighScore) => {
         const dateObj = new Date(scoreEntry.date);
         const dateString = dateObj.toLocaleDateString('en-US', {
           month: 'numeric', day: 'numeric', year: '2-digit'
         });
 
-        // Determine if this is the new high score (highlight only on Game Over screen)
-        const isHighlighted = (highlightScore !== null && scoreEntry.score === highlightScore && index === 0);
+        // --- FIX APPLIED HERE ---
+        // A score is highlighted if it matches the current game's final score (highlightScore).
+        // The index constraint is removed, so any new score is highlighted.
+        const isHighlighted = (highlightScore !== null && scoreEntry.score === highlightScore);
 
-        ctx.font = isHighlighted ? 'bold 16px Inter, sans-serif' : '16px Inter, sans-serif';
-        ctx.fillStyle = isHighlighted ? '#2ecc71' : '#bdc3c7'; // Highlight color vs default list color
+        // Apply user's requested colors: Gold for new score, White for old scores.
+        const newScoreColor = '#FFD700'; // Gold
+        const oldScoreColor = '#FFF';    // White
+        
+        const scoreColor = isHighlighted ? newScoreColor : oldScoreColor;
+
+        // Apply larger/bold font for new score for better visibility.
+        ctx.font = isHighlighted ? 'bold 20px Inter, sans-serif' : 'bold 16px Inter, sans-serif';
+        ctx.fillStyle = scoreColor; // Apply color
 
         // Draw Score - R-aligned for column 1
         ctx.textAlign = 'right';
@@ -99,7 +110,7 @@ export class DiepMenus {
         ctx.textAlign = 'left';
         ctx.fillText(dateString, dateLeftX, listY);
 
-        listY += 20; // Space for the next line
+        listY += 25; // Increased space for the new 20px font
       });
     }
 
@@ -111,8 +122,9 @@ export class DiepMenus {
    * Draws the Start Menu overlay screen, including the game title and the START button.
    * This screen is shown when the game has not yet started.
    * @param state The current game state and canvas context.
+   * @returns The clickable area of the START button.
    */
-  public static drawStartMenu(state: MenuState): void {
+  public static drawStartMenu(state: MenuState): ButtonArea | null {
     const { ctx, width, height, isGameStarted } = state;
 
     if (!isGameStarted) {
@@ -132,7 +144,7 @@ export class DiepMenus {
       ctx.fillStyle = '#bdc3c7'; // Light grey secondary text
       ctx.fillText('Shape Warfare: Destroy Shapes and Dodge Enemies', width / 2, height / 2 - 60);
 
-      // Draw START Button
+      // Draw START Button (Static drawing logic restored)
       const btnW = 200;
       const btnH = 55;
       const btnX = width / 2 - (btnW / 2);
@@ -153,7 +165,12 @@ export class DiepMenus {
       ctx.font = '16px Inter, sans-serif';
       ctx.fillStyle = '#7f8c8d';
       ctx.fillText('Use WASD to move and Mouse to aim.', width / 2, height / 2 + 120);
+
+      // Return the area for click detection
+      return { x: btnX, y: btnY, w: btnW, h: btnH };
     }
+
+    return null;
   }
 
   /**
@@ -183,11 +200,8 @@ export class DiepMenus {
 
       // --- 3. HIGH SCORES LIST (RIGHT SIDE QUADRANT) ---
 
-      // Horizontal position setup: right side (0.75)
       const hsListXRatio = 0.875;
       const listCenterX = width * hsListXRatio;
-
-      // Vertical position setup: centered with the pause menu items
       let listTitleY = height / 2 - 200;
 
       // Use the reusable helper function
@@ -200,15 +214,14 @@ export class DiepMenus {
         '#3498db' // Blue title color
       );
 
-      // --- 4. BUTTONS (ALIGNED WITH diep.component.ts CLICK AREAS) ---
+      // --- 4. BUTTONS ---
       const btnW = 160;
       const btnH = 45;
       const btnX = width / 2 - 80; // Common X for centering
 
-      // REPLAY Button Y. Set to height / 2 + 60 to match click detection logic.
+      // 1. REPLAY Button
       const replayBtnY = height / 2 + 60;
-
-      // 1. Draw REPLAY Button
+      
       ctx.fillStyle = '#e74c3c'; // Red color for the replay button
       ctx.fillRect(btnX, replayBtnY, btnW, btnH);
 
@@ -221,8 +234,7 @@ export class DiepMenus {
       ctx.textAlign = 'center';
       ctx.fillText('REPLAY', width / 2, replayBtnY + 30);
 
-      // 2. Draw MAIN MENU Button
-      // MAIN MENU Button Y. Set to height / 2 + 120 to match click detection logic.
+      // 2. MAIN MENU Button
       const menuBtnY = height / 2 + 120;
 
       ctx.fillStyle = '#2c3e50'; // Dark blue/gray for the main menu button
@@ -238,8 +250,8 @@ export class DiepMenus {
 
       // Return the bounding boxes for click detection
       return {
-          replay: { x: btnX, y: replayBtnY, w: btnW, h: btnH },
-          mainMenu: { x: btnX, y: menuBtnY, w: btnW, h: btnH }
+        replay: { x: btnX, y: replayBtnY, w: btnW, h: btnH },
+        mainMenu: { x: btnX, y: menuBtnY, w: btnW, h: btnH }
       };
     }
 
@@ -263,27 +275,33 @@ export class DiepMenus {
       ctx.textAlign = 'center';
       ctx.fillText('PAUSED', width / 2, height / 2 - 100);
 
-      // --- 2. RESUME Button (Center-Left quadrant) ---
-      const playBtnX = width / 2 - 80;
-      const playBtnY = height / 2 - 40;
+      // --- 2. RESUME Button ---
       const playBtnW = 160;
       const playBtnH = 45;
+      const playBtnX = width / 2 - (playBtnW / 2);
+      const playBtnY = height / 2 - 40;
 
       ctx.fillStyle = '#2ecc71';
       ctx.fillRect(playBtnX, playBtnY, playBtnW, playBtnH);
+      
+      ctx.strokeStyle = '#27ae60'; // Border
+      ctx.lineWidth = 3;
+      ctx.strokeRect(playBtnX, playBtnY, playBtnW, playBtnH);
+
       ctx.font = 'bold 24px Inter, sans-serif';
       ctx.fillStyle = '#fff';
       ctx.fillText('RESUME', width / 2, playBtnY + 30);
 
-      // --- 3. Dark Mode Toggle Button (Below Resume) ---
+      // --- 3. Dark Mode Toggle Button ---
       const toggleBtnW = 280; // Increased width for text
+      const toggleBtnH = 45;
       const toggleBtnX = width / 2 - (toggleBtnW / 2); // Center it
       const toggleBtnY = height / 2 + 40;
-      const toggleBtnH = 45;
 
       ctx.fillStyle = isDarkMode ? '#34495e' : '#ecf0f1'; // Color based on target mode
       ctx.fillRect(toggleBtnX, toggleBtnY, toggleBtnW, toggleBtnH);
-      ctx.strokeStyle = '#fff';
+      
+      ctx.strokeStyle = isDarkMode ? '#2c3e50' : '#bdc3c7'; // Border
       ctx.lineWidth = 2;
       ctx.strokeRect(toggleBtnX, toggleBtnY, toggleBtnW, toggleBtnH);
 
@@ -296,11 +314,8 @@ export class DiepMenus {
 
       // --- 4. HIGH SCORES LIST (Right side quadrant) ---
 
-      // Horizontal position setup: right side (0.75)
       const hsListXRatio = 0.875;
       const listCenterX = width * hsListXRatio;
-
-      // Vertical position setup: centered with the pause menu items
       let listTitleY = height / 2 - 200;
 
       // Use the reusable helper function
@@ -313,7 +328,7 @@ export class DiepMenus {
         '#f39c12' // Yellow title color
       );
 
-      // Restore textAlign to center for button drawing logic
+      // Restore textAlign to center for general drawing
       ctx.textAlign = 'center';
     }
   }
@@ -321,8 +336,9 @@ export class DiepMenus {
   /**
    * Draws the small in-game Pause/Play button at the top center.
    * @param state The current game state and canvas context.
+   * @returns The clickable area of the button.
    */
-  public static drawInGamePauseButton(state: MenuState): void {
+  public static drawInGamePauseButton(state: MenuState): ButtonArea | null {
     const { ctx, width, gameOver, isPaused, isGameStarted } = state;
 
     // Only draw the button if the game is NOT over AND the game has started
@@ -330,12 +346,15 @@ export class DiepMenus {
       const btnRadius = 20;
       const btnX = width / 2; // Center
       const btnY = 35; // Top center
+      const btnArea: ButtonArea = { x: btnX - btnRadius, y: btnY - btnRadius, w: btnRadius * 2, h: btnRadius * 2 };
 
+      // Draw the button body
       ctx.fillStyle = 'rgba(52, 152, 219, 0.9)'; // Blue background
       ctx.beginPath();
       ctx.arc(btnX, btnY, btnRadius, 0, Math.PI * 2);
       ctx.fill();
 
+      // Draw Icon
       ctx.fillStyle = '#fff';
       if (isPaused) {
         // Draw Play icon (Triangle)
@@ -357,6 +376,8 @@ export class DiepMenus {
         ctx.lineWidth = 2;
         ctx.stroke();
       }
+      return btnArea;
     }
+    return null;
   }
 }
