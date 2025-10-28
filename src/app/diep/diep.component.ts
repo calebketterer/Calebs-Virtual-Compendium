@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, HostListener, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-// Only required external dependencies: Drawing utilities and the Game Engine
 import { DiepMenus } from './diep.menus';
 import { DiepEntities } from './diep.entities';
 import { DiepGameEngineService } from './diep.game-engine.service'; 
@@ -20,7 +19,6 @@ export class DiepComponent implements AfterViewInit {
   @ViewChild('gameCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
   private ctx!: CanvasRenderingContext2D;
   private animationFrameId: number = 0;
-  // CRITICAL: Time tracker for frame independence
   private lastTime: number = 0; 
 
   // Read canvas dimensions from the service now, but keep local for template binding
@@ -52,6 +50,7 @@ export class DiepComponent implements AfterViewInit {
 
     if (key === 'p') {
       const wasPaused = this.gameEngine.togglePause();
+      this.draw();
       if (!wasPaused) { // If unpaused, resume the loop
         // When unpausing, we manually start the loop with the current time
         // to prevent a massive deltaTime jump in the next frame.
@@ -272,7 +271,8 @@ export class DiepComponent implements AfterViewInit {
       y, 
       this.width, 
       this.height, 
-      () => this.gameLoop(performance.now()) // Pass current time when resuming loop
+      () => this.gameLoop(performance.now()), // Pass current time when resuming loop
+      () => this.draw()
     );
     
     // If a button was clicked, we return early to prevent the autofire/shooting logic.

@@ -10,16 +10,15 @@ export class DiepButtonHandlerService {
   
   /**
    * Handles all mouse click logic for UI buttons and shooting.
-   * NOTE: This method requires the canvas dimensions (width, height) 
-   * and the canvas bounding rectangle for coordinate translation.
    * @param x The translated mouse X coordinate.
    * @param y The translated mouse Y coordinate.
    * @param width The canvas width.
    * @param height The canvas height.
    * @param gameLoopCallback A function to call to resume the game loop if a button unpauses or starts the game.
+   * @param drawCallback A function to call to force a canvas redraw immediately, used primarily for paused UI updates.
    * @returns true if a button was clicked and handled, false otherwise.
    */
-  public handleCanvasClick(x: number, y: number, width: number, height: number, gameLoopCallback: () => void): boolean {
+  public handleCanvasClick(x: number, y: number, width: number, height: number, gameLoopCallback: () => void, drawCallback: () => void): boolean {
     const g = this.gameEngine;
     
     // Check if the click should result in a game state change (button press)
@@ -78,7 +77,11 @@ export class DiepButtonHandlerService {
       if (x >= toggleBtnX && x <= toggleBtnX + toggleBtnW &&
           y >= toggleBtnY && y <= toggleBtnY + toggleBtnH) {
         g.toggleDarkMode(); // DELEGATE to engine
-        buttonClicked = true; // Drawing will happen via draw on next frame
+        
+        // --- FIX: Immediately redraw the canvas to show the new mode while paused ---
+        drawCallback(); 
+        
+        buttonClicked = true;
       }
     }
     

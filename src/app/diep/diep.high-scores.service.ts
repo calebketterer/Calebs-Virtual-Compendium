@@ -7,7 +7,7 @@ import { HighScore } from './diep.interfaces';
 export class HighScoresService {
   // Using localStorage for persistence
   private readonly STORAGE_KEY = 'diepSpHighScores';
-  private readonly MAX_SCORES = 5;
+  private readonly MAX_SCORES = 10;
 
   /**
    * Retrieves high scores from localStorage, parses, sorts, and limits to MAX_SCORES.
