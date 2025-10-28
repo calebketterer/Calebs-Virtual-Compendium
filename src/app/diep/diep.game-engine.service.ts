@@ -8,16 +8,18 @@ import { HighScoresService } from './diep.high-scores.service'; // Assumed depen
  * DiepGameEngineService
  * * Manages the entire game state, physics calculations, collision detection, 
  * wave progression, and game control logic (start/pause/reset).
+ * The DiepComponent will only act as the view/input layer, delegating all 
+ * updates and input-triggered actions to this service.
  */
 @Injectable({
   providedIn: 'root'
 })
 export class DiepGameEngineService {
   // ---------------------------------------------
-  // --- Game State Properties ---
+  // --- Game State Properties (Moved from Component) ---
   // ---------------------------------------------
 
-  // Game Constants
+  // Game Constants (Access from component, but managed here)
   public width = 800;
   public height = 600;
 
@@ -29,7 +31,7 @@ export class DiepGameEngineService {
   };
   public bullets: Bullet[] = [];
   public enemies: Enemy[] = [];
-  public keys: { [key: string]: boolean } = {}; 
+  public keys: { [key: string]: boolean } = {}; // Keyboard state is managed here but updated by the component
   public score = 0;
   public gameOver = false;
   public isPaused = false; 
@@ -38,8 +40,8 @@ export class DiepGameEngineService {
   // Aiming/Shooting State
   public lastAngle = 0; 
   public mouseAiming = true; 
-  public mousePos = { x: 0, y: 0 }; 
-  public mouseDown = false; 
+  public mousePos = { x: 0, y: 0 }; // Mouse position updated by the component
+  public mouseDown = false; // Mouse button state updated by the component
   private lastShotTime: number = 0; 
 
   // Wave/Progression State
@@ -47,10 +49,6 @@ export class DiepGameEngineService {
   public waveCount: number = 0; 
   public isRegularWaveActive: boolean = false; 
   public isGameStarted: boolean = false; 
-  
-  // --- NEW: Wave Timer for smooth transitions ---
-  private waveDelayDuration = 1000; // 1 second delay before the next wave
-  public timeToNextWaveMs: number = 0; // Countdown timer (milliseconds)
   
   // Death Animation State
   public deathAnimationTimeStart: number | null = null;
@@ -60,15 +58,18 @@ export class DiepGameEngineService {
   // UI State
   public topScores: HighScore[] = [];
 
+  // DELETED: private lastTime property (now managed by component)
+
   constructor(
     private spawner: EnemySpawnerService,
     private highScoresService: HighScoresService
   ) { 
+    // Load high scores immediately for display on the Start Menu and Pause Menu.
     this.topScores = this.highScoresService.getHighScores();
   }
   
   // ---------------------------------------------
-  // --- Game Control Functions ---
+  // --- Game Control Functions (Moved from Component) ---
   // ---------------------------------------------
 
   /**
@@ -98,13 +99,6 @@ export class DiepGameEngineService {
     this.isRegularWaveActive = false; 
     this.isGameStarted = startGameImmediately;
     
-    // --- NEW: Reset wave timer for a new game ---
-    if (startGameImmediately) {
-      this.timeToNextWaveMs = this.waveDelayDuration;
-    } else {
-      this.timeToNextWaveMs = 0;
-    }
-    
     // Re-fetch scores immediately to ensure the latest list is available for display.
     this.topScores = this.highScoresService.getHighScores(); 
   }
@@ -115,21 +109,33 @@ export class DiepGameEngineService {
   public startGame() {
     if (this.isGameStarted) return;
     
-    // Calls resetState which sets isGameStarted=true and starts the wave timer
-    this.resetState(true); 
-
-    // --- REMOVED: Immediate initial spawn call. The update loop handles the first wave. ---
+    this.isGameStarted = true;
+    // DELETED: lastTime initialization (now handled by component)
+    
+    // Perform initial enemy spawn
+    this.spawner.spawnEnemies(
+      this.enemies, 
+      this.enemySpawnCount, 
+      false, 
+      this.waveCount, 
+      this.width, 
+      this.height
+    );
   }
   
   /**
    * Resets the game state and starts a new game immediately.
    */
   public restartGame() {
-    // Calls resetState which sets isGameStarted=true and starts the wave timer
     this.resetState(true); 
-
-    // --- REMOVED: Immediate enemy spawn call. This caused the bug. ---
-    // The update loop will now handle the first wave after the delay.
+    this.spawner.spawnEnemies(
+      this.enemies, 
+      this.enemySpawnCount, 
+      false, 
+      this.waveCount, 
+      this.width, 
+      this.height
+    );
   }
   
   /**
@@ -147,6 +153,9 @@ export class DiepGameEngineService {
     if (this.gameOver || !this.isGameStarted) return this.isPaused;
     
     this.isPaused = !this.isPaused;
+    if (!this.isPaused) {
+      // DELETED: lastTime reset (now handled by component)
+    }
     return this.isPaused;
   }
 
@@ -158,7 +167,7 @@ export class DiepGameEngineService {
   }
 
   // ---------------------------------------------
-  // --- Game Logic Functions ---
+  // --- Game Logic Functions (Moved from Component) ---
   // ---------------------------------------------
 
   public shootBullet() {
@@ -205,9 +214,10 @@ export class DiepGameEngineService {
    * The primary physics and logic update function, called by the component's game loop.
    * @param deltaTime The time elapsed since the last frame (in milliseconds).
    */
-  public update(deltaTime: number) { 
+  public update(deltaTime: number) { // MODIFIED: Accepts deltaTime from component
     
     // --- Delta Time Normalization ---
+    // This factor (F) scales movement to be consistent, as if running at 60 FPS (1000/60ms)
     const FPS_60_TIME = 1000 / 60; // Approx 16.666ms
     const F = deltaTime / FPS_60_TIME; 
 
@@ -218,36 +228,10 @@ export class DiepGameEngineService {
 
     // 0.1 Guard: Stop all game logic/physics if not started, paused, or awaiting game over screen
     if (!this.isGameStarted || this.isPaused || this.gameOver) return; 
-    
+
     // --- START: Core Game Logic ---
-    
-    // --- 1. Wave Progression Timer Update (NEW LOGIC) ---
-    if (this.enemies.length === 0) {
-        this.timeToNextWaveMs -= deltaTime;
-        
-        if (this.timeToNextWaveMs <= 0) {
-            // Timer finished, start the next wave
-            this.timeToNextWaveMs = 0;
-            
-            // Advance wave counters
-            this.enemySpawnCount++; 
-            this.waveCount++;
-            this.isRegularWaveActive = true; // Assume new wave is always regular
-            
-            // Spawn the enemies
-            this.spawner.spawnEnemies(
-              this.enemies, 
-              this.enemySpawnCount, 
-              false, // Not used for initial spawn, check spawner service if needed
-              this.waveCount, 
-              this.width, 
-              this.height
-            );
-        }
-    }
 
-
-    // 2. Player Movement & Rotation
+    // 1. Player Movement & Rotation
     let moved = false;
     let dx = 0, dy = 0;
     if (this.keys['w']) { dy -= 1; moved = true; }
@@ -283,7 +267,7 @@ export class DiepGameEngineService {
     // Player Health Regeneration (already normalized to seconds, using passed deltaTime)
     this.player.health = Math.min(this.player.maxHealth, this.player.health + (0.5 * deltaTime / 1000));
 
-    // 3. Bullets Update
+    // 2. Bullets Update
     this.bullets.forEach(bullet => {
       // SCALED: Bullet speed multiplied by the normalization factor (F)
       bullet.x += bullet.dx * F;
@@ -291,23 +275,24 @@ export class DiepGameEngineService {
     });
     this.bullets = this.bullets.filter(b => b.x > 0 && b.x < this.width && b.y > 0 && b.y < this.height);
 
-    // 4. Mouse Aiming: Auto-fire when mouse is down
+    // 3. Mouse Aiming: Auto-fire when mouse is down
     if (this.mouseAiming && this.mouseDown) {
       this.shootBullet();
     }
 
-    // 5. Enemy AI: Move toward player, Boss Regen, & Other Enemy Logic
+    // 4. Enemy AI: Move toward player, Boss Regen, & Other Enemy Logic
+    // Passing the correct deltaTime to the enemy logic service
     DiepEnemyLogic.updateAllEnemies(
       this.enemies, 
       this.bullets, 
       this.player, 
-      deltaTime, 
+      deltaTime, // CORRECTED: Use the passed deltaTime
       this.width,
       this.height,
-      performance.now() 
+      performance.now() // Using a fresh 'now' for internal enemy cooldowns
     );
 
-    // 6. Collision Detection (Bullets vs Enemies)
+    // 5. Collision Detection (Bullets vs Enemies)
     const newBullets: Bullet[] = [];
     
     this.bullets.forEach(bullet => {
@@ -337,9 +322,10 @@ export class DiepGameEngineService {
     });
     this.bullets = newBullets;
 
-    // 6.5 Collision Detection (Enemy Bullets vs Player)
+    // 5.5 Collision Detection (Enemy Bullets vs Player)
     const playerHitBullets: Bullet[] = [];
-    
+    let playerHit = false;
+
     this.bullets.forEach(bullet => {
       if (bullet.ownerType === 'ENEMY') {
         const dx = bullet.x - this.player.x;
@@ -348,6 +334,7 @@ export class DiepGameEngineService {
 
         if (dist < bullet.radius + this.player.radius) {
           this.player.health -= 10;
+          playerHit = true;
         } else {
           playerHitBullets.push(bullet);
         }
@@ -358,7 +345,7 @@ export class DiepGameEngineService {
 
     this.bullets = playerHitBullets;
 
-    // 7. Player-Enemy Collision (Damage)
+    // 6. Player-Enemy Collision (Damage)
     const enemiesToKeep: Enemy[] = [];
     const collisionDamageFraction = 0.25;
 
@@ -377,7 +364,7 @@ export class DiepGameEngineService {
     });
     this.enemies = enemiesToKeep;
 
-    // 7.5 Aura Enemy Proximity Damage (AoE)
+    // 6.5 Aura Enemy Proximity Damage (AoE)
     const auraDamage = 0.5;
     const auraRadius = 100;
 
@@ -393,16 +380,33 @@ export class DiepGameEngineService {
       }
     });
 
-    // 8. Post-Collision Cleanup & Wave Progression Check
-    // Cleanup enemies marked for death (health <= 0)
+    // 7. Post-Collision Cleanup & Wave Progression
     this.enemies = this.enemies.filter(e => e.health > 0);
     
-    if (this.enemies.length === 0 && this.timeToNextWaveMs <= 0) {
-      // This block ensures the delay is enforced after every wave cleanup
-      this.timeToNextWaveMs = this.waveDelayDuration;
+    const hasRegularEnemies = this.enemies.some(e => e.color === '#e74c3c'); 
+    const hasBossOrMinions = this.enemies.some(e => e.isBoss || e.color === '#d2b4de');
+
+    if (this.enemies.length === 0) {
+      this.enemySpawnCount++; 
+      this.waveCount++;
+      this.isRegularWaveActive = false;
+      this.spawner.spawnEnemies(
+        this.enemies, 
+        this.enemySpawnCount, 
+        false, 
+        this.waveCount, 
+        this.width, 
+        this.height
+      );
+    } else if (this.isRegularWaveActive && !hasRegularEnemies) {
+      this.enemySpawnCount++;
+      this.waveCount++;
+      this.isRegularWaveActive = false; 
+      this.spawner.spawnEnemies(this.enemies, this.enemySpawnCount, hasBossOrMinions, this.waveCount, this.width, this.height); 
     }
-    
-    // 9. Game Over Check & Animation Start
+
+
+    // 8. Game Over Check & Animation Start
     if (this.player.health <= 0) {
       if (!this.gameOver) { 
         this.highScoresService.addHighScore(this.score);
