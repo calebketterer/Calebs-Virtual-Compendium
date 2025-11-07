@@ -17,7 +17,8 @@ import { DiepComponent } from './diep/diep.component';
 })
 export class AppComponent implements AfterViewInit {
   title = 'ExampleWebsite';
-  selectedView: string = '';
+  selectedView: string = 'main-site';
+  isOriginalContentHidden: boolean = false; // State to track if the content is hidden
 
   messageBoxText: string = "Click on cells to toggle them, then press Start!";
   messageBoxClass: string = "p-3 bg-blue-100 text-blue-800 rounded-md text-sm w-full text-center";
@@ -31,25 +32,25 @@ export class AppComponent implements AfterViewInit {
 
   // Default gradient colors (from your last list)
   private defaultColors: string[] = [
-    "#f0060b",    // vivid red
-    "#ff41f8",    // vivid pink
-    "#7702ff",    // electric violet
-    "#cc26d5",    // french violet
-    "#ff41f8",    // vivid pink (again for symmetry)
-    "#f0060b"     // vivid red (again for symmetry)
+    "#f0060b",    // vivid red
+    "#ff41f8",    // vivid pink
+    "#7702ff",    // electric violet
+    "#cc26d5",    // french violet
+    "#ff41f8",    // vivid pink (again for symmetry)
+    "#f0060b"     // vivid red (again for symmetry)
   ];
 
   // Color pool using all provided color options (CSS oklch and hex)
   private colorPool: string[] = [
     "oklch(51.01% 0.274 263.83)", // --bright-blue
-    "oklch(53.18% 0.28 296.97)",  // --electric-violet
+    "oklch(53.18% 0.28 296.97)",  // --electric-violet
     "oklch(47.66% 0.246 305.88)", // --french-violet
     "oklch(69.02% 0.277 332.77)", // --vivid-pink
     "oklch(55.34% 0.1608 140.47)",// --hot-red
     "oklch(37.54% 0.2278 269.73)",// --orange-red
-    "oklch(45% 0.25 30)",         // --red
-    "oklch(75% 0.2 110)",         // --yellow
-    "oklch(50% 0.25 264)",        // --blue
+    "oklch(45% 0.25 30)",         // --red
+    "oklch(75% 0.2 110)",         // --yellow
+    "oklch(50% 0.25 264)",        // --blue
     "oklch(47.66% 0.246 305.88)", // --violet
     "#f0060b",
     "#ff41f8",
@@ -69,9 +70,14 @@ export class AppComponent implements AfterViewInit {
     document.addEventListener('mousemove', this.onDocumentMouseMove);
     window.addEventListener('mouseout', this.onWindowMouseOut);
 
+    // MODIFIED HEADER CLICK LISTENER
     this.colorfulHeader.nativeElement.addEventListener('click', () => {
+      // Color randomization logic
       this.currentColors = this.getRandomizedColors(this.defaultColors.length);
       this.setHorizontalGradient(this.lastX);
+      
+      // Content toggling logic added
+      this.toggleOriginalContent(); 
     });
   }
 
@@ -121,9 +127,25 @@ export class AppComponent implements AfterViewInit {
     }
     return picked;
   }
+ 
+  /**
+   * Toggles the visibility of the original content block.
+   * Only allows hiding/showing if a sub-component view is active.
+   */
+  toggleOriginalContent(event?: Event): void {
+    if (this.selectedView !== 'main-site') {
+      event?.preventDefault(); 
+      event?.stopPropagation();
+      this.isOriginalContentHidden = !this.isOriginalContentHidden;
+    }
+  }
 
   onViewChange(event: Event): void {
     this.selectedView = (event.target as HTMLSelectElement).value;
+    
+    if (this.selectedView === 'main-site') {
+        this.isOriginalContentHidden = false; 
+    }
   }
 
   shakeHeyThere() {
@@ -140,7 +162,7 @@ export class AppComponent implements AfterViewInit {
     el.classList.add('shake');
   }
 
-reverse = false;
+  reverse = false;
   toggleDirection() {
     this.reverse = !this.reverse;
   }

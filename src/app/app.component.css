@@ -1,3 +1,50 @@
+/* ADDED STYLES FOR HEADER AND EYE ICON */
+
+.header-container {
+    /* Uses Flexbox to manage the title's centering */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    position: relative; /* CRITICAL: Allows the icon to be positioned absolutely relative to this container */
+    margin-bottom: 2rem; 
+}
+
+/* The header needs its margins adjusted, as it's now inside a flex container */
+.header-container .animated-header {
+    margin: 0 10px; 
+}
+
+/* Styling for the SVG eye icon */
+.header-container svg {
+    position: absolute; 
+    left: 65%; 
+    margin-left: 25px;
+    
+    /* 3. Vertically center the icon */
+    top: 50%;
+    transform: translateY(-35%);
+    
+    /* Style properties */
+    cursor: pointer;
+    color: var(--gray-40);
+    transition: color 0.3s ease;
+}
+.header-container svg:hover {
+    color: var(--bright-blue); /* Color change on hover */
+}
+
+/* Eye state colors */
+.eye-open {
+    color: var(--green); /* Green when content is visible (default) */
+}
+
+.eye-closed {
+    color: var(--red); /* Red when content is hidden */
+}
+
+/* --- Your Existing Styles Below --- */
+
 .main {
     font-family: 'Inter', sans-serif;
     display: flex;
@@ -13,39 +60,39 @@
 
 /* --- Header --- */
 .animated-header {
-  animation: fade-in 1.2s cubic-bezier(0.23,1,0.32,1) 0s 1 both;
-  background: linear-gradient(
-    90deg,
-    #f0060b 0%,
-    #ff41f8 18%,
-    #7702ff 36%,
-    #cc26d5 54%,
-    #ff41f8 72%,
-    #f0060b 90%
-  );
-  background-size: 200% 200%;
-  background-position: 50% 50%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  user-select: none;
-  transition: background-position 0.25s cubic-bezier(0.4,1,0.6,1);
-  animation: hueBreathing1 10s ease-in-out infinite;
-  cursor: pointer;
+    animation: fade-in 1.2s cubic-bezier(0.23,1,0.32,1) 0s 1 both;
+    background: linear-gradient(
+        90deg,
+        #f0060b 0%,
+        #ff41f8 18%,
+        #7702ff 36%,
+        #cc26d5 54%,
+        #ff41f8 72%,
+        #f0060b 90%
+    );
+    background-size: 200% 200%;
+    background-position: 50% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    user-select: none;
+    transition: background-position 0.25s cubic-bezier(0.4,1,0.6,1);
+    animation: hueBreathing1 10s ease-in-out infinite;
+    cursor: pointer;
 }
 
 /* Breathing Animation For Header */
 @keyframes hueBreathing1 { 
-  0% { filter: hue-rotate(0deg); }
-  25% { filter: hue-rotate(15deg); }
-  75% { filter: hue-rotate(-15deg); }
-  100% { filter: hue-rotate(0deg); }
+    0% { filter: hue-rotate(0deg); }
+    25% { filter: hue-rotate(15deg); }
+    75% { filter: hue-rotate(-15deg); }
+    100% { filter: hue-rotate(0deg); }
 }
 
 /* Fade-in Animation For Header */
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(-24px) scale(0.95);}
-  to   { opacity: 1; transform: translateY(0) scale(1);}
+    from { opacity: 0; transform: translateY(-24px) scale(0.95);}
+    to { opacity: 1; transform: translateY(0) scale(1);}
 }
 
 /* --- Angular Logo --- */
@@ -54,27 +101,27 @@
     animation: hueBreathing2 5s ease-in-out infinite;
 }
 
-/* --- Shake Animation --- */
+/* --- Shake Animation (Your Original CSS) --- */
 @keyframes shake {
-  10%, 90% { transform: translateX(-2px); }
-  20%, 80% { transform: translateX(4px); }
-  30%, 50%, 70% { transform: translateX(-8px); }
-  40%, 60% { transform: translateX(8px); }
+    10%, 90% { transform: translateX(-2px); }
+    20%, 80% { transform: translateX(4px); }
+    30%, 50%, 70% { transform: translateX(-8px); }
+    40%, 60% { transform: translateX(8px); }
 }
 
 .shake {
-  animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
 }
 
 /* --- Dropdown Menu --- */
 .view-selector-container {
     width: 100%;
-    max-width: 700px; /* Align with original content container's max-width */
+    max-width: 700px; 
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 2rem; /* Space below the dropdown */
-    margin-top: 2rem; /* Space above the dropdown */
+    margin-bottom: 2rem; 
+    margin-top: 2rem; 
 }
 
 .view-selector-dropdown {
@@ -87,32 +134,32 @@
     font-size: 1rem;
     cursor: pointer;
     outline: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Keep a subtle shadow for definition */
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease; /* Add background transition */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); 
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
     width: 100%;
-    max-width: 300px; /* Limit max width for a cleaner look */
+    max-width: 300px;
 }
 
 .view-selector-dropdown:hover {
     border-color: var(--blue);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2); /* Subtle blue shadow on hover */
-    background-color: oklch(72% 0 0); /* Slightly lighter gray on hover */
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2); 
+    background-color: oklch(72% 0 0); 
 }
 
 .view-selector-dropdown:focus {
     border-color: var(--bright-blue);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); /* Focus ring */
-    background-color: oklch(75% 0 0); /* Slightly lighter gray on focus */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); 
+    background-color: oklch(75% 0 0); 
 }
 
 /* Styles for the options within the dropdown when it's open */
 .view-selector-dropdown option {
-    background-color: var(--gray-70); /* Set background to var(--gray-70) for options */
-    color: black; /* Ensure text is black for all options when dropdown is open */
+    background-color: var(--gray-70); 
+    color: black; 
 }
 
 .view-selector-dropdown option[value=""][disabled][selected] {
-    color: #ffffff; /* This rule will only apply if a hidden placeholder option is ever added back and explicitly set to selected */
+    color: #ffffff; 
 }
 
 .original-content-container {
@@ -125,31 +172,31 @@
 
 /* Custom styling for the range input */
 input[type="range"] {
-    -webkit-appearance: none; /* Remove default styling for WebKit browsers */
-    appearance: none; /* Standard property for removing default styling */
-    width: 100%; /* Full width */
-    height: 8px; /* Thinner track */
-    background: #d1d5db; /* Light gray track */
+    -webkit-appearance: none; 
+    appearance: none; 
+    width: 100%; 
+    height: 8px; 
+    background: #d1d5db; 
     outline: none;
     opacity: 0.7;
     -webkit-transition: .2s;
     transition: opacity .2s;
-    border-radius: 4px; /* Rounded track */
+    border-radius: 4px; 
 }
 
 input[type="range"]:hover {
-    opacity: 1; /* Full opacity on hover */
+    opacity: 1; 
 }
 
 input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; /* Remove default thumb styling */
-    appearance: none; /* Standard property */
-    width: 20px; /* Thumb size */
-    height: 20px; /* Thumb size */
-    background: #3b82f6; /* Blue thumb */
+    -webkit-appearance: none; 
+    appearance: none; 
+    width: 20px; 
+    height: 20px; 
+    background: #3b82f6; 
     cursor: pointer;
-    border-radius: 50%; /* Circular thumb */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    border-radius: 50%; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
 }
 
 input[type="range"]::-moz-range-thumb {
@@ -178,28 +225,28 @@ input[type="range"]::-moz-range-thumb {
     --gray-70: oklch(70.0% 0 0);
     --gray-40: oklch(40% 0 0);
 
-    --red-to-pink-to-purple-vertical-gradient: linear-gradient( /*was old divider color. currently unused*/
+    --red-to-pink-to-purple-vertical-gradient: linear-gradient( 
         180deg,
         var(--red) 0%,
         var(--pink) 50%,
         var(--violet) 100%
     );
 
-    --red-to-yellow-to-green-vertical-gradient: linear-gradient( /*currently unused*/
+    --red-to-yellow-to-green-vertical-gradient: linear-gradient( 
         180deg,
         var(--red) 0%,
         var(--yellow) 50%,
         var(--green) 100%
     );
 
-    --green-to-blue-to-violet-vertical-gradient: linear-gradient( /*currently unused*/
+    --green-to-blue-to-violet-vertical-gradient: linear-gradient( 
         180deg,
         var(--green) 0%,
         var(--blue) 50%,
         var(--violet) 100%
     );
 
-    --rygbv-vertical-gradient: linear-gradient( /*currently used for divider*/
+    --rygbv-vertical-gradient: linear-gradient( 
         180deg,
         var(--red) 0%,
         var(--yellow) 25%,
@@ -264,22 +311,22 @@ p {
 
 /* --- Divider --- */
 .divider {
-  width: 1px;
-  background: var(--rygbv-vertical-gradient);
-  margin-inline: 0.5rem;
-  background-size: 100% 200%;
-  animation: hueBreathing2 5s ease-in-out infinite;
-  cursor: pointer;
+    width: 1px;
+    background: var(--rygbv-vertical-gradient);
+    margin-inline: 0.5rem;
+    background-size: 100% 200%;
+    animation: hueBreathing2 5s ease-in-out infinite;
+    cursor: pointer;
 }
 
 @keyframes hueBreathing2 { 
-  0% { filter: hue-rotate(0deg); }
-  50% { filter: hue-rotate(180deg); }
-  100% { filter: hue-rotate(360deg); }
+    0% { filter: hue-rotate(0deg); }
+    50% { filter: hue-rotate(180deg); }
+    100% { filter: hue-rotate(360deg); }
 }
 
 .divider.reverse {
-  animation-direction: reverse;
+    animation-direction: reverse;
 }
 
 /* --- Links --- */
@@ -349,4 +396,21 @@ p {
 
 .social-links a:hover svg path {
     fill: var(--gray-900);
+}
+
+.header-container {
+    /* ... existing styles ... */
+    user-select: none; /* Prevents text selection inside the header container */
+    -webkit-user-select: none; /* For WebKit browsers (Chrome, Safari) */
+    -moz-user-select: none; /* For Firefox */
+    -ms-user-select: none; /* For Edge/IE */
+}
+
+/* Also ensure the SVG itself cannot be selected */
+.header-container svg {
+    /* ... existing styles ... */
+    user-select: none; 
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
