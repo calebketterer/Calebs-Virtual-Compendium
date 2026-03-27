@@ -132,7 +132,7 @@ export class DiepMenus {
       ctx.fillRect(0, 0, width, height);
 
       // Game Title
-      ctx.font = 'bold 80px Inter, sans-serif';
+      ctx.font = '900 70px Inter, sans-serif';
       ctx.fillStyle = '#3498db'; // Blue color for the main title
       ctx.strokeStyle = '#3498db'; // Blue outline
       ctx.lineWidth = 10;

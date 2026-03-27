@@ -24,7 +24,7 @@ canvas {
   margin: 0.3rem 0;
 }
 
-/* Custom CSS to ensure canvas border is visible and structure is nice */
+/* Custom CSS to ensure canvas border is visible */
     .diep-container {
       font-family: 'Inter', sans-serif;
     }
@@ -38,43 +38,4 @@ canvas {
     /* Override canvas default styles for aesthetic consistency */
     canvas {
       outline: none;
-    }
-
-    /* --- EXPLICIT STYLING FOR GAME UI TEXT BELOW CANVAS --- */
-    .diep-ui {
-        text-align: center;
-        margin-top: 1rem; 
-        color: #4a5568; /* Tailwind gray-700 equivalent */
-    }
-    .diep-title {
-        font-size: 1.875rem; /* text-3xl */
-        font-weight: 800; /* font-extrabold */
-        color: #3498db; /* Blue */
-        margin-bottom: 0.5rem;
-    }
-    .diep-controls {
-        font-size: 1.125rem; /* text-lg */
-        font-weight: 500; /* font-medium */
-        margin-top: 0;
-        margin-bottom: 0.5rem;
-    }
-    .diep-instructions-light {
-        font-size: 0.875rem; /* text-sm */
-        font-style: italic;
-        color: #a0aec0; /* Tailwind gray-500 equivalent */
-        margin-top: 0;
-        margin-bottom: 0.25rem;
-    }
-    .diep-instructions-bold {
-        font-size: 0.875rem; /* text-sm */
-        font-style: italic;
-        font-weight: 700; /* font-bold */
-        margin-top: 0;
-        margin-bottom: 0.25rem;
-    }
-    .text-purple-boss {
-        color: #9b59b6;
-    }
-    .text-purple-minion {
-        color: #d2b4de;
     }
