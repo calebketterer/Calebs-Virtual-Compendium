@@ -210,4 +210,9 @@
         </div>
     </div>
 </main>
+<app-clicker-overlay 
+    *ngIf="selectedView === 'main-site' && showClickerGame"
+    [displayCount]="globalClickCount"
+    (targetClicked)="handleGlobalClick()">
+</app-clicker-overlay>
 <router-outlet />

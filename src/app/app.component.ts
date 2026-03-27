@@ -7,11 +7,12 @@ import { ConwayComponent } from './conway/conway.component';
 import { SnakeComponent } from './snake/snake.component';
 import { TetrisComponent } from './tetris/tetris.component';
 import { DiepComponent } from './diep/diep.component';
+import { ClickerOverlayComponent } from './clicker-overlay/clicker-overlay.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, FormsModule, SudokuComponent, ConwayComponent, SnakeComponent, TetrisComponent, DiepComponent],
+  imports: [RouterOutlet, CommonModule, FormsModule, SudokuComponent, ConwayComponent, SnakeComponent, TetrisComponent, DiepComponent, ClickerOverlayComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
@@ -86,6 +87,7 @@ export class AppComponent implements AfterViewInit {
 
     // MODIFIED HEADER CLICK LISTENER
     this.colorfulHeader.nativeElement.addEventListener('click', () => {
+      this.handleGlobalClick();
       // Color randomization logic
       this.currentColors = this.getRandomizedColors(this.defaultColors.length);
       this.setHorizontalGradient(this.lastX);
@@ -130,8 +132,7 @@ export class AppComponent implements AfterViewInit {
   };
 
   /**
-   * Pick a random selection of unique colors from colorPool.
-   * If not enough unique, repeats are allowed.
+   * Pick a random selection of unique colors from color pool.
    */
   getRandomizedColors(count: number): string[] {
     const shuffled = this.colorPool.slice().sort(() => Math.random() - 0.5);
@@ -143,8 +144,7 @@ export class AppComponent implements AfterViewInit {
   }
  
   /**
-   * Toggles the visibility of the original content block.
-   * Only allows hiding/showing if a sub-component view is active.
+   * Toggles the visibility of the original content block if a sub-component view is active.
    */
   toggleOriginalContent(event?: Event): void {
     if (this.selectedView !== 'main-site') {
@@ -159,10 +159,14 @@ export class AppComponent implements AfterViewInit {
     
     if (this.selectedView === 'main-site') {
         this.isOriginalContentHidden = false; 
+    } else {
+        this.globalClickCount = 0;
+        this.showClickerGame = false;
     }
-  }
+}
 
   shakeHeyThere() {
+    this.handleGlobalClick();
     const el = this.heyThere.nativeElement;
     el.classList.remove('shake');
     void el.offsetWidth;
@@ -170,6 +174,7 @@ export class AppComponent implements AfterViewInit {
   }
 
   shakeGoodNews() {
+    this.handleGlobalClick();
     const el = this.goodNews.nativeElement;
     el.classList.remove('shake');
     void el.offsetWidth;
@@ -177,7 +182,9 @@ export class AppComponent implements AfterViewInit {
   }
 
   shakeTips() {
-    // A. Update the text randomly
+    this.handleGlobalClick();
+
+    //Update text
     let newIndex: number;
     do {
       newIndex = Math.floor(Math.random() * this.tipsList.length);
@@ -185,7 +192,7 @@ export class AppComponent implements AfterViewInit {
     
     this.currentTipText = this.tipsList[newIndex];
 
-    // B. Trigger the shake animation
+    //Shake animation
     const el = this.Tips.nativeElement;
     el.classList.remove('shake');
     void el.offsetWidth; // Trigger reflow to restart animation
@@ -194,6 +201,19 @@ export class AppComponent implements AfterViewInit {
 
   reverse = false;
   toggleDirection() {
+    this.handleGlobalClick();
     this.reverse = !this.reverse;
   }
+
+  globalClickCount: number = 0; // The master counter
+  showClickerGame: boolean = false; // Controls the visibility
+
+  // Helper to check if we should unlock the game
+  handleGlobalClick() {
+    this.globalClickCount++;
+    if (this.globalClickCount >= 5) {
+      this.showClickerGame = true;
+    }
+  }
 }
+

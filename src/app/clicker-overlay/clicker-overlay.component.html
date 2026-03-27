@@ -1,0 +1,42 @@
+<svg width="0" height="0" style="position: absolute;">
+  <defs>
+    <symbol id="shape-triangle" viewBox="0 0 100 100">
+      <polygon points="50,5 95,95 5,95" />
+    </symbol>
+    <symbol id="shape-pentagon" viewBox="0 0 100 100">
+      <polygon points="50,5 95,39 78,95 22,95 5,39" />
+    </symbol>
+    <symbol id="shape-hexagon" viewBox="0 0 100 100">
+      <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" />
+    </symbol>
+    <symbol id="shape-octagon" viewBox="0 0 100 100">
+      <polygon points="30,5 70,5 95,30 95,70 70,95 30,95 5,70 5,30" />
+    </symbol>
+  </defs>
+</svg>
+
+<div *ngFor="let target of targets" 
+     class="clicker-target" 
+     [class.dragging]="target.isDragging"
+     [style.top.px]="target.top" 
+     [style.left.px]="target.left"
+     (mousedown)="startDrag($event, target)"
+     (click)="handleTargetClick($event, target)">
+  
+  <span class="score-bubble">{{ displayCount }}</span>
+  
+  <svg class="target-svg" viewBox="0 0 100 100" [ngClass]="target.shape">
+    <circle *ngIf="target.shape === 'circle'" cx="50" cy="50" r="45" 
+            [attr.fill]="target.coreColor" [attr.stroke]="target.outlineColor" stroke-width="8" />
+    
+    <rect *ngIf="target.shape === 'square'" x="10" y="10" width="80" height="80" rx="5"
+          [attr.fill]="target.coreColor" [attr.stroke]="target.outlineColor" stroke-width="8" />
+
+    <use *ngIf="target.shape !== 'circle' && target.shape !== 'square'"
+         [attr.xlink:href]="'#shape-' + target.shape"
+         [attr.fill]="target.coreColor" 
+         [attr.stroke]="target.outlineColor" 
+         stroke-width="8" 
+         stroke-linejoin="round" />
+  </svg>
+</div>
