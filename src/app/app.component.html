@@ -91,6 +91,11 @@
                         <option value="tetris">Tetris</option> 
                     </select>
                 </div>
+                <div class="tips-container">
+                    <p #Tips (click)="shakeTips()" id="Tips">
+                        {{ currentTipText }}
+                    </p>
+                </div>
             </div>
             <div 
                 class="divider" 

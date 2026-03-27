@@ -29,6 +29,8 @@ export class AppComponent implements AfterViewInit {
   heyThere!: ElementRef<HTMLElement>;
   @ViewChild('goodNews', { static: true })
   goodNews!: ElementRef<HTMLElement>;
+  @ViewChild('Tips', { static: true })
+  Tips!: ElementRef<HTMLElement>;
 
   // Default gradient colors (from your last list)
   private defaultColors: string[] = [
@@ -60,6 +62,18 @@ export class AppComponent implements AfterViewInit {
 
   private currentColors: string[] = [];
   private lastX = 50;
+
+  private tipsList: string[] = [
+    "Every object on this page is clickable! Give it a try.",
+    "Try clicking the header to randomize the site colors!",
+    "The Diep component is my personal favorite.",
+    "The gradient follows your mouse—try moving it side to side.",
+    "You can toggle the visibility of the header content in sub-views.",
+    "Double-click the 'Tips' line to see more secrets!",
+    "Access songs I wrote and produced on my Google Site.",
+    "Read my compendium of short stories on the Google Docs."
+  ];
+  currentTipText: string = this.tipsList[0];
 
   constructor(private renderer: Renderer2) {}
 
@@ -159,6 +173,22 @@ export class AppComponent implements AfterViewInit {
     const el = this.goodNews.nativeElement;
     el.classList.remove('shake');
     void el.offsetWidth;
+    el.classList.add('shake');
+  }
+
+  shakeTips() {
+    // A. Update the text randomly
+    let newIndex: number;
+    do {
+      newIndex = Math.floor(Math.random() * this.tipsList.length);
+    } while (this.tipsList[newIndex] === this.currentTipText);
+    
+    this.currentTipText = this.tipsList[newIndex];
+
+    // B. Trigger the shake animation
+    const el = this.Tips.nativeElement;
+    el.classList.remove('shake');
+    void el.offsetWidth; // Trigger reflow to restart animation
     el.classList.add('shake');
   }
 
