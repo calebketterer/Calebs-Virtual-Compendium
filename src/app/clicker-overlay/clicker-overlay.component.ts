@@ -33,7 +33,7 @@ export class ClickerOverlayComponent implements OnChanges {
   isGlobalFading: boolean = false;
 
   private shapes: string[] = ['circle', 'square', 'triangle', 'pentagon', 'hexagon', 'octagon'];
-  private colorPool: string[] = ["#f0060b", "#ff41f8", "#7702ff", "#cc26d5", "#00d4ff", "#ffde00", "#00ff6a"];
+  private colorPool: string[] = ["#b90000", "#b8b600", "#32881f","#104aee", "#8001c6", "#f637e3"];
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['displayCount']) {

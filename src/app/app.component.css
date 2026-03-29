@@ -210,17 +210,17 @@ input[type="range"]::-moz-range-thumb {
 
 /* Styles from original app.component.html's <style> block */
 :host {
-    --bright-blue: oklch(51.01% 0.274 263.83);
-    --pink: oklch(69.02% 0.277 332.77);
-    --dark-blue: oklch(37.54% 0.2278 269.73);
+    --bright-blue: #0546ff;
+    --pink: #f637e3;
+    --dark-blue: #1f17b7;
 
-    --red: oklch(45% 0.25 30);
-    --yellow: oklch(75% 0.2 110);
-    --green: oklch(55.34% 0.1608 140.47);
-    --blue: oklch(50% 0.25 264);
-    --violet: oklch(47.66% 0.246 305.88);
+    --red: #b90000;
+    --yellow: #b8b600;
+    --green: #32881f;
+    --blue: #104aee;
+    --violet: #8001c6;
 
-    --gray-90: oklch(90.0% 0 0);
+    --gray-90: oklch(90.06% 0.0001 271.152);
     --gray-85: oklch(85% 0 0);
     --gray-70: oklch(70.0% 0 0);
     --gray-40: oklch(40% 0 0);
