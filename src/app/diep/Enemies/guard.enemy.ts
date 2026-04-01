@@ -3,7 +3,7 @@ import { Enemy, Player, Bullet, OwnerType } from '../diep.interfaces';
 export const GuardEnemy = {
     create: (x: number, y: number): Partial<Enemy> => ({
         x, y, radius: 22, color: '#27ae60',
-        health: 80, maxHealth: 80, scoreValue: 120,
+        health: 80, maxHealth: 80, scoreValue: 100,
         lastShotTime: 0, rotationAngle: 0
     }),
 

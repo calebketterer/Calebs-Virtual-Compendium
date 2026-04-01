@@ -3,7 +3,7 @@ import { Enemy, Player, Bullet, OwnerType } from '../diep.interfaces';
 export const SniperEnemy = {
     create: (x: number, y: number): Partial<Enemy> => ({
         x, y, radius: 22, color: '#e74c3c',
-        health: 80, maxHealth: 80, scoreValue: 120,
+        health: 80, maxHealth: 80, scoreValue: 100,
         lastShotTime: 0, rotationAngle: 0
     }),
 
@@ -25,7 +25,7 @@ export const SniperEnemy = {
                     x: enemy.x, y: enemy.y,
                     dx: Math.cos(enemy.rotationAngle) * 10,
                     dy: Math.sin(enemy.rotationAngle) * 10,
-                    radius: 5, color: enemy.color, ownerType: 'ENEMY' as OwnerType
+                    radius: 7.5, color: enemy.color, ownerType: 'ENEMY' as OwnerType
                 });
                 enemy.lastShotTime = currentTime;
             }
@@ -48,7 +48,7 @@ export const SniperEnemy = {
         // Draw the rectangle starting from center (0) forward
         ctx.beginPath();
         // (x, y, width, height) 
-        // We start x at 0 so it comes from the center of the tank
+        // 0 is the center of the tank
         ctx.rect(0, -barrelWidth / 2, barrelLength, barrelWidth);
         ctx.fill();
         ctx.stroke();
@@ -66,5 +66,3 @@ export const SniperEnemy = {
         ctx.stroke();
     }
 };
-
-//#c0392b
