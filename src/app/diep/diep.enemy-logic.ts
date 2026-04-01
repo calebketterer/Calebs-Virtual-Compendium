@@ -1,6 +1,5 @@
 import { Enemy, Player, Bullet, EnemyType, SmasherState, OwnerType } from './diep.interfaces';
 
-
 /**
  * Utility class dedicated to updating the state, position, and actions
  * of all enemy types each frame.
