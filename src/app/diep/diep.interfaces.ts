@@ -20,7 +20,8 @@ export interface Bullet {
   dy: number;
   radius: number;
   color: string;
-  ownerType: OwnerType; // Using exported type
+  ownerType: OwnerType;
+  hasTrail?: boolean;
 }
 
 // Define EnemyType enum (using type alias for flexibility)
@@ -60,4 +61,15 @@ export interface EnemySpawnWeight {
 export interface HighScore {
   score: number;
   date: string; // ISO 8601 string for persistent storage
+}
+
+export interface TrailSegment {
+    x: number;
+    y: number;
+    radius: number;
+    maxRadius: number;
+    color: string;
+    opacity: number;
+    creationTime: number;
+    lifespan: number;
 }

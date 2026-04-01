@@ -28,6 +28,51 @@ export class DiepEnemyLogic {
             // Global logic (like bounds checking or player collision) stays here
             this.handleGlobalCollision(enemy, player);
         });
+
+        // NEW: Apply separation logic after individual movements to prevent stacking
+        // This ensures that even if they are all targeting the player, they nudge each other apart.
+        this.handleEnemySeparation(enemies);
+    }
+
+    /**
+     * Prevents enemies from overlapping with one another by pushing them apart.
+     * Uses circle-circle intersection math to calculate a soft repulsive force.
+     */
+    private static handleEnemySeparation(enemies: Enemy[]): void {
+        const pushStrength = 0.2; // Adjust for "softer" (0.1) or "firmer" (0.5) separation
+
+        for (let i = 0; i < enemies.length; i++) {
+            const e1 = enemies[i];
+            for (let j = i + 1; j < enemies.length; j++) {
+                const e2 = enemies[j];
+
+                const dx = e2.x - e1.x;
+                const dy = e2.y - e1.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const minDistance = e1.radius + e2.radius;
+
+                // Check if the distance between centers is less than the combined radii
+                if (distance < minDistance && distance > 0) {
+                    // Calculate how much they overlap
+                    const overlap = minDistance - distance;
+                    
+                    // Normal vector (normalized direction of the overlap)
+                    const nx = dx / distance;
+                    const ny = dy / distance;
+
+                    // Calculate the displacement vector based on pushStrength
+                    const moveX = nx * overlap * pushStrength;
+                    const moveY = ny * overlap * pushStrength;
+
+                    // Apply the push in opposite directions to both enemies
+                    // No damage is dealt here, just coordinate adjustment
+                    e1.x -= moveX;
+                    e1.y -= moveY;
+                    e2.x += moveX;
+                    e2.y += moveY;
+                }
+            }
+        }
     }
 
     /**

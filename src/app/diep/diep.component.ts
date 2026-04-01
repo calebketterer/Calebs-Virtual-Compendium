@@ -212,6 +212,18 @@ export class DiepComponent implements AfterViewInit {
     
     // Only draw game entities if the game has started
     if (g.isGameStarted || g.gameOver) { 
+
+      // --- 1.5. NEW: Draw Toxic Trails (Drawn first so they are on the bottom layer) ---
+      g.toxicTrails.forEach(trail => {
+        this.ctx.beginPath();
+        this.ctx.globalAlpha = trail.opacity;
+        this.ctx.fillStyle = trail.color;
+        this.ctx.arc(trail.x, trail.y, trail.radius, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.closePath();
+      });
+      this.ctx.globalAlpha = 1.0; // Reset alpha to fully opaque for other entities
+
       // --- 2. Draw Player Tank ---
       DiepEntities.drawPlayer(this.ctx, g.player, g.gameOver);
 

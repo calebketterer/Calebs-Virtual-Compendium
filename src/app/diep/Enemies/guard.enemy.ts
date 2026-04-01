@@ -22,10 +22,14 @@ export const GuardEnemy = {
         } else {
             if (currentTime - (enemy.lastShotTime || 0) > 400) {
                 bullets.push({
-                    x: enemy.x, y: enemy.y,
+                    x: enemy.x, 
+                    y: enemy.y,
                     dx: Math.cos(enemy.rotationAngle) * 10,
                     dy: Math.sin(enemy.rotationAngle) * 10,
-                    radius: 10, color: enemy.color, ownerType: 'ENEMY' as OwnerType
+                    radius: 10, 
+                    color: enemy.color, 
+                    ownerType: 'ENEMY' as OwnerType,
+                    hasTrail: true // This enables the toxic sludge dropping
                 });
                 enemy.lastShotTime = currentTime;
             }
@@ -33,35 +37,28 @@ export const GuardEnemy = {
     },
 
     draw: (ctx: CanvasRenderingContext2D, enemy: Enemy) => {
-        const barrelWidth = 20; // Width of the nozzle
-        const barrelLength = enemy.radius * 1.5; // How far it sticks out
+        const barrelWidth = 20;
+        const barrelLength = enemy.radius * 1.5;
 
-        // --- 1. Draw the Barrel FIRST (so it sits behind the body) ---
+        // Draw Nozzle behind body
         ctx.save();
         ctx.translate(enemy.x, enemy.y);
         ctx.rotate(enemy.rotationAngle || 0);
-
-        ctx.fillStyle = '#999999';   // Classic Diep grey
-        ctx.strokeStyle = '#727272'; // Darker grey outline
+        ctx.fillStyle = '#999999';
+        ctx.strokeStyle = '#727272';
         ctx.lineWidth = 2.5;
-
-        // Draw the rectangle starting from center (0) forward
         ctx.beginPath();
-        // (x, y, width, height) 
-        // We start x at 0 so it comes from the center of the tank
         ctx.rect(0, -barrelWidth / 2, barrelLength, barrelWidth);
         ctx.fill();
         ctx.stroke();
         ctx.restore();
 
-        // --- 2. Draw the Body SECOND ---
+        // Draw Main Tank Body
         ctx.beginPath();
         ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
         ctx.fillStyle = enemy.color;
         ctx.fill();
-
-        // Body Outline
-        ctx.strokeStyle = '#229452'; // Darker outline for the body
+        ctx.strokeStyle = '#1e8449'; // Darker green outline
         ctx.lineWidth = 2.5;
         ctx.stroke();
     }
