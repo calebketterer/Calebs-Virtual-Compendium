@@ -1,30 +1,22 @@
 import { Enemy } from '../diep.interfaces';
 
 export const AuraEnemy = {
-    update: (enemy: Enemy, player: any, deltaTime: number, currentTime: number, moveTowards: Function) => {
-        const auraSpeed = 0.5;
-        
-        // If target is missing, the registry or spawner should have initialized it
-        if (enemy.targetX === undefined || enemy.targetY === undefined) {
-            return; 
-        }
+    create: (x: number, y: number): Partial<Enemy> => ({
+        x, y, radius: 35, color: '#33cc33',
+        health: 150, maxHealth: 150, scoreValue: 400
+    }),
 
-        const distToTarget = Math.sqrt(Math.pow(enemy.targetX - enemy.x, 2) + Math.pow(enemy.targetY - enemy.y, 2));
-        
-        // If reached target, we stop or wait for the Spawner/Logic to give a new one
-        if (distToTarget > 5) {
-            moveTowards(enemy, deltaTime, enemy.targetX, enemy.targetY, auraSpeed);
+    update: (enemy: Enemy, player: any, deltaTime: number, currentTime: number, moveTowards: Function) => {
+        if (enemy.targetX !== undefined && enemy.targetY !== undefined) {
+            moveTowards(enemy, deltaTime, enemy.targetX, enemy.targetY, 0.5);
         }
     },
 
     draw: (ctx: CanvasRenderingContext2D, enemy: Enemy) => {
-        ctx.save();
-        // Pulsing effect using current time
-        const pulse = Math.sin(Date.now() / 500) * 5;
-        
+        const pulse = Math.sin(Date.now() / 600) * 8;
         ctx.beginPath();
-        ctx.arc(enemy.x, enemy.y, enemy.radius + 40 + pulse, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(46, 204, 113, 0.2)';
+        ctx.arc(enemy.x, enemy.y, enemy.radius + 80 + pulse, 0, Math.PI * 2);
+        ctx.fillStyle = '#33cc331a';
         ctx.fill();
 
         ctx.beginPath();
@@ -34,6 +26,5 @@ export const AuraEnemy = {
         ctx.strokeStyle = '#27ae60';
         ctx.lineWidth = 3;
         ctx.stroke();
-        ctx.restore();
     }
 };

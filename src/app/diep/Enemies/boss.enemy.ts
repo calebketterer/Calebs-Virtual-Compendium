@@ -1,8 +1,12 @@
 import { Enemy, Player } from '../diep.interfaces';
 
 export const BossEnemy = {
+    create: (x: number, y: number): Partial<Enemy> => ({
+        x, y, radius: 50, color: '#9b59b6',
+        health: 500, maxHealth: 500, scoreValue: 1000
+    }),
+
     update: (enemy: Enemy, player: Player, deltaTime: number, currentTime: number, moveTowards: Function) => {
-        // Regen 1 HP/sec
         enemy.health = Math.min(enemy.maxHealth, enemy.health + (1 * deltaTime / 1000));
         moveTowards(enemy, deltaTime, player.x, player.y, 0.75);
     },
@@ -12,14 +16,11 @@ export const BossEnemy = {
         ctx.beginPath();
         ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
         ctx.fillStyle = enemy.color;
-        
-        // Boss Shadow
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = enemy.color;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#8e44ad';
         ctx.fill();
-        
-        ctx.strokeStyle = '#8e44ad';
-        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#4b0082';
+        ctx.lineWidth = 5;
         ctx.stroke();
         ctx.restore();
     }

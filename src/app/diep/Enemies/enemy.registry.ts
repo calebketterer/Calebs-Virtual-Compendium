@@ -5,41 +5,102 @@ import { SniperEnemy } from './sniper.enemy';
 import { BossEnemy } from './boss.enemy';
 import { AuraEnemy } from './aura.enemy';
 import { StandardEnemy } from './standard.enemy';
+import { GuardEnemy } from './guard.enemy';
 
+/**
+ * The EnemyRegistry acts as the central "Switchboard".
+ * It maps EnemyTypes to their specific logic and drawing files.
+ */
 export class EnemyRegistry {
-    private static readonly BASE_SPEED_FACTOR = 0.06;
 
-    private static getHandler(type: EnemyType) {
-        const mapping: Record<EnemyType, any> = {
-            'SMASHER': SmasherEnemy,
-            'CRASHER': CrasherEnemy,
-            'SNIPER': SniperEnemy,
-            'BOSS': BossEnemy,
-            'AURA': AuraEnemy,
-            'REGULAR': StandardEnemy,
-            'MINION': StandardEnemy
-        };
-        return mapping[type] || StandardEnemy;
-    }
+  /**
+   * Mappings of EnemyType to the specific object containing create/update/draw logic.
+   */
+  private static readonly mapping: Record<EnemyType, any> = {
+    'SMASHER': SmasherEnemy,
+    'CRASHER': CrasherEnemy,
+    'SNIPER': SniperEnemy,
+    'BOSS': BossEnemy,
+    'AURA': AuraEnemy,
+    'REGULAR': StandardEnemy,
+    'MINION': StandardEnemy,
+    'GUARD': GuardEnemy
+  };
 
-    public static update(enemy: Enemy, player: Player, bullets: Bullet[], deltaTime: number, currentTime: number) {
-        const handler = this.getHandler(enemy.type);
-        // We pass 'this.moveTowardsTarget' so individual files can use the shared physics logic
-        handler.update(enemy, player, deltaTime, currentTime, this.moveTowardsTarget.bind(this), bullets);
-    }
+  /**
+   * Factory method to initialize a new enemy with its default stats.
+   */
+  public static createEnemy(type: EnemyType, x: number, y: number): Enemy {
+    const handler = this.getHandler(type);
+    
+    // Call the 'create' method in the specific enemy file
+    const baseStats = handler.create(x, y, type);
 
-    public static draw(ctx: CanvasRenderingContext2D, enemy: Enemy, player: Player) {
-        this.getHandler(enemy.type).draw(ctx, enemy, player);
-    }
+    // Merge base stats with required properties
+    return {
+      type,
+      isBoss: type === 'BOSS',
+      ...baseStats
+    } as Enemy;
+  }
 
-    private static moveTowardsTarget(enemy: Enemy, deltaTime: number, tX: number, tY: number, speed: number) {
-        const dx = tX - enemy.x;
-        const dy = tY - enemy.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist > 0) {
-            const finalSpeed = speed * this.BASE_SPEED_FACTOR * deltaTime;
-            enemy.x += (dx / dist) * finalSpeed;
-            enemy.y += (dy / dist) * finalSpeed;
-        }
+  /**
+   * Delegates the update logic to the specific enemy file.
+   */
+  public static update(
+    enemy: Enemy, 
+    player: Player, 
+    bullets: Bullet[], 
+    deltaTime: number, 
+    currentTime: number
+  ): void {
+    const handler = this.getHandler(enemy.type);
+    
+    // We pass 'moveTowardsTarget' as a reference so enemies can use it
+    handler.update(
+      enemy, 
+      player, 
+      deltaTime, 
+      currentTime, 
+      this.moveTowardsTarget.bind(this), 
+      bullets
+    );
+  }
+
+  /**
+   * Delegates the drawing logic to the specific enemy file.
+   */
+  public static draw(ctx: CanvasRenderingContext2D, enemy: Enemy, player: Player): void {
+    const handler = this.getHandler(enemy.type);
+    handler.draw(ctx, enemy, player);
+  }
+
+  /**
+   * A shared movement utility used by all enemy update methods.
+   */
+  public static moveTowardsTarget(
+    enemy: Enemy, 
+    deltaTime: number, 
+    targetX: number, 
+    targetY: number, 
+    targetSpeed: number
+  ): void {
+    const dx = targetX - enemy.x;
+    const dy = targetY - enemy.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist > 0 && targetSpeed > 0) {
+      // BASE_SPEED_FACTOR (0.06) ensures frame-rate independence
+      const finalSpeed = targetSpeed * 0.06 * deltaTime;
+      enemy.x += (dx / dist) * finalSpeed;
+      enemy.y += (dy / dist) * finalSpeed;
     }
+  }
+
+  /**
+   * Internal helper to find the correct handler or fallback to Standard.
+   */
+  private static getHandler(type: EnemyType): any {
+    return this.mapping[type] || StandardEnemy;
+  }
 }
