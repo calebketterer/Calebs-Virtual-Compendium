@@ -34,7 +34,7 @@ export class AppComponent implements AfterViewInit {
   @ViewChild('Tips', { static: true })
   Tips!: ElementRef<HTMLElement>;
 
-  // Default gradient colors (from your last list)
+  // Default gradient colors
   private defaultColors: string[] = [
     "#f0060b",    // vivid red
     "#ff41f8",    // vivid pink
@@ -44,7 +44,6 @@ export class AppComponent implements AfterViewInit {
     "#f0060b"     // vivid red (again for symmetry)
   ];
 
-  // Color pool using all provided color options (CSS oklch and hex)
   private colorPool: string[] = [
     "oklch(51.01% 0.274 263.83)", // --bright-blue
     "oklch(53.18% 0.28 296.97)",  // --electric-violet
@@ -132,9 +131,7 @@ export class AppComponent implements AfterViewInit {
     }
   };
 
-  /**
-   * Pick a random selection of unique colors from color pool.
-   */
+  // Pick a random selection of unique colors from color pool.
   getRandomizedColors(count: number): string[] {
     const shuffled = this.colorPool.slice().sort(() => Math.random() - 0.5);
     const picked = shuffled.slice(0, count);
@@ -144,9 +141,7 @@ export class AppComponent implements AfterViewInit {
     return picked;
   }
  
-  /**
-   * Toggles the visibility of the original content block if a sub-component view is active.
-   */
+  //Toggles the visibility of the original content block if a sub-component view is active.
   toggleOriginalContent(event?: Event): void {
     if (this.selectedView !== 'main-site') {
       event?.preventDefault(); 
@@ -206,14 +201,14 @@ export class AppComponent implements AfterViewInit {
     this.reverse = !this.reverse;
   }
 
-  globalClickCount: number = 0; // The master counter
-  showClickerGame: boolean = false; // Controls the visibility
+  globalClickCount: number = 0;
+  showClickerGame: boolean = false; // Controls clicker game visibility
 
-  // Helper to check if we should unlock the game
+  // Helper to unlock clicker game
   handleGlobalClick() {
     this.globalClickCount++;
-    if (this.globalClickCount >= 5) {
-      this.showClickerGame = true;
+    if (this.globalClickCount >= 5) { 
+      this.showClickerGame = true; 
     }
   }
 }

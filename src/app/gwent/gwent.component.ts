@@ -34,6 +34,8 @@ export class GwentComponent implements OnInit {
 
   handP1: Card[] = [];
   handP2: Card[] = [];
+  deckP1: Card[] = [];
+  deckP2: Card[] = [];
   
   board: { [key: string]: Card[] } = {
     p2Ranged: [], p2Melee: [],
@@ -43,20 +45,33 @@ export class GwentComponent implements OnInit {
   draggedData: { card: Card, index: number } | null = null;
 
   ngOnInit() {
-    this.generateDecks();
+    this.fullReset();
   }
 
   generateDecks() {
-    this.handP1 = [];
-    this.handP2 = [];
+    this.deckP1 = [];
+    this.deckP2 = [];
     const createCard = (p: number, id: number) => ({
       id, name: `Unit`, 
       power: Math.floor(Math.random() * 10) + 1, 
       ability: 'none', imageName: 'card.jpg', owner: p 
     });
-    for (let i = 0; i < 10; i++) {
-      this.handP1.push(createCard(1, i));
-      this.handP2.push(createCard(2, i + 100));
+
+    for (let i = 0; i < 25; i++) {
+      this.deckP1.push(createCard(1, i));
+      this.deckP2.push(createCard(2, i + 100));
+    }
+  }
+
+  drawCards(player: number, count: number) {
+    const hand = player === 1 ? this.handP1 : this.handP2;
+    const deck = player === 1 ? this.deckP1 : this.deckP2;
+
+    for (let i = 0; i < count; i++) {
+      // Enforce hand limit of 10
+      if (hand.length < 10 && deck.length > 0) {
+        hand.push(deck.pop()!);
+      }
     }
   }
 
@@ -142,25 +157,48 @@ export class GwentComponent implements OnInit {
     if (this.p1Wins >= 2 || this.p2Wins >= 2) {
       this.gameOver = true;
       const winner = this.p1Wins === this.p2Wins ? "Draw" : (this.p1Wins > this.p2Wins ? "Player 1" : "Player 2");
-      this.tipLine = `MATCH OVER! ${winner === 'Draw' ? "It's a tie!" : winner + " wins!"} Click RESET.`;
+      this.tipLine = `MATCH OVER! ${winner === 'Draw' ? "Tie!" : winner + " wins!"} Click RESET.`;
     }
   }
 
   startNextRound() {
+    // Clear board
     Object.keys(this.board).forEach(key => this.board[key] = []);
-    this.p1Passed = false; this.p2Passed = false;
-    this.roundOver = false; this.turnPlayed = false;
+    this.p1Passed = false; 
+    this.p2Passed = false;
+    this.roundOver = false; 
+    this.turnPlayed = false;
+    
+    // Draw 3 cards, capped at 10
+    this.drawCards(1, 3);
+    this.drawCards(2, 3);
+
     this.activePlayer = 1;
-    this.tipLine = "Round started. Player 1's turn.";
+    this.tipLine = "New Round! Draw 3 cards (Max 10). Player 1 starts.";
     this.tipIsError = false;
   }
 
   fullReset() {
     this.p1Wins = 0;
     this.p2Wins = 0;
+    this.handP1 = [];
+    this.handP2 = [];
     this.gameOver = false;
+    
+    // Reset Board
+    Object.keys(this.board).forEach(key => this.board[key] = []);
+
     this.generateDecks();
-    this.startNextRound();
+    
+    // Initial draw of 10
+    this.drawCards(1, 10);
+    this.drawCards(2, 10);
+
+    this.p1Passed = false;
+    this.p2Passed = false;
+    this.roundOver = false;
+    this.turnPlayed = false;
+    this.activePlayer = 1;
     this.tipLine = "Game fully reset! Player 1 starts.";
   }
 

@@ -3,8 +3,8 @@
   background: #0f0f0f;
   color: #fff;
   height: 100vh;
-  width: 80vw;         /* Locked to 80% of browser width */
-  margin: 0 auto;      /* Centers the game window */
+  width: 80vw;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   font-family: 'Georgia', serif;
@@ -38,16 +38,15 @@
 
 .tip-line {
   font-size: 0.9rem;
-  color: #2ecc71; /* Default success/info green */
+  color: #2ecc71;
   font-style: italic;
   margin-top: 5px;
   height: 1.2rem;
   transition: color 0.2s ease;
 }
 
-/* ERROR MESSAGE COLOR */
 .error-text {
-  color: #e74c3c !important; /* Force Red */
+  color: #e74c3c !important;
   font-weight: bold;
   text-shadow: 0 0 5px rgba(231, 76, 60, 0.3);
 }
@@ -56,7 +55,7 @@
 .main-layout {
   flex: 1;
   display: flex;
-  min-height: 0; /* Prevents flex children from stretching parent */
+  min-height: 0;
 }
 
 /* Board Rows */
@@ -70,7 +69,7 @@
 }
 
 .row {
-  height: 140px; /* Fixed height to prevent "skinny" look */
+  height: 140px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid #222;
   display: flex;
@@ -123,7 +122,6 @@
   border: 1px solid #333;
   border-radius: 8px;
   background: #111;
-  transition: all 0.3s ease;
 }
 
 .score-card h1 {
@@ -159,7 +157,6 @@
   background: #333;
   border: 2px solid #000;
   box-shadow: inset 0 0 5px #000;
-  transition: all 0.4s ease;
 }
 
 .crystal.active {
@@ -182,13 +179,7 @@
   color: #555;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  font-family: 'Georgia', serif;
-}
-
-.turn-coin:hover:not(:disabled) {
-  transform: scale(1.1);
-  color: #888;
+  transition: 0.3s;
 }
 
 .active-coin {
@@ -203,7 +194,7 @@
   box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
 }
 
-/* Hands (Footer/Top Sections) */
+/* Hands Area */
 .hand-section {
   height: 160px;
   background: #1a1a1a;
@@ -212,20 +203,26 @@
   align-items: center;
   flex-shrink: 0;
   position: relative;
+  padding: 0 40px;
 }
 
-.hand-section.top {
-  border-bottom: 2px solid #333;
-}
+.hand-section.top { border-bottom: 2px solid #333; }
+.hand-section.bottom { border-top: 2px solid #333; }
 
-.hand-section.bottom {
-  border-top: 2px solid #333;
+.hand-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
 }
 
 .hand {
   display: flex;
   gap: 10px;
   transition: opacity 0.3s, transform 0.3s;
+  flex: 1;
+  justify-content: center;
 }
 
 .invisible {
@@ -234,18 +231,65 @@
   transform: translateY(15px);
 }
 
+/* Deck Visuals */
+.deck-stack {
+  width: 100px;
+  height: 140px;
+  position: relative;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.deck-card-visual {
+  width: 85px;
+  height: 120px;
+  background: #2c3e50;
+  border: 2px solid #555;
+  border-radius: 5px;
+  position: relative;
+}
+
+.deck-card-visual::before {
+  content: '';
+  position: absolute;
+  top: -4px; left: -4px;
+  width: 100%; height: 100%;
+  background: #2c3e50; border: 2px solid #555; border-radius: 5px;
+  z-index: -1;
+}
+
+.deck-count {
+  position: absolute;
+  top: 40%;
+  background: rgba(0,0,0,0.8);
+  color: #f1c40f;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border: 1px solid #f1c40f;
+}
+
+.hand-count-label {
+  margin-top: 5px;
+  font-size: 0.7rem;
+  color: #666;
+  text-transform: uppercase;
+}
+
 /* Cards */
 .card-in-hand {
   width: 85px;
   height: 120px;
   background: #333;
-  background-size: cover;
-  background-position: center;
   border: 2px solid #888;
   border-radius: 4px;
   position: relative;
   cursor: grab;
-  transition: transform 0.2s, border-color 0.2s;
+  transition: transform 0.2s;
 }
 
 .card-in-hand:hover {
@@ -260,10 +304,8 @@
   border: 1px solid #f1c40f;
   border-radius: 3px;
   position: relative;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
 }
 
-/* Power Badges */
 .power-badge, .power-val {
   position: absolute;
   top: -8px;
@@ -279,9 +321,4 @@
   font-weight: bold;
   border: 1px solid #000;
   font-size: 0.75rem;
-  z-index: 2;
-}
-
-.power-val {
-  background: #eee;
 }

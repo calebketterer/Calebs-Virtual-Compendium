@@ -1,16 +1,23 @@
 <div class="gwent-wrapper">
   
   <div class="hand-section top">
-    <div class="hand" [class.invisible]="activePlayer !== 2 || p2Passed">
-      <div *ngFor="let card of handP2; let i = index" 
-           class="card-in-hand" draggable="true" (dragstart)="onDragStart(card, i)">
-        <span class="power-badge">{{card.power}}</span>
+    <div class="hand-container">
+      <div class="hand" [class.invisible]="activePlayer !== 2 || p2Passed">
+        <div *ngFor="let card of handP2; let i = index" 
+             class="card-in-hand" draggable="true" (dragstart)="onDragStart(card, i)">
+          <span class="power-badge">{{card.power}}</span>
+        </div>
+      </div>
+      <div class="deck-stack">
+        <div class="deck-card-visual"></div>
+        <span class="deck-count">{{deckP2.length}}</span>
+        <div class="hand-count-label">Hand: {{handP2.length}}/10</div>
       </div>
     </div>
   </div>
 
   <header class="game-header">
-    <h1 class="game-title">Vibood's Gwent</h1>
+    <h1 class="game-title">Vibood's Gwent (WIP)</h1>
     <div class="tip-line" [class.error-text]="tipIsError">{{ tipLine }}</div>
   </header>
 
@@ -43,7 +50,7 @@
           <div class="crystal" [class.active]="p2Wins > 0"></div>
           <div class="crystal" [class.active]="p2Wins > 1"></div>
         </div>
-        <p>P2 {{ p2Passed ? 'PASSED' : '' }}</p>
+        <p>P2 {{ p2Passed ? '(PASSED)' : '' }}</p>
         <h1>{{ calculateScore(2) }}</h1>
       </div>
 
@@ -60,17 +67,24 @@
           <div class="crystal" [class.active]="p1Wins > 0"></div>
           <div class="crystal" [class.active]="p1Wins > 1"></div>
         </div>
-        <p>P1 {{ p1Passed ? 'PASSED' : '' }}</p>
+        <p>P1 {{ p1Passed ? '(PASSED)' : '' }}</p>
         <h1>{{ calculateScore(1) }}</h1>
       </div>
     </aside>
   </main>
 
   <footer class="hand-section bottom">
-    <div class="hand" [class.invisible]="activePlayer !== 1 || p1Passed">
-      <div *ngFor="let card of handP1; let i = index" 
-           class="card-in-hand" draggable="true" (dragstart)="onDragStart(card, i)">
-        <span class="power-badge">{{card.power}}</span>
+    <div class="hand-container">
+      <div class="hand" [class.invisible]="activePlayer !== 1 || p1Passed">
+        <div *ngFor="let card of handP1; let i = index" 
+             class="card-in-hand" draggable="true" (dragstart)="onDragStart(card, i)">
+          <span class="power-badge">{{card.power}}</span>
+        </div>
+      </div>
+      <div class="deck-stack">
+        <div class="deck-card-visual"></div>
+        <span class="deck-count">{{deckP1.length}}</span>
+        <div class="hand-count-label">Hand: {{handP1.length}}/10</div>
       </div>
     </div>
   </footer>

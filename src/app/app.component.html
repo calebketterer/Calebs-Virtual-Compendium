@@ -78,7 +78,7 @@
                 <h1 #heyThere (click)="shakeHeyThere()" style="cursor:pointer;">Hey there, friend.</h1>
                 <p #goodNews (click)="shakeGoodNews()" style="cursor:pointer;">
                     Good news! My angular website is running, customized,
-                    <br> and all links are updated as of 2026.04.01! 🎉
+                    <br> and all links are updated as of 2026.04.03! 🎉
                 </p>
 
                 <div class="view-selector-container">
@@ -86,9 +86,10 @@
                         <option value="main-site" selected>Main Site Info</option>
                         <option value="conways-game-of-life">Conway's Game of Life</option>
                         <option value="diep">Diep</option>
+                        <option value="gwent">Gwent</option> 
                         <option value="snake">Snake</option>
                         <option value="sudoku">Sudoku</option>
-                        <option value="tetris">Tetris</option> 
+                        <option value="tetris">Tetris</option>
                     </select>
                 </div>
                 <div class="tips-container">
@@ -201,6 +202,7 @@
     <div *ngIf="selectedView !== 'main-site'">
         <app-conway *ngIf="selectedView === 'conways-game-of-life'"></app-conway>
         <app-diep *ngIf="selectedView === 'diep'"></app-diep>
+        <app-gwent *ngIf="selectedView === 'gwent'"></app-gwent>
         <app-sudoku *ngIf="selectedView === 'sudoku'"></app-sudoku>
         <app-snake *ngIf="selectedView === 'snake'"></app-snake>
         <app-tetris *ngIf="selectedView === 'tetris'"></app-tetris>
