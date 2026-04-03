@@ -8,11 +8,12 @@ import { SnakeComponent } from './snake/snake.component';
 import { TetrisComponent } from './tetris/tetris.component';
 import { DiepComponent } from './diep/diep.component';
 import { ClickerOverlayComponent } from './clicker-overlay/clicker-overlay.component';
+import { GwentComponent } from './gwent/gwent.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, FormsModule, SudokuComponent, ConwayComponent, SnakeComponent, TetrisComponent, DiepComponent, ClickerOverlayComponent],
+  imports: [RouterOutlet, CommonModule, FormsModule, SudokuComponent, ConwayComponent, SnakeComponent, TetrisComponent, DiepComponent, ClickerOverlayComponent, GwentComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
