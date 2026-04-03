@@ -1,22 +1,38 @@
-/* Main Game Container */
+/* Outer Page Container */
+.gwent-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  background: transparent; /* Background is now invisible */
+  padding: 20px;
+}
+
+/* Main Game Wrapper */
 .gwent-wrapper {
   background: #0f0f0f;
   color: #fff;
-  height: 100vh;
-  width: 80vw;
+  height: 90vh; 
+  width: 85vw;
+  max-width: 1300px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   font-family: 'Georgia', serif;
   overflow: hidden;
-  border-left: 2px solid #333;
-  border-right: 2px solid #333;
-  box-shadow: 0 0 50px rgba(0,0,0,0.5);
+  /* Border is now PERSISTENT gold */
+  border: 2px solid #f1c40f; 
+  border-radius: 12px;
+  /* Persistent glow/shadow */
+  box-shadow: 0 0 25px rgba(241, 196, 15, 0.2), 0 10px 30px rgba(0,0,0,0.7);
+  outline: none;
 }
 
 /* Header & Title Area */
 .game-header {
-  height: 100px;
+  height: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -29,26 +45,22 @@
 
 .game-title {
   margin: 0;
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   color: #f1c40f;
   text-transform: uppercase;
   letter-spacing: 2px;
-  text-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
 }
 
 .tip-line {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #2ecc71;
   font-style: italic;
-  margin-top: 5px;
-  height: 1.2rem;
-  transition: color 0.2s ease;
+  margin-top: 2px;
 }
 
 .error-text {
   color: #e74c3c !important;
   font-weight: bold;
-  text-shadow: 0 0 5px rgba(231, 76, 60, 0.3);
 }
 
 /* Game Layout */
@@ -69,7 +81,7 @@
 }
 
 .row {
-  height: 140px;
+  height: 120px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid #222;
   display: flex;
@@ -77,7 +89,6 @@
   align-items: center;
   gap: 15px;
   position: relative;
-  transition: background 0.3s;
 }
 
 .row:hover {
@@ -87,25 +98,22 @@
 .row-label {
   position: absolute;
   left: 10px;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   color: #444; 
-  letter-spacing: 2px;
   writing-mode: vertical-rl;
   text-orientation: mixed;
   text-transform: uppercase;
-  pointer-events: none;
 }
 
 .divider {
   height: 4px;
   background: #333;
   margin: 2px 0;
-  box-shadow: inset 0 0 5px #000;
 }
 
 /* Sidebar & Scoring */
 .sidebar {
-  width: 220px;
+  width: 200px;
   background: #151515;
   border-left: 2px solid #333;
   display: flex;
@@ -117,8 +125,8 @@
 
 .score-card {
   text-align: center;
-  width: 85%;
-  padding: 15px;
+  width: 80%;
+  padding: 10px;
   border: 1px solid #333;
   border-radius: 8px;
   background: #111;
@@ -126,83 +134,73 @@
 
 .score-card h1 {
   color: #f1c40f;
-  font-size: 2.2rem;
+  font-size: 1.8rem;
   margin: 5px 0;
 }
 
 .score-card p {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: #888;
 }
 
 .score-card.passed {
   opacity: 0.4;
   border-style: dashed;
-  background: #0a0a0a;
 }
 
-/* Life Crystals (Round Wins) */
+/* Life Crystals */
 .win-indicators {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-bottom: 5px;
 }
 
 .crystal {
-  width: 15px;
-  height: 15px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: #333;
-  border: 2px solid #000;
-  box-shadow: inset 0 0 5px #000;
+  border: 1px solid #000;
 }
 
 .crystal.active {
   background: #f1c40f;
-  box-shadow: 0 0 10px #f1c40f, inset 0 0 5px rgba(255,255,255,0.5);
+  box-shadow: 0 0 8px #f1c40f;
 }
 
 /* Turn Coin */
-.coin-container {
-  display: flex;
-  justify-content: center;
-}
-
 .turn-coin {
-  width: 80px;
-  height: 80px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
-  border: 4px solid #333;
+  border: 3px solid #333;
   background: radial-gradient(circle, #222, #000);
   color: #555;
+  font-size: 0.8rem;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.3s;
 }
 
 .active-coin {
   border-color: #f1c40f;
   color: #f1c40f !important;
-  box-shadow: 0 0 15px rgba(241, 196, 15, 0.4);
 }
 
 .round-reset {
   border-color: #2ecc71;
   color: #2ecc71 !important;
-  box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
 }
 
 /* Hands Area */
 .hand-section {
-  height: 160px;
+  height: 140px;
   background: #1a1a1a;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-shrink: 0;
-  position: relative;
   padding: 0 40px;
 }
 
@@ -214,13 +212,11 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 1200px;
 }
 
 .hand {
   display: flex;
-  gap: 10px;
-  transition: opacity 0.3s, transform 0.3s;
+  gap: 8px;
   flex: 1;
   justify-content: center;
 }
@@ -228,62 +224,46 @@
 .invisible {
   opacity: 0;
   pointer-events: none;
-  transform: translateY(15px);
 }
 
 /* Deck Visuals */
 .deck-stack {
-  width: 100px;
-  height: 140px;
+  width: 80px;
   position: relative;
-  margin-left: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
 }
 
 .deck-card-visual {
-  width: 85px;
-  height: 120px;
+  width: 60px;
+  height: 85px;
   background: #2c3e50;
   border: 2px solid #555;
-  border-radius: 5px;
-  position: relative;
-}
-
-.deck-card-visual::before {
-  content: '';
-  position: absolute;
-  top: -4px; left: -4px;
-  width: 100%; height: 100%;
-  background: #2c3e50; border: 2px solid #555; border-radius: 5px;
-  z-index: -1;
+  border-radius: 4px;
 }
 
 .deck-count {
   position: absolute;
-  top: 40%;
+  top: 30%;
   background: rgba(0,0,0,0.8);
   color: #f1c40f;
-  padding: 2px 8px;
+  padding: 2px 6px;
   border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: bold;
-  border: 1px solid #f1c40f;
+  font-size: 0.8rem;
 }
 
 .hand-count-label {
   margin-top: 5px;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   color: #666;
   text-transform: uppercase;
 }
 
 /* Cards */
 .card-in-hand {
-  width: 85px;
-  height: 120px;
+  width: 70px;
+  height: 100px;
   background: #333;
   border: 2px solid #888;
   border-radius: 4px;
@@ -293,13 +273,13 @@
 }
 
 .card-in-hand:hover {
-  transform: translateY(-5px);
+  transform: translateY(-10px);
   border-color: #f1c40f;
 }
 
 .card-placed {
-  width: 75px;
-  height: 105px;
+  width: 65px;
+  height: 90px;
   background: #222;
   border: 1px solid #f1c40f;
   border-radius: 3px;
@@ -308,17 +288,16 @@
 
 .power-badge, .power-val {
   position: absolute;
-  top: -8px;
-  left: -8px;
+  top: -5px;
+  left: -5px;
   background: #fff;
   color: #000;
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   font-weight: bold;
-  border: 1px solid #000;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
 }

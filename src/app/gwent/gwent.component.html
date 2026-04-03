@@ -1,91 +1,93 @@
-<div class="gwent-wrapper">
-  
-  <header class="game-header">
-    <h1 class="game-title">Vibood's Gwent (WIP)</h1>
-    <div class="tip-line" [class.error-text]="tipIsError">{{ tipLine }}</div>
-  </header>
+<div class="gwent-page-container">
+  <div class="gwent-wrapper" tabindex="0">
+    
+    <header class="game-header">
+      <h1 class="game-title">Vibood's Gwent (WIP)</h1>
+      <div class="tip-line" [class.error-text]="tipIsError">{{ tipLine }}</div>
+    </header>
 
-  <div class="hand-section p2-top">
-    <div class="hand-container">
-      <div class="hand" [class.invisible]="activePlayer !== 2 || p2Passed">
-        <div *ngFor="let card of handP2; let i = index" 
-             class="card-in-hand" draggable="true" (dragstart)="onDragStart(card, i)">
-          <span class="power-badge">{{card.power}}</span>
+    <div class="hand-section p2-top">
+      <div class="hand-container">
+        <div class="hand" [class.invisible]="activePlayer !== 2 || p2Passed">
+          <div *ngFor="let card of handP2; let i = index" 
+               class="card-in-hand" draggable="true" (dragstart)="onDragStart(card, i)">
+            <span class="power-badge">{{card.power}}</span>
+          </div>
+        </div>
+        <div class="deck-stack">
+          <div class="deck-card-visual"></div>
+          <span class="deck-count">{{deckP2.length}}</span>
+          <div class="hand-count-label">P2 Hand: {{handP2.length}}/10</div>
         </div>
       </div>
-      <div class="deck-stack">
-        <div class="deck-card-visual"></div>
-        <span class="deck-count">{{deckP2.length}}</span>
-        <div class="hand-count-label">P2 Hand: {{handP2.length}}/10</div>
-      </div>
     </div>
+
+    <main class="main-layout">
+      <div class="board-container">
+        <div class="row row-p2" (dragover)="allowDrop($event)" (drop)="onDrop($event, 'p2Ranged')">
+          <div class="row-label">RANGED</div>
+          <div *ngFor="let c of board['p2Ranged']" class="card-placed"><span class="power-val">{{c.power}}</span></div>
+        </div>
+        <div class="row row-p2" (dragover)="allowDrop($event)" (drop)="onDrop($event, 'p2Melee')">
+          <div class="row-label">MELEE</div>
+          <div *ngFor="let c of board['p2Melee']" class="card-placed"><span class="power-val">{{c.power}}</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row row-p1" (dragover)="allowDrop($event)" (drop)="onDrop($event, 'p1Melee')">
+          <div class="row-label">MELEE</div>
+          <div *ngFor="let c of board['p1Melee']" class="card-placed"><span class="power-val">{{c.power}}</span></div>
+        </div>
+        <div class="row row-p1" (dragover)="allowDrop($event)" (drop)="onDrop($event, 'p1Ranged')">
+          <div class="row-label">RANGED</div>
+          <div *ngFor="let c of board['p1Ranged']" class="card-placed"><span class="power-val">{{c.power}}</span></div>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <div class="score-card p2" [class.passed]="p2Passed">
+          <div class="win-indicators">
+            <div class="crystal" [class.active]="p2Wins > 0"></div>
+            <div class="crystal" [class.active]="p2Wins > 1"></div>
+          </div>
+          <p>P2 {{ p2Passed ? '(PASSED)' : '' }}</p>
+          <h1>{{ calculateScore(2) }}</h1>
+        </div>
+
+        <div class="coin-container">
+          <button class="turn-coin" (click)="handleCoinClick()" 
+                  [class.active-coin]="turnPlayed" 
+                  [class.round-reset]="roundOver || gameOver">
+            {{ (roundOver || gameOver) ? 'RESET' : (turnPlayed ? 'END' : 'PASS') }}
+          </button>
+        </div>
+
+        <div class="score-card p1" [class.passed]="p1Passed">
+          <div class="win-indicators">
+            <div class="crystal" [class.active]="p1Wins > 0"></div>
+            <div class="crystal" [class.active]="p1Wins > 1"></div>
+          </div>
+          <p>P1 {{ p1Passed ? '(PASSED)' : '' }}</p>
+          <h1>{{ calculateScore(1) }}</h1>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="hand-section bottom">
+      <div class="hand-container">
+        <div class="hand" [class.invisible]="activePlayer !== 1 || p1Passed">
+          <div *ngFor="let card of handP1; let i = index" 
+               class="card-in-hand" draggable="true" (dragstart)="onDragStart(card, i)">
+            <span class="power-badge">{{card.power}}</span>
+          </div>
+        </div>
+        <div class="deck-stack">
+          <div class="deck-card-visual"></div>
+          <span class="deck-count">{{deckP1.length}}</span>
+          <div class="hand-count-label">P1 Hand: {{handP1.length}}/10</div>
+        </div>
+      </div>
+    </footer>
   </div>
-
-  <main class="main-layout">
-    <div class="board-container">
-      <div class="row row-p2" (dragover)="allowDrop($event)" (drop)="onDrop($event, 'p2Ranged')">
-        <div class="row-label">RANGED</div>
-        <div *ngFor="let c of board['p2Ranged']" class="card-placed"><span class="power-val">{{c.power}}</span></div>
-      </div>
-      <div class="row row-p2" (dragover)="allowDrop($event)" (drop)="onDrop($event, 'p2Melee')">
-        <div class="row-label">MELEE</div>
-        <div *ngFor="let c of board['p2Melee']" class="card-placed"><span class="power-val">{{c.power}}</span></div>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="row row-p1" (dragover)="allowDrop($event)" (drop)="onDrop($event, 'p1Melee')">
-        <div class="row-label">MELEE</div>
-        <div *ngFor="let c of board['p1Melee']" class="card-placed"><span class="power-val">{{c.power}}</span></div>
-      </div>
-      <div class="row row-p1" (dragover)="allowDrop($event)" (drop)="onDrop($event, 'p1Ranged')">
-        <div class="row-label">RANGED</div>
-        <div *ngFor="let c of board['p1Ranged']" class="card-placed"><span class="power-val">{{c.power}}</span></div>
-      </div>
-    </div>
-
-    <aside class="sidebar">
-      <div class="score-card p2" [class.passed]="p2Passed">
-        <div class="win-indicators">
-          <div class="crystal" [class.active]="p2Wins > 0"></div>
-          <div class="crystal" [class.active]="p2Wins > 1"></div>
-        </div>
-        <p>P2 {{ p2Passed ? '(PASSED)' : '' }}</p>
-        <h1>{{ calculateScore(2) }}</h1>
-      </div>
-
-      <div class="coin-container">
-        <button class="turn-coin" (click)="handleCoinClick()" 
-                [class.active-coin]="turnPlayed" 
-                [class.round-reset]="roundOver || gameOver">
-          {{ (roundOver || gameOver) ? 'RESET' : (turnPlayed ? 'END' : 'PASS') }}
-        </button>
-      </div>
-
-      <div class="score-card p1" [class.passed]="p1Passed">
-        <div class="win-indicators">
-          <div class="crystal" [class.active]="p1Wins > 0"></div>
-          <div class="crystal" [class.active]="p1Wins > 1"></div>
-        </div>
-        <p>P1 {{ p1Passed ? '(PASSED)' : '' }}</p>
-        <h1>{{ calculateScore(1) }}</h1>
-      </div>
-    </aside>
-  </main>
-
-  <footer class="hand-section bottom">
-    <div class="hand-container">
-      <div class="hand" [class.invisible]="activePlayer !== 1 || p1Passed">
-        <div *ngFor="let card of handP1; let i = index" 
-             class="card-in-hand" draggable="true" (dragstart)="onDragStart(card, i)">
-          <span class="power-badge">{{card.power}}</span>
-        </div>
-      </div>
-      <div class="deck-stack">
-        <div class="deck-card-visual"></div>
-        <span class="deck-count">{{deckP1.length}}</span>
-        <div class="hand-count-label">P1 Hand: {{handP1.length}}/10</div>
-      </div>
-    </div>
-  </footer>
 </div>

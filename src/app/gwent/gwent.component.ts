@@ -68,7 +68,6 @@ export class GwentComponent implements OnInit {
     const deck = player === 1 ? this.deckP1 : this.deckP2;
 
     for (let i = 0; i < count; i++) {
-      // Enforce hand limit of 10
       if (hand.length < 10 && deck.length > 0) {
         hand.push(deck.pop()!);
       }
@@ -162,17 +161,13 @@ export class GwentComponent implements OnInit {
   }
 
   startNextRound() {
-    // Clear board
     Object.keys(this.board).forEach(key => this.board[key] = []);
     this.p1Passed = false; 
     this.p2Passed = false;
     this.roundOver = false; 
     this.turnPlayed = false;
-    
-    // Draw 3 cards, capped at 10
     this.drawCards(1, 3);
     this.drawCards(2, 3);
-
     this.activePlayer = 1;
     this.tipLine = "New Round! Draw 3 cards (Max 10). Player 1 starts.";
     this.tipIsError = false;
@@ -184,16 +179,10 @@ export class GwentComponent implements OnInit {
     this.handP1 = [];
     this.handP2 = [];
     this.gameOver = false;
-    
-    // Reset Board
     Object.keys(this.board).forEach(key => this.board[key] = []);
-
     this.generateDecks();
-    
-    // Initial draw of 10
     this.drawCards(1, 10);
     this.drawCards(2, 10);
-
     this.p1Passed = false;
     this.p2Passed = false;
     this.roundOver = false;
