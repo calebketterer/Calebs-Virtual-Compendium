@@ -1,82 +1,118 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-
-interface Card {
-  id: number;
-  name: string;
-  power: number;
-  ability: string;
-  imageName: string;
-  owner: number; 
-}
+import { CARD_DATABASE } from './data/card-db'; 
+import { GwentCard } from './interfaces/gwent-card';
 
 @Component({
   selector: 'app-gwent',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
   templateUrl: './gwent.component.html',
   styleUrls: ['./gwent.component.css']
 })
 export class GwentComponent implements OnInit {
-  activePlayer: number = 1;
-  turnPlayed: boolean = false; 
-  tipLine: string = "Welcome to Vibood's Gwent. Player 1, play or pass.";
-  tipIsError: boolean = false;
+  activePlayer = 1;
+  turnPlayed = false;
+  p1Passed = false;
+  p2Passed = false;
+  roundOver = false;
+  gameOver = false;
 
-  p1Passed: boolean = false;
-  p2Passed: boolean = false;
-  roundOver: boolean = false;
-  gameOver: boolean = false;
+  p1Cardback = ''; 
+  p2Cardback = ''; 
 
-  p1Wins: number = 0;
-  p2Wins: number = 0;
-
-  handP1: Card[] = [];
-  handP2: Card[] = [];
-  deckP1: Card[] = [];
-  deckP2: Card[] = [];
-  
-  board: { [key: string]: Card[] } = {
+  board: { [key: string]: GwentCard[] } = {
     p2Ranged: [], p2Melee: [],
     p1Melee: [], p1Ranged: []
   };
 
-  draggedData: { card: Card, index: number } | null = null;
+  handP1: GwentCard[] = [];
+  handP2: GwentCard[] = [];
+  deckP1: GwentCard[] = [];
+  deckP2: GwentCard[] = [];
+
+  p1Wins = 0;
+  p2Wins = 0;
+  tipLine = "Welcome to Gwent. Player 1 starts.";
+  tipIsError = false;
+
+  draggedData: { card: GwentCard, index: number } | null = null;
 
   ngOnInit() {
     this.fullReset();
   }
 
-  generateDecks() {
-    this.deckP1 = [];
-    this.deckP2 = [];
-    const createCard = (p: number, id: number) => ({
-      id, name: `Unit`, 
-      power: Math.floor(Math.random() * 10) + 1, 
-      ability: 'none', imageName: 'card.jpg', owner: p 
-    });
+  get p1Score() { return this.calculateTotal(1); }
+  get p2Score() { return this.calculateTotal(2); }
 
-    for (let i = 0; i < 25; i++) {
-      this.deckP1.push(createCard(1, i));
-      this.deckP2.push(createCard(2, i + 100));
-    }
+  calculateTotal(player: number): number {
+    const rows = player === 1 ? ['p1Melee', 'p1Ranged'] : ['p2Melee', 'p2Ranged'];
+    return rows.reduce((total, row) => total + this.board[row].reduce((s, c) => s + c.power, 0), 0);
   }
 
-  drawCards(player: number, count: number) {
-    const hand = player === 1 ? this.handP1 : this.handP2;
-    const deck = player === 1 ? this.deckP1 : this.deckP2;
+  fullReset() {
+    this.board = { p2Ranged: [], p2Melee: [], p1Melee: [], p1Ranged: [] };
+    this.p1Wins = 0; this.p2Wins = 0;
+    this.p1Passed = false; this.p2Passed = false;
+    this.roundOver = false; this.gameOver = false;
+    this.activePlayer = 1;
+    this.turnPlayed = false;
 
-    for (let i = 0; i < count; i++) {
-      if (hand.length < 10 && deck.length > 0) {
-        hand.push(deck.pop()!);
-      }
-    }
+    this.deckP1 = this.generateDeck(1);
+    this.deckP2 = this.generateDeck(2);
+    
+    this.handP1 = this.deckP1.splice(0, 10);
+    this.handP2 = this.deckP2.splice(0, 10);
+    
+    this.tipLine = "Game Reset. Player 1's turn.";
   }
 
-  onDragStart(card: Card, index: number) {
-    const hasPassed = (this.activePlayer === 1 && this.p1Passed) || (this.activePlayer === 2 && this.p2Passed);
-    if (card.owner !== this.activePlayer || this.turnPlayed || hasPassed || this.roundOver || this.gameOver) return;
+  generateDeck(player: number): GwentCard[] {
+    let deck: GwentCard[] = [];
+    
+    if (CARD_DATABASE && CARD_DATABASE.length > 0) {
+      CARD_DATABASE.forEach(dbCard => {
+        deck.push({ ...dbCard, id: Math.random(), owner: player } as GwentCard);
+      });
+    }
+
+    const remaining = 25 - deck.length;
+    for (let i = 0; i < remaining; i++) {
+      deck.push(this.createDefaultCard(player));
+    }
+
+    return deck.sort(() => Math.random() - 0.5);
+  }
+
+  createDefaultCard(player: number): GwentCard {
+    const randomPower = Math.floor(Math.random() * 10) + 1;
+    return {
+      id: Math.random(),
+      name: 'Unknown Unit',
+      power: randomPower,
+      provisions: randomPower,
+      artwork: '?',
+      ability: 'No ability.',
+      flavorText: 'Up for a round of Gwent?',
+      owner: player,
+      row: 'Any',
+      rarity: 'silver'
+    };
+  }
+
+  getCardback(player: number): string {
+    const custom = player === 1 ? this.p1Cardback : this.p2Cardback;
+    return custom || 'assets/gwent/artwork/cardbacks/default.png';
+  }
+
+  handleCoinClick() {
+    if (this.gameOver) return this.fullReset();
+    if (this.roundOver) return this.startNextRound();
+    this.turnPlayed ? this.endTurn() : this.passRound();
+  }
+
+  onDragStart(card: GwentCard, index: number) {
+    if (card.owner !== this.activePlayer || this.turnPlayed) return;
     this.draggedData = { card, index };
   }
 
@@ -84,36 +120,36 @@ export class GwentComponent implements OnInit {
     event.preventDefault();
     if (!this.draggedData) return;
 
-    const isOwnRow = (this.activePlayer === 1 && rowKey.startsWith('p1')) || 
-                      (this.activePlayer === 2 && rowKey.startsWith('p2'));
-
-    if (isOwnRow) {
-      this.board[rowKey].push(this.draggedData.card);
-      this.activePlayer === 1 ? this.handP1.splice(this.draggedData.index, 1) : this.handP2.splice(this.draggedData.index, 1);
-      this.turnPlayed = true;
-      this.draggedData = null;
-      this.tipLine = "Turn played. Use the coin to end.";
-      this.tipIsError = false;
-    } else {
-      this.showError("⚠️ You must play on your own rows!");
-    }
-  }
-
-  handleCoinClick() {
-    if (this.gameOver) {
-      this.fullReset();
+    const isP1Row = rowKey.startsWith('p1');
+    if ((this.activePlayer === 1 && !isP1Row) || (this.activePlayer === 2 && isP1Row)) {
+      this.tipLine = "You cannot play on the opponent's side!";
+      this.tipIsError = true;
       return;
     }
-    if (this.roundOver) {
-      this.startNextRound();
-      return;
-    }
-    this.turnPlayed ? this.endTurn() : this.passRound();
+
+    this.board[rowKey].push(this.draggedData.card);
+    if (this.activePlayer === 1) this.handP1.splice(this.draggedData.index, 1);
+    else this.handP2.splice(this.draggedData.index, 1);
+
+    this.turnPlayed = true;
+    this.tipLine = "Card played. End turn or Pass.";
+    this.tipIsError = false;
+    this.draggedData = null;
   }
+
+  allowDrop(event: DragEvent) { event.preventDefault(); }
 
   endTurn() {
+    this.activePlayer = this.activePlayer === 1 ? 2 : 1;
+    const nextPassed = this.activePlayer === 1 ? this.p1Passed : this.p2Passed;
+    
+    if (nextPassed) {
+      this.activePlayer = this.activePlayer === 1 ? 2 : 1;
+      this.tipLine = `Opponent passed. Your turn again.`;
+    } else {
+      this.tipLine = `Player ${this.activePlayer}'s turn.`;
+    }
     this.turnPlayed = false;
-    this.switchPlayers();
   }
 
   passRound() {
@@ -121,90 +157,36 @@ export class GwentComponent implements OnInit {
     else this.p2Passed = true;
 
     if (this.p1Passed && this.p2Passed) this.resolveRound();
-    else this.switchPlayers();
-  }
-
-  switchPlayers() {
-    const opponent = this.activePlayer === 1 ? 2 : 1;
-    const opponentPassed = (opponent === 1 && this.p1Passed) || (opponent === 2 && this.p2Passed);
-
-    if (!opponentPassed) {
-      this.activePlayer = opponent;
-      this.tipLine = `Player ${this.activePlayer}'s turn.`;
-    } else {
-      this.tipLine = `Opponent passed. Continue or Pass?`;
-    }
-    this.tipIsError = false;
+    else this.endTurn();
   }
 
   resolveRound() {
-    const s1 = this.calculateScore(1);
-    const s2 = this.calculateScore(2);
-    this.roundOver = true;
-    
-    if (s1 > s2) {
-      this.p1Wins++;
-      this.tipLine = `Player 1 wins the round!`;
-    } else if (s2 > s1) {
-      this.p2Wins++;
-      this.tipLine = `Player 2 wins the round!`;
-    } else {
-      this.p1Wins++; this.p2Wins++;
-      this.tipLine = `Round is a draw! Both gain a win.`;
-    }
+    const s1 = this.p1Score; 
+    const s2 = this.p2Score;
+    let winnerText = "";
 
-    if (this.p1Wins >= 2 || this.p2Wins >= 2) {
-      this.gameOver = true;
-      const winner = this.p1Wins === this.p2Wins ? "Draw" : (this.p1Wins > this.p2Wins ? "Player 1" : "Player 2");
-      this.tipLine = `MATCH OVER! ${winner === 'Draw' ? "Tie!" : winner + " wins!"} Click RESET.`;
-    }
+    if (s1 > s2) { this.p1Wins++; winnerText = "Player 1 wins!"; } 
+    else if (s2 > s1) { this.p2Wins++; winnerText = "Player 2 wins!"; } 
+    else { this.p1Wins++; this.p2Wins++; winnerText = "Draw!"; }
+
+    this.gameOver = this.p1Wins >= 2 || this.p2Wins >= 2;
+    this.roundOver = !this.gameOver;
+    this.tipLine = this.gameOver ? `MATCH OVER.` : `${winnerText} Press RESET.`;
   }
 
   startNextRound() {
-    Object.keys(this.board).forEach(key => this.board[key] = []);
+    this.board = { p2Ranged: [], p2Melee: [], p1Melee: [], p1Ranged: [] };
     this.p1Passed = false; 
     this.p2Passed = false;
     this.roundOver = false; 
     this.turnPlayed = false;
-    this.drawCards(1, 3);
-    this.drawCards(2, 3);
-    this.activePlayer = 1;
-    this.tipLine = "New Round! Draw 3 cards (Max 10). Player 1 starts.";
-    this.tipIsError = false;
-  }
 
-  fullReset() {
-    this.p1Wins = 0;
-    this.p2Wins = 0;
-    this.handP1 = [];
-    this.handP2 = [];
-    this.gameOver = false;
-    Object.keys(this.board).forEach(key => this.board[key] = []);
-    this.generateDecks();
-    this.drawCards(1, 10);
-    this.drawCards(2, 10);
-    this.p1Passed = false;
-    this.p2Passed = false;
-    this.roundOver = false;
-    this.turnPlayed = false;
-    this.activePlayer = 1;
-    this.tipLine = "Game fully reset! Player 1 starts.";
-  }
+    const p1Needed = Math.min(this.deckP1.length, 10 - this.handP1.length, 3);
+    const p2Needed = Math.min(this.deckP2.length, 10 - this.handP2.length, 3);
 
-  calculateScore(player: number): number {
-    const rows = player === 1 ? ['p1Melee', 'p1Ranged'] : ['p2Melee', 'p2Ranged'];
-    return rows.reduce((total, row) => total + this.board[row].reduce((s, c) => s + c.power, 0), 0);
+    this.handP1.push(...this.deckP1.splice(0, p1Needed));
+    this.handP2.push(...this.deckP2.splice(0, p2Needed));
+    
+    this.tipLine = "New Round. Player 1 starts.";
   }
-
-  showError(msg: string) {
-    const current = this.tipLine;
-    this.tipLine = msg;
-    this.tipIsError = true;
-    setTimeout(() => {
-      this.tipLine = current;
-      this.tipIsError = false;
-    }, 2000);
-  }
-
-  allowDrop(event: DragEvent) { event.preventDefault(); }
 }
