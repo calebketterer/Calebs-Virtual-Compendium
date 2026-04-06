@@ -1,6 +1,11 @@
 <div class="gwent-wrapper">
   
-  <div class="hand-section top">
+  <header class="game-header">
+    <h1 class="game-title">Vibood's Gwent (WIP)</h1>
+    <div class="tip-line" [class.error-text]="tipIsError">{{ tipLine }}</div>
+  </header>
+
+  <div class="hand-section p2-top">
     <div class="hand-container">
       <div class="hand" [class.invisible]="activePlayer !== 2 || p2Passed">
         <div *ngFor="let card of handP2; let i = index" 
@@ -11,15 +16,10 @@
       <div class="deck-stack">
         <div class="deck-card-visual"></div>
         <span class="deck-count">{{deckP2.length}}</span>
-        <div class="hand-count-label">Hand: {{handP2.length}}/10</div>
+        <div class="hand-count-label">P2 Hand: {{handP2.length}}/10</div>
       </div>
     </div>
   </div>
-
-  <header class="game-header">
-    <h1 class="game-title">Vibood's Gwent (WIP)</h1>
-    <div class="tip-line" [class.error-text]="tipIsError">{{ tipLine }}</div>
-  </header>
 
   <main class="main-layout">
     <div class="board-container">
@@ -84,7 +84,7 @@
       <div class="deck-stack">
         <div class="deck-card-visual"></div>
         <span class="deck-count">{{deckP1.length}}</span>
-        <div class="hand-count-label">Hand: {{handP1.length}}/10</div>
+        <div class="hand-count-label">P1 Hand: {{handP1.length}}/10</div>
       </div>
     </div>
   </footer>
