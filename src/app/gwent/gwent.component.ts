@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CARD_DATABASE } from './data/card-db'; 
+import { CARD_DATABASE } from './data/card-db';
+import { NU_CARD_DATABASE } from './data/NU-db'; 
 import { GwentCard } from './interfaces/gwent-card';
 
 @Component({
@@ -89,13 +90,14 @@ export class GwentComponent implements OnInit {
     return {
       id: Math.random(),
       name: 'Unknown Unit',
+      type: 'unit',
       power: randomPower,
       provisions: randomPower,
       artwork: '?',
+      faction: 'NU',
       ability: 'No ability.',
       flavorText: 'Up for a round of Gwent?',
       owner: player,
-      row: 'Any',
       rarity: 'silver'
     };
   }

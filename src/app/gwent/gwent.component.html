@@ -11,9 +11,11 @@
       <div class="hand">
         <div *ngFor="let card of handP2; let i = index" 
              class="card-in-hand" 
-             [class]="card.rarity"
+             [class.gold]="card.rarity === 'gold'"
+             [class.silver]="card.rarity === 'silver'"
+             [class.bronze]="card.rarity === 'bronze'"
              [class.card-hidden]="activePlayer !== 2"
-             [style.background-image]="activePlayer !== 2 ? 'url(' + getCardback(2) + ')' : (card.artwork !== '?' ? 'url(assets/gwent/artwork/' + card.artwork + ')' : 'none')"
+             [style.background-image]="activePlayer !== 2 ? 'url(' + getCardback(2) + ')' : (card.artwork !== '?' ? 'url(assets/gwent/artwork/' + card.faction + '/' + card.artwork + ')' : 'none')"
              draggable="true" (dragstart)="onDragStart(card, i)">
           <ng-container *ngIf="activePlayer === 2">
             <div *ngIf="card.artwork === '?'" class="card-artwork-placeholder">{{ card.artwork }}</div>
@@ -26,37 +28,16 @@
 
     <main class="main-layout">
       <div class="board-container">
-        <div class="row" (dragover)="allowDrop($event)" (drop)="onDrop($event, 'p2Ranged')">
-          <div class="row-label">RANGED</div>
-          <div *ngFor="let c of board['p2Ranged']" class="card-placed" [class]="c.rarity" [title]="c.ability"
-               [style.background-image]="c.artwork !== '?' ? 'url(assets/gwent/artwork/' + c.artwork + ')' : 'none'">
-            <div *ngIf="c.artwork === '?'" class="card-artwork-placeholder small">{{ c.artwork }}</div>
-            <span class="power-val">{{ c.power }}</span>
-          </div>
-        </div>
-        <div class="row" (dragover)="allowDrop($event)" (drop)="onDrop($event, 'p2Melee')">
-          <div class="row-label">MELEE</div>
-          <div *ngFor="let c of board['p2Melee']" class="card-placed" [title]="c.ability"
-               [style.background-image]="c.artwork !== '?' ? 'url(assets/gwent/artwork/' + c.artwork + ')' : 'none'">
-            <div *ngIf="c.artwork === '?'" class="card-artwork-placeholder small">{{ c.artwork }}</div>
-            <span class="power-val">{{ c.power }}</span>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="row" (dragover)="allowDrop($event)" (drop)="onDrop($event, 'p1Melee')">
-          <div class="row-label">MELEE</div>
-          <div *ngFor="let c of board['p1Melee']" class="card-placed" [title]="c.ability"
-               [style.background-image]="c.artwork !== '?' ? 'url(assets/gwent/artwork/' + c.artwork + ')' : 'none'">
-            <div *ngIf="c.artwork === '?'" class="card-artwork-placeholder small">{{ c.artwork }}</div>
-            <span class="power-val">{{ c.power }}</span>
-          </div>
-        </div>
-        <div class="row" (dragover)="allowDrop($event)" (drop)="onDrop($event, 'p1Ranged')">
-          <div class="row-label">RANGED</div>
-          <div *ngFor="let c of board['p1Ranged']" class="card-placed" [title]="c.ability"
-               [style.background-image]="c.artwork !== '?' ? 'url(assets/gwent/artwork/' + c.artwork + ')' : 'none'">
+        <div *ngFor="let rowName of ['p2Ranged', 'p2Melee', 'p1Melee', 'p1Ranged']" 
+             class="row" (dragover)="allowDrop($event)" (drop)="onDrop($event, rowName)">
+          <div class="row-label">{{ rowName.includes('Melee') ? 'MELEE' : 'RANGED' }}</div>
+          <div *ngFor="let c of board[rowName]" 
+               class="card-placed" 
+               [class.gold]="c.rarity === 'gold'"
+               [class.silver]="c.rarity === 'silver'"
+               [class.bronze]="c.rarity === 'bronze'"
+               [title]="c.ability"
+               [style.background-image]="c.artwork !== '?' ? 'url(assets/gwent/artwork/' + c.faction + '/' + c.artwork + ')' : 'none'">
             <div *ngIf="c.artwork === '?'" class="card-artwork-placeholder small">{{ c.artwork }}</div>
             <span class="power-val">{{ c.power }}</span>
           </div>
@@ -91,9 +72,11 @@
       <div class="hand">
         <div *ngFor="let card of handP1; let i = index" 
              class="card-in-hand" 
-             [class]="card.rarity"
+             [class.gold]="card.rarity === 'gold'"
+             [class.silver]="card.rarity === 'silver'"
+             [class.bronze]="card.rarity === 'bronze'"
              [class.card-hidden]="activePlayer !== 1"
-             [style.background-image]="activePlayer !== 1 ? 'url(' + getCardback(1) + ')' : (card.artwork !== '?' ? 'url(assets/gwent/artwork/' + card.artwork + ')' : 'none')"
+             [style.background-image]="activePlayer !== 1 ? 'url(' + getCardback(1) + ')' : (card.artwork !== '?' ? 'url(assets/gwent/artwork/' + card.faction + '/' + card.artwork + ')' : 'none')"
              draggable="true" (dragstart)="onDragStart(card, i)">
           <ng-container *ngIf="activePlayer === 1">
             <div *ngIf="card.artwork === '?'" class="card-artwork-placeholder">{{ card.artwork }}</div>
