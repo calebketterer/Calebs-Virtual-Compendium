@@ -3,10 +3,10 @@ import { GwentCard } from '../interfaces/gwent-card';
 
 export const NU_CARD_DATABASE: GwentCard[] = [
   // id, name, type, power, provisions, artwork, faction, rarity, ability, tags, flavorText
-  createCard('geralt', 'Geralt of Rivia', 'unit', 7, 10, 'Geralt_of_Rivia.jpg', 'NU', 'gold', 'Order (Melee): Destroy an enemy unit with 3 or less power. Cooldown 1.', 'Witcher', 'If that\'s what it takes to save the world, it\'s better to let that world die.'),
-  createCard('ciri', 'Cirilla of Cintra', 'unit', 5, 10, 'Ciri.jpg', 'NU', 'gold', 'Deploy (Melee): Destroy an enemy unit with 9 or more power.', 'Human', 'Know when fairy tales cease to be tales? When people start believing them.'),
-  createCard('elder_bear', 'Elder Bear', 'unit', 9, 6, 'Elder_Bear.jpg', 'NU', 'silver', 'No ability.', 'Beast', 'We\'re going on a bear hunt!'),
-  createCard('roach', 'Roach', 'unit', 3, 8, 'Roach.jpg', 'NU', 'gold', 'When you play a gold unit, Summon self from your deck...', 'Beast', 'Geralt, we gotta have a man–to–horse talk.'),
+  createCard('geralt', 'Geralt of Rivia', 'unit', 7, 10, 'Geralt_of_Rivia.jpg', 'NU', 'gold', undefined , 'Witcher', 'If that\'s what it takes to save the world, it\'s better to let that world die.'),
+  createCard('ciri', 'Cirilla of Cintra', 'unit', 5, 10, 'Ciri.jpg', 'NU', 'gold', { type: 'deploy', keyword: 'destroy', target: 'manual', value: 9 }, 'Human', 'Know when fairy tales cease to be tales? When people start believing them.'),
+  createCard('elder_bear', 'Elder Bear', 'unit', 9, 6, 'Elder_Bear.jpg', 'NU', 'silver', undefined , 'Beast', 'We\'re going on a bear hunt!'),
+  /*createCard('roach', 'Roach', 'unit', 3, 8, 'Roach.jpg', 'NU', 'gold', 'When you play a gold unit, Summon self from your deck...', 'Beast', 'Geralt, we gotta have a man–to–horse talk.'),
   createCard('cow', 'Cow', 'unit', 6, 4, 'Cow.jpg', 'NU', 'bronze', 'No ability.', 'Beast', 'It\'s better to let that world die.'),
   createCard('dandelion', 'Dandelion', 'unit', 4, 9, 'Dandelion.jpg', 'NU', 'gold', 'Deploy: Draw a card, then play a card.', 'Human', 'The quill is mightier than the sword.'),
   createCard('scorch', 'Scorch', 'special', 0, 10, 'Scorch.jpg', 'NU', 'gold', 'Destroy all highest-power units.', 'Spell', 'Geralt took one step back.'),
@@ -23,5 +23,5 @@ export const NU_CARD_DATABASE: GwentCard[] = [
   createCard('oxernfurt_scholar', 'Oxenfurt Scholar', 'unit', 2, 4, 'Oxenfurt_Scholar.jpg', 'NU', 'bronze', 'At the end of your turn, boost self by 1.', 'Human', 'Balderdash!'),
   createCard('rock_barrage', 'Rock Barrage', 'special', 0, 6, 'Rock_Barrage.jpg', 'NU', 'silver', 'Damage a unit by 6, ignoring Armor.', 'Nature', 'Get hit by a boulder.'),
   createCard('samum', 'Samum', 'special', 0, 4, 'Samum.jpg', 'NU', 'bronze', 'Damage a unit by 4.', 'Bomb', 'Zerrikanian alchemists...'),
-  createCard('scout', 'Scout', 'unit', 3, 5, 'Scout.jpg', 'NU', 'bronze', 'Deploy: Boost the next unit you play by 2.', 'Human, Soldier', 'If our scouts don\'t come back...')
+  createCard('scout', 'Scout', 'unit', 3, 5, 'Scout.jpg', 'NU', 'bronze', 'Deploy: Boost the next unit you play by 2.', 'Human, Soldier', 'If our scouts don\'t come back...')*/
 ];

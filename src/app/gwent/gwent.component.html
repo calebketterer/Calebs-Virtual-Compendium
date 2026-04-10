@@ -7,17 +7,17 @@
     </header>
 
     <div class="hand-section top">
-      <div class="deck-stack" title="Cards remaining in deck">DECK: {{ deckP2.length }}</div>
+      <div class="deck-stack" title="Cards remaining in deck">DECK: {{ engine.deckP2.length }}</div>
       <div class="hand">
-        <div *ngFor="let card of handP2; let i = index" 
+        <div *ngFor="let card of engine.handP2; let i = index" 
              class="card-in-hand" 
              [class.gold]="card.rarity === 'gold'"
              [class.silver]="card.rarity === 'silver'"
              [class.bronze]="card.rarity === 'bronze'"
-             [class.card-hidden]="activePlayer !== 2"
-             [style.background-image]="activePlayer !== 2 ? 'url(' + getCardback(2) + ')' : (card.artwork !== '?' ? 'url(assets/gwent/artwork/' + card.faction + '/' + card.artwork + ')' : 'none')"
-             draggable="true" (dragstart)="onDragStart(card, i)">
-          <ng-container *ngIf="activePlayer === 2">
+             [class.card-hidden]="engine.activePlayer !== 2"
+             [style.background-image]="engine.activePlayer !== 2 ? 'url(' + getCardback(2) + ')' : (card.artwork !== '?' ? 'url(assets/gwent/artwork/' + card.faction + '/' + card.artwork + ')' : 'none')"
+             draggable="true" (dragstart)="onDragStart(card)">
+          <ng-container *ngIf="engine.activePlayer === 2">
             <div *ngIf="card.artwork === '?'" class="card-artwork-placeholder">{{ card.artwork }}</div>
             <span class="power-badge">{{ card.power }}</span>
             <span class="provision-badge">{{ card.provisions }}</span>
@@ -31,12 +31,15 @@
         <div *ngFor="let rowName of ['p2Ranged', 'p2Melee', 'p1Melee', 'p1Ranged']" 
              class="row" (dragover)="allowDrop($event)" (drop)="onDrop($event, rowName)">
           <div class="row-label">{{ rowName.includes('Melee') ? 'MELEE' : 'RANGED' }}</div>
-          <div *ngFor="let c of board[rowName]" 
+          
+          <div *ngFor="let c of engine.board[rowName]" 
                class="card-placed" 
                [class.gold]="c.rarity === 'gold'"
                [class.silver]="c.rarity === 'silver'"
                [class.bronze]="c.rarity === 'bronze'"
-               [title]="c.ability"
+               [class.targetable-mode]="waitingForTarget"
+               (click)="onBoardCardClick(c)"
+               [title]="c.ability?.description || ''"
                [style.background-image]="c.artwork !== '?' ? 'url(assets/gwent/artwork/' + c.faction + '/' + c.artwork + ')' : 'none'">
             <div *ngIf="c.artwork === '?'" class="card-artwork-placeholder small">{{ c.artwork }}</div>
             <span class="power-val">{{ c.power }}</span>
@@ -45,40 +48,44 @@
       </div>
 
       <aside class="sidebar">
-        <div class="score-card" [class.passed]="p2Passed">
+        <div class="score-card" [class.passed]="engine.p2Passed">
           <div class="win-indicators">
-            <div class="crystal" [class.active]="p2Wins > 0"></div>
-            <div class="crystal" [class.active]="p2Wins > 1"></div>
+            <div class="crystal" [class.active]="engine.p2Wins > 0"></div>
+            <div class="crystal" [class.active]="engine.p2Wins > 1"></div>
           </div>
-          <p>P2 {{ p2Passed ? '(PASSED)' : '' }}</p>
-          <h1>{{ p2Score }}</h1>
+          <p>P2 {{ engine.p2Passed ? '(PASSED)' : '' }}</p>
+          <h1>{{ engine.p2Score }}</h1>
         </div>
-        <button class="turn-coin" (click)="handleCoinClick()" [class.active-coin]="turnPlayed" [class.round-reset]="roundOver || gameOver">
-          {{ (roundOver || gameOver) ? 'RESET' : (turnPlayed ? 'END' : 'PASS') }}
+        
+        <button class="turn-coin" (click)="handleCoinClick()" 
+                [class.active-coin]="turnPlayed" 
+                [class.round-reset]="engine.roundOver || engine.gameOver">
+          {{ (engine.roundOver || engine.gameOver) ? 'RESET' : (turnPlayed ? 'END' : 'PASS') }}
         </button>
-        <div class="score-card" [class.passed]="p1Passed">
+
+        <div class="score-card" [class.passed]="engine.p1Passed">
           <div class="win-indicators">
-            <div class="crystal" [class.active]="p1Wins > 0"></div>
-            <div class="crystal" [class.active]="p1Wins > 1"></div>
+            <div class="crystal" [class.active]="engine.p1Wins > 0"></div>
+            <div class="crystal" [class.active]="engine.p1Wins > 1"></div>
           </div>
-          <p>P1 {{ p1Passed ? '(PASSED)' : '' }}</p>
-          <h1>{{ p1Score }}</h1>
+          <p>P1 {{ engine.p1Passed ? '(PASSED)' : '' }}</p>
+          <h1>{{ engine.p1Score }}</h1>
         </div>
       </aside>
     </main>
 
     <footer class="hand-section bottom">
-      <div class="deck-stack" title="Cards remaining in deck">DECK: {{ deckP1.length }}</div>
+      <div class="deck-stack" title="Cards remaining in deck">DECK: {{ engine.deckP1.length }}</div>
       <div class="hand">
-        <div *ngFor="let card of handP1; let i = index" 
+        <div *ngFor="let card of engine.handP1; let i = index" 
              class="card-in-hand" 
              [class.gold]="card.rarity === 'gold'"
              [class.silver]="card.rarity === 'silver'"
              [class.bronze]="card.rarity === 'bronze'"
-             [class.card-hidden]="activePlayer !== 1"
-             [style.background-image]="activePlayer !== 1 ? 'url(' + getCardback(1) + ')' : (card.artwork !== '?' ? 'url(assets/gwent/artwork/' + card.faction + '/' + card.artwork + ')' : 'none')"
-             draggable="true" (dragstart)="onDragStart(card, i)">
-          <ng-container *ngIf="activePlayer === 1">
+             [class.card-hidden]="engine.activePlayer !== 1"
+             [style.background-image]="engine.activePlayer !== 1 ? 'url(' + getCardback(1) + ')' : (card.artwork !== '?' ? 'url(assets/gwent/artwork/' + card.faction + '/' + card.artwork + ')' : 'none')"
+             draggable="true" (dragstart)="onDragStart(card)">
+          <ng-container *ngIf="engine.activePlayer === 1">
             <div *ngIf="card.artwork === '?'" class="card-artwork-placeholder">{{ card.artwork }}</div>
             <span class="power-badge">{{ card.power }}</span>
             <span class="provision-badge">{{ card.provisions }}</span>

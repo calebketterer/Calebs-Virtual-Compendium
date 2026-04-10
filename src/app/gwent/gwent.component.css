@@ -315,3 +315,19 @@
   font-size: 0.7rem; 
   border: 1px solid #f1c40f;
 }
+
+.target-highlight {
+  cursor: crosshair !important;
+  animation: pulse-border 1.5s infinite;
+}
+
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 5px #e74c3c; }
+  50% { box-shadow: 0 0 20px #e74c3c; }
+  100% { box-shadow: 0 0 5px #e74c3c; }
+}
+
+.card-placed:hover {
+  filter: brightness(1.2);
+  z-index: 10;
+}

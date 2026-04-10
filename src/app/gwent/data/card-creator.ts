@@ -1,29 +1,17 @@
-import { GwentCard } from '../interfaces/gwent-card';
+import { GwentCard, CardAbility, FactionType } from '../interfaces/gwent-card';
 
 export function createCard(
   id: string,
   name: string,
-  type: 'unit'|'special'|'artefact',
+  type: 'unit' | 'special' | 'artefact',
   power: number,
   provisions: number,
   artwork: string,
-  faction: 'NU' | 'MO' | 'NR'| 'NG' | 'ST'| 'SY',
+  faction: FactionType,
   rarity: 'gold' | 'silver' | 'bronze',
-  ability: string = 'No ability.',
+  ability?: CardAbility,
   tags: string = '',
   flavorText: string = ''
 ): GwentCard {
-  return {
-    id,
-    name,
-    type,
-    power,
-    provisions,
-    artwork,
-    faction,
-    rarity,
-    ability,
-    tags,
-    flavorText
-  };
+  return { id, name, type, power, provisions, artwork, faction, rarity, ability, tags, flavorText };
 }

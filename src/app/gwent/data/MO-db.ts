@@ -1,7 +1,7 @@
 import { GwentCard } from '../interfaces/gwent-card';
 
 export const MO_CARD_DATABASE: GwentCard[] = [
-  {
+  /*{
     id: 'lacerate',
     name: 'Lacerate',
     type: 'special',
@@ -25,5 +25,5 @@ export const MO_CARD_DATABASE: GwentCard[] = [
     ability: 'Thrive. Deploy: Move a unit to the other row and damage it by 2.',
     flavorText: 'Though the witchman lusts for gold, for the smiting of a drowner thou shalt give him but a silver penny, or three halfpence, at most.',
     rarity: 'bronze'
-  },
+  },*/
 ];
