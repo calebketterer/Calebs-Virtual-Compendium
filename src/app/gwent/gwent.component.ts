@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CARD_DATABASE } from './data/card-db';
-import { NU_CARD_DATABASE } from './data/NU-db'; 
 import { GwentCard } from './interfaces/gwent-card';
 
 @Component({
