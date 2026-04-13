@@ -114,8 +114,7 @@ export class DiepGameEngineService {
         if (this.isGameStarted) return;
 
         this.isGameStarted = true;
-        this.isStartingNewGame = true; // NEW: Set flag on start
-        // DELETED: lastTime initialization (now handled by component)
+        this.isStartingNewGame = true;
 
         // Perform initial enemy spawn
         this.spawner.spawnEnemies(
@@ -207,9 +206,15 @@ export class DiepGameEngineService {
     }
 
     public killEnemy(enemy: Enemy) {
-        this.score += enemy.scoreValue;
-        enemy.health = 0;
+    this.score += enemy.scoreValue;
+    
+    // Check for deathwish
+    if (enemy.onDeath) {
+        enemy.onDeath(this.enemies, this.spawner);
     }
+
+    enemy.health = 0;
+}
 
     // ---------------------------------------------
     // --- Game Loop Update Logic (The new core) ---
@@ -324,8 +329,12 @@ export class DiepGameEngineService {
                     enemy.health -= 15;
                     hit = true;
 
-                    if (enemy.isBoss && Math.random() < 0.5) {
-                        this.spawner.spawnBossMinion(this.enemies, enemy.x, enemy.y);
+                    if (enemy.type === 'MOTHER' && Math.random() < 0.5) {
+                        const angle = Math.random() * Math.PI * 2;
+                        // Offset the spawn position by the Mother's radius
+                        const spawnX = enemy.x + Math.cos(angle) * (enemy.radius + 5);
+                        const spawnY = enemy.y + Math.sin(angle) * (enemy.radius + 5);
+                        this.spawner.spawnBossMinion(this.enemies, spawnX, spawnY);
                     }
 
                     if (enemy.health <= 0) this.score += enemy.scoreValue;
@@ -505,4 +514,6 @@ export class DiepGameEngineService {
             this.deathAnimationTimeStart = null;
         }
     }
+
+    
 }

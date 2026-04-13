@@ -1,5 +1,5 @@
 import { Enemy, Player, Bullet } from './diep.interfaces';
-import { EnemyRegistry } from './Enemies/enemy.registry';
+import { EnemyRegistry } from './enemies/enemy.registry';
 
 /**
  * Utility class dedicated to updating the state, position, and actions
@@ -39,41 +39,42 @@ export class DiepEnemyLogic {
      * Uses circle-circle intersection math to calculate a soft repulsive force.
      */
     private static handleEnemySeparation(enemies: Enemy[]): void {
-        const pushStrength = 0.2; // Adjust for "softer" (0.1) or "firmer" (0.5) separation
+    const pushStrength = 0.2;
 
-        for (let i = 0; i < enemies.length; i++) {
-            const e1 = enemies[i];
-            for (let j = i + 1; j < enemies.length; j++) {
-                const e2 = enemies[j];
+    for (let i = 0; i < enemies.length; i++) {
+        const e1 = enemies[i];
+        for (let j = i + 1; j < enemies.length; j++) {
+            const e2 = enemies[j];
 
-                const dx = e2.x - e1.x;
-                const dy = e2.y - e1.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const minDistance = e1.radius + e2.radius;
+            const dx = e2.x - e1.x;
+            const dy = e2.y - e1.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const minDistance = e1.radius + e2.radius;
 
-                // Check if the distance between centers is less than the combined radii
-                if (distance < minDistance && distance > 0) {
-                    // Calculate how much they overlap
-                    const overlap = minDistance - distance;
-                    
-                    // Normal vector (normalized direction of the overlap)
-                    const nx = dx / distance;
-                    const ny = dy / distance;
+            if (distance < minDistance && distance > 0) {
+                const overlap = minDistance - distance;
+                const nx = dx / distance;
+                const ny = dy / distance;
 
-                    // Calculate the displacement vector based on pushStrength
-                    const moveX = nx * overlap * pushStrength;
-                    const moveY = ny * overlap * pushStrength;
+                // --- NEW WEIGHTED LOGIC ---
+                // Calculate mass based on radius (area-ish)
+                const m1 = e1.radius * e1.radius;
+                const m2 = e2.radius * e2.radius;
+                const totalMass = m1 + m2;
 
-                    // Apply the push in opposite directions to both enemies
-                    // No damage is dealt here, just coordinate adjustment
-                    e1.x -= moveX;
-                    e1.y -= moveY;
-                    e2.x += moveX;
-                    e2.y += moveY;
-                }
+                // The lighter object (smaller radius) takes more of the push
+                // ratio1 is how much e1 moves, ratio2 is how much e2 moves
+                const ratio1 = m2 / totalMass; 
+                const ratio2 = m1 / totalMass;
+
+                e1.x -= nx * overlap * pushStrength * ratio1;
+                e1.y -= ny * overlap * pushStrength * ratio1;
+                e2.x += nx * overlap * pushStrength * ratio2;
+                e2.y += ny * overlap * pushStrength * ratio2;
             }
         }
     }
+}
 
     /**
      * Simple collision check to damage player and push enemies back.

@@ -6,6 +6,7 @@ import { BossEnemy } from './boss.enemy';
 import { AuraEnemy } from './aura.enemy';
 import { StandardEnemy } from './standard.enemy';
 import { GuardEnemy } from './guard.enemy';
+import { MotherEnemy } from './mother.enemy';
 
 /**
  * The EnemyRegistry acts as the central "Switchboard".
@@ -24,7 +25,8 @@ export class EnemyRegistry {
     'AURA': AuraEnemy,
     'REGULAR': StandardEnemy,
     'MINION': StandardEnemy,
-    'GUARD': GuardEnemy
+    'GUARD': GuardEnemy,
+    'MOTHER': MotherEnemy
   };
 
   /**

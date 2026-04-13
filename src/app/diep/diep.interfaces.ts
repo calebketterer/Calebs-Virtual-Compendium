@@ -25,9 +25,8 @@ export interface Bullet {
 }
 
 // Define EnemyType enum (using type alias for flexibility)
-export type EnemyType = 'REGULAR' | 'BOSS' | 'MINION' | 'CRASHER' | 'SNIPER' | 'AURA' | 'SMASHER' | 'GUARD';
+export type EnemyType = 'REGULAR' | 'BOSS' | 'MINION' | 'CRASHER' | 'SNIPER' | 'AURA' | 'SMASHER' | 'GUARD' | 'MOTHER';
 
-// NEW: Exported SmasherState for use in other modules
 export type SmasherState = 'APPROACH' | 'FLANK' | 'ATTACK' | 'DODGE';
 
 export interface Enemy {
@@ -51,6 +50,7 @@ export interface Enemy {
   rotationAngle?: number;
   smasherOrbitDirection ?: 1 | -1;
   smasherAttackRange?: number; 
+  onDeath?: (enemies: Enemy[], spawner: any) => void;
 }
 
 export interface EnemySpawnWeight {
