@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HighScore } from './diep.interfaces';
+import { HighScore } from '../diep.interfaces';
 
 @Injectable({
   providedIn: 'root'
