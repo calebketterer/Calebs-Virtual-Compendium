@@ -1,5 +1,5 @@
 import { Player, Enemy, Bullet } from './diep.interfaces';
-import { EnemyRegistry } from './enemies/enemy.registry';
+import { EnemyRegistry } from './Enemies/enemy.registry';
 
 /**
  * DiepEntities acts as the master drawing coordinator for the game world.

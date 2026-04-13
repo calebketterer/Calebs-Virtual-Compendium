@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, HostListener
 import { CommonModule } from '@angular/common';
 import { DiepMenus } from './diep.menus';
 import { DiepEntities } from './diep.entities';
-import { DiepGameEngineService } from './services/diep.game-engine.service'; 
+import { DiepGameEngineService } from './diep.game-engine.service'; 
 import { DiepButtonHandlerService } from './diep.button-handler.service'; 
 import { Enemy } from './diep.interfaces'; 
 

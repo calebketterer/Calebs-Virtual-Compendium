@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { DiepGameEngineService } from './services/diep.game-engine.service';
+import { DiepGameEngineService } from './diep.game-engine.service';
 
 @Injectable({
   providedIn: 'root'

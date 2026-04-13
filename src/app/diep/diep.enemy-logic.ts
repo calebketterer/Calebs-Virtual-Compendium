@@ -1,5 +1,5 @@
 import { Enemy, Player, Bullet } from './diep.interfaces';
-import { EnemyRegistry } from './enemies/enemy.registry';
+import { EnemyRegistry } from './Enemies/enemy.registry';
 
 /**
  * Utility class dedicated to updating the state, position, and actions
