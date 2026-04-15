@@ -20,6 +20,7 @@ export class EnemySpawnerService {
 
     /**
      * Spawns a single enemy based on weighted random selection or boss flags.
+     * Note: If type is 'CRASHER', it triggers a swarm spawn.
      */
     public spawnSingleEnemy(
         enemies: Enemy[],
@@ -49,15 +50,35 @@ export class EnemySpawnerService {
         // 2. Calculate Spawn Position (Off-screen)
         const { x, y } = this.calculateSpawnPosition(canvasWidth, canvasHeight, spawnPadding);
 
-        // 3. Create the Enemy Object via the Registry Factory
-        const newEnemy = EnemyRegistry.createEnemy(type, x, y);
+        // 3. Create the Enemy Object(s)
+        if (type === 'CRASHER') {
+            // CRASHER SWARM: Spawn a cluster of 3 to 6 crashers
+            const swarmSize = Math.floor(Math.random() * 4) + 3;
+            
+            for (let i = 0; i < swarmSize; i++) {
+                // Add jitter so they spawn in a loose pack
+                const jitterX = (Math.random() - 0.5) * 40;
+                const jitterY = (Math.random() - 0.5) * 40;
+                
+                const crasher = EnemyRegistry.createEnemy('CRASHER', x + jitterX, y + jitterY);
+                
+                if (crasher.onSpawn) {
+                    crasher.onSpawn(crasher, canvasWidth, canvasHeight);
+                }
+                
+                enemies.push(crasher as Enemy);
+            }
+        } else {
+            // STANDARD SPAWN: Create a single enemy via the Registry Factory
+            const newEnemy = EnemyRegistry.createEnemy(type, x, y);
 
-        // 4. Handle ANY enemy's unique initialization (Generic Hook)
-        if (newEnemy.onSpawn) {
-            newEnemy.onSpawn(newEnemy, canvasWidth, canvasHeight);
+            // 4. Handle ANY enemy's unique initialization (Generic Hook)
+            if (newEnemy.onSpawn) {
+                newEnemy.onSpawn(newEnemy, canvasWidth, canvasHeight);
+            }
+
+            enemies.push(newEnemy as Enemy);
         }
-
-        enemies.push(newEnemy);
     }
 
     /**
@@ -79,11 +100,17 @@ export class EnemySpawnerService {
     }
 
     /**
-     * Manual minion spawn (usually triggered by Boss logic).
+     * Manual minion spawn (triggered by Mother or Boss logic).
      */
     public spawnBossMinion(enemies: Enemy[], x: number, y: number): void {
         const minion = EnemyRegistry.createEnemy('MINION', x, y);
-        enemies.push(minion);
+        
+        // Ensure minions also get their onSpawn hook if they have one
+        if (minion.onSpawn) {
+            minion.onSpawn(minion, 0, 0); 
+        }
+        
+        enemies.push(minion as Enemy);
     }
 
     /**
