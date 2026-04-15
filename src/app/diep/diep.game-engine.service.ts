@@ -210,7 +210,7 @@ export class DiepGameEngineService {
     
     // Check for deathwish
     if (enemy.onDeath) {
-        enemy.onDeath(this.enemies, this.spawner, enemy);
+        enemy.onDeath(this.enemies, this.spawner, enemy, this.player);
     }
 
     enemy.health = 0;
@@ -413,12 +413,21 @@ export class DiepGameEngineService {
         
         // 8. Post-Collision Cleanup & Wave Progression
         // This block only runs if the player is still alive (health > 0)
-        this.enemies = this.enemies.filter(e => e.health > 0);
+        this.enemies = this.enemies.filter(e => {
+            const isOffScreen = e.x < -150 || e.x > this.width + 150 || 
+                                e.y < -150 || e.y > this.height + 150;
+            
+            // Any enemy marked as canDespawn is removed silently off-screen
+            if (e.canDespawn && isOffScreen) return false;
+
+            return e.health > 0;
+        });
 
         const hasRegularEnemies = this.enemies.some(e => e.color === '#e74c3c');
         const hasBossOrMinions = this.enemies.some(e => e.isBoss || e.color === '#d2b4de');
+        const combatEnemies = this.enemies.filter(e => !e.isPassive);
 
-        if (this.enemies.length === 0) {
+        if (combatEnemies.length === 0) {
             this.enemySpawnCount++;
             this.waveCount++;
             this.isRegularWaveActive = false;
@@ -514,6 +523,4 @@ export class DiepGameEngineService {
             this.deathAnimationTimeStart = null;
         }
     }
-
-    
 }

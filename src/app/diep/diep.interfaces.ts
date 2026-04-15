@@ -24,7 +24,7 @@ export interface Bullet {
 }
 
 // Define EnemyType enum (using type alias for flexibility)
-export type EnemyType = 'ROLLER' | 'BOSS' | 'MINION' | 'CRASHER' | 'SNIPER' | 'AURA' | 'SMASHER' | 'GUNNER' | 'MOTHER';
+export type EnemyType = 'ROLLER' | 'BOSS' | 'MINION' | 'CRASHER' | 'SNIPER' | 'AURA' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER';
 export type SmasherState = 'APPROACH' | 'FLANK' | 'ATTACK' | 'DODGE';
 
 export interface Enemy {
@@ -48,7 +48,14 @@ export interface Enemy {
   rotationAngle?: number;
   smasherOrbitDirection ?: 1 | -1;
   smasherAttackRange?: number; 
-  onDeath?: (enemies: Enemy[], spawner: any, deadEnemy: Enemy) => void;
+  vx?: number;
+  vy?: number;
+  rotation?: number;
+  rotationSpeed?: number;
+  speedPhase?: number;
+  onDeath?: (enemies: Enemy[], spawner: any, deadEnemy: Enemy, player: Player) => void;
+  isPassive?: boolean;      // If true, doesn't count toward wave progression
+  canDespawn?: boolean;     // If true, can be removed silently off-screen
 }
 
 export interface EnemySpawnWeight {

@@ -8,6 +8,7 @@ import { RollerEnemy } from './roller.enemy';
 import { GunnerEnemy } from './gunner.enemy';
 import { MotherEnemy } from './mother.enemy';
 import { MinionEnemy } from './minion.enemy';
+import { HealerEnemy } from './healer.enemy';
 
 /**
  * The EnemyRegistry acts as the central "Switchboard".
@@ -27,7 +28,8 @@ export class EnemyRegistry {
     'ROLLER': RollerEnemy,
     'GUNNER': GunnerEnemy,
     'MOTHER': MotherEnemy,
-    'MINION': MinionEnemy
+    'MINION': MinionEnemy,
+    'HEALER': HealerEnemy,
   };
 
   /**
