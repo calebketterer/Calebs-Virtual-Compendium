@@ -5,12 +5,13 @@ export const MotherEnemy = {
         x, y, radius: 40, color: '#9b59b6',
         health: 300, maxHealth: 300, scoreValue: 500,
         
-        onDeath: (enemies: Enemy[], spawner: any) => {
-            const minionCount = Math.floor(Math.random() * 3) + 5; // 8-10 minions, but not currently working
+        onDeath: (enemies: Enemy[], spawner: any, deadEnemy: Enemy) => {
+            const minionCount = Math.floor(Math.random() * 4) + 3;
             for (let i = 0; i < minionCount; i++) {
-                const offsetX = (Math.random() - 0.5) * 10;
-                const offsetY = (Math.random() - 0.5) * 10;
-                spawner.spawnBossMinion(enemies, x + offsetX, y + offsetY);
+                // Use deadEnemy.x and deadEnemy.y instead of the initial x and y
+                const spawnX = deadEnemy.x + (Math.random() - 0.5) * 20;
+                const spawnY = deadEnemy.y + (Math.random() - 0.5) * 20;
+                spawner.spawnBossMinion(enemies, spawnX, spawnY);
             }
         }
     }),
@@ -26,7 +27,7 @@ export const MotherEnemy = {
         ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
         ctx.fillStyle = enemy.color;
         
-        // Signature "Mother" glow
+        // Mother's glow
         ctx.shadowBlur = 10;
         ctx.shadowColor = '#8e44ad';
         ctx.fill();

@@ -210,7 +210,7 @@ export class DiepGameEngineService {
     
     // Check for deathwish
     if (enemy.onDeath) {
-        enemy.onDeath(this.enemies, this.spawner);
+        enemy.onDeath(this.enemies, this.spawner, enemy);
     }
 
     enemy.health = 0;
@@ -337,7 +337,7 @@ export class DiepGameEngineService {
                         this.spawner.spawnBossMinion(this.enemies, spawnX, spawnY);
                     }
 
-                    if (enemy.health <= 0) this.score += enemy.scoreValue;
+                    if (enemy.health <= 0) this.killEnemy(enemy);
                 }
             });
             if (!hit) {

@@ -48,7 +48,7 @@ export interface Enemy {
   rotationAngle?: number;
   smasherOrbitDirection ?: 1 | -1;
   smasherAttackRange?: number; 
-  onDeath?: (enemies: Enemy[], spawner: any) => void;
+  onDeath?: (enemies: Enemy[], spawner: any, deadEnemy: Enemy) => void;
 }
 
 export interface EnemySpawnWeight {
