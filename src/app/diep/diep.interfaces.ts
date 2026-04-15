@@ -24,7 +24,7 @@ export interface Bullet {
 }
 
 // Define EnemyType enum (using type alias for flexibility)
-export type EnemyType = 'ROLLER' | 'BOSS' | 'MINION' | 'CRASHER' | 'SNIPER' | 'BLOATER' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER' | 'PUDDLE';
+export type EnemyType = 'ROLLER' | 'BOSS' | 'MINION' | 'CRASHER' | 'SNIPER' | 'BLOATER' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER' | 'PUDDLE'| 'HAUNTER';
 export type SmasherState = 'APPROACH' | 'FLANK' | 'ATTACK' | 'DODGE';
 
 export interface Enemy {

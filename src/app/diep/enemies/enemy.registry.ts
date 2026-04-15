@@ -10,6 +10,7 @@ import { MotherEnemy } from './mother.enemy';
 import { MinionEnemy } from './minion.enemy';
 import { HealerEnemy } from './healer.enemy';
 import { PuddleEnemy } from './puddle.enemy';
+import { HaunterEnemy } from './haunter.enemy';
 
 /**
  * The EnemyRegistry acts as the central "Switchboard".
@@ -31,7 +32,8 @@ export class EnemyRegistry {
     'MOTHER': MotherEnemy,
     'MINION': MinionEnemy,
     'HEALER': HealerEnemy,
-    'PUDDLE': PuddleEnemy
+    'PUDDLE': PuddleEnemy,
+    'HAUNTER' : HaunterEnemy
   };
 
   /**

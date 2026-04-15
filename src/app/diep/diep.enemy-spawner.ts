@@ -3,14 +3,15 @@ import { Enemy, EnemyType, EnemySpawnWeight } from './diep.interfaces';
 import { EnemyRegistry } from './enemies/enemy.registry';
 
 const ENEMY_SPAWN_WEIGHTS: EnemySpawnWeight[] = [
-    { type: 'SMASHER', weight: 0.1 },
+    { type: 'SMASHER', weight: 0.05 },
     { type: 'CRASHER', weight: 0.1 },
     { type: 'SNIPER', weight: 0.1 },
     { type: 'BLOATER', weight: 0.1 },
     { type: 'GUNNER', weight: 0.1 },
     { type: 'MOTHER', weight: 0.05 },
-    { type: 'ROLLER', weight: 0.4 },
+    { type: 'ROLLER', weight: 0.35 },
     { type: 'HEALER', weight: 0.05 },
+    { type: 'HAUNTER', weight: 0.1 }
 ];
 
 @Injectable({
