@@ -209,10 +209,9 @@ export class DiepGameEngineService {
     this.score += enemy.scoreValue;
     
     // Check for deathwish
-    if (enemy.onDeath) {
-        enemy.onDeath(this.enemies, this.spawner, enemy, this.player);
+    if (enemy.onDeath) { 
+        enemy.onDeath(this.enemies, this.spawner, enemy, this.player); 
     }
-
     enemy.health = 0;
 }
 
@@ -300,6 +299,13 @@ export class DiepGameEngineService {
             if (this.isStartingNewGame) {
                 this.isStartingNewGame = false; // Clear the flag after the first frame check
             } else {
+                // Run any custom per-frame logic defined in individual enemy files
+                this.enemies.forEach(enemy => {
+                    if (enemy.onUpdate) {
+                        enemy.onUpdate(enemy, this.player, deltaTime);
+                    }
+                });
+
                 DiepEnemyLogic.updateAllEnemies(
                     this.enemies,
                     this.bullets,
@@ -321,6 +327,7 @@ export class DiepGameEngineService {
                 if (bullet.ownerType === 'ENEMY') {
                     return;
                 }
+                if (enemy.isGhost) return;
                 const dx = bullet.x - enemy.x;
                 const dy = bullet.y - enemy.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
@@ -387,22 +394,6 @@ export class DiepGameEngineService {
             }
         });
         this.enemies = enemiesToKeep;
-
-        // 6.5 Aura Enemy Proximity Damage (AoE)
-        const auraDamage = 0.5;
-        const auraRadius = 100;
-
-        this.enemies.forEach(enemy => {
-            if (enemy.type === 'AURA') {
-                const dx = enemy.x - this.player.x;
-                const dy = enemy.y - this.player.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-
-                if (dist < enemy.radius + auraRadius) {
-                    this.player.health -= auraDamage;
-                }
-            }
-        });
 
         // 7. GAME OVER CHECK & IMMEDIATE EXIT:
         // Check player health immediately after all damage calculation.

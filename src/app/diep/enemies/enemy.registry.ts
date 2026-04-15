@@ -3,12 +3,13 @@ import { SmasherEnemy } from './smasher.enemy';
 import { CrasherEnemy } from './crasher.enemy';
 import { SniperEnemy } from './sniper.enemy';
 import { BossEnemy } from './boss.enemy';
-import { AuraEnemy } from './aura.enemy';
+import { BloaterEnemy } from './bloater.enemy';
 import { RollerEnemy } from './roller.enemy';
 import { GunnerEnemy } from './gunner.enemy';
 import { MotherEnemy } from './mother.enemy';
 import { MinionEnemy } from './minion.enemy';
 import { HealerEnemy } from './healer.enemy';
+import { PuddleEnemy } from './puddle.enemy';
 
 /**
  * The EnemyRegistry acts as the central "Switchboard".
@@ -24,12 +25,13 @@ export class EnemyRegistry {
     'CRASHER': CrasherEnemy,
     'SNIPER': SniperEnemy,
     'BOSS': BossEnemy,
-    'AURA': AuraEnemy,
+    'BLOATER': BloaterEnemy,
     'ROLLER': RollerEnemy,
     'GUNNER': GunnerEnemy,
     'MOTHER': MotherEnemy,
     'MINION': MinionEnemy,
     'HEALER': HealerEnemy,
+    'PUDDLE': PuddleEnemy
   };
 
   /**

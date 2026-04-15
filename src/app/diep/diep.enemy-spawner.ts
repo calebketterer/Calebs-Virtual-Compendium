@@ -6,7 +6,7 @@ const ENEMY_SPAWN_WEIGHTS: EnemySpawnWeight[] = [
     { type: 'SMASHER', weight: 0.1 },
     { type: 'CRASHER', weight: 0.1 },
     { type: 'SNIPER', weight: 0.1 },
-    { type: 'AURA', weight: 0.1 },
+    { type: 'BLOATER', weight: 0.1 },
     { type: 'GUNNER', weight: 0.1 },
     { type: 'MOTHER', weight: 0.05 },
     { type: 'ROLLER', weight: 0.4 },
@@ -52,10 +52,9 @@ export class EnemySpawnerService {
         // 3. Create the Enemy Object via the Registry Factory
         const newEnemy = EnemyRegistry.createEnemy(type, x, y);
 
-        // 4. Handle context-specific initialization (Canvas-dependent properties)
-        if (type === 'AURA') {
-            newEnemy.targetX = Math.random() * canvasWidth;
-            newEnemy.targetY = Math.random() * canvasHeight;
+        // 4. Handle ANY enemy's unique initialization (Generic Hook)
+        if (newEnemy.onSpawn) {
+            newEnemy.onSpawn(newEnemy, canvasWidth, canvasHeight);
         }
 
         enemies.push(newEnemy);

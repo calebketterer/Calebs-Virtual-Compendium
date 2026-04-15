@@ -24,7 +24,7 @@ export interface Bullet {
 }
 
 // Define EnemyType enum (using type alias for flexibility)
-export type EnemyType = 'ROLLER' | 'BOSS' | 'MINION' | 'CRASHER' | 'SNIPER' | 'AURA' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER';
+export type EnemyType = 'ROLLER' | 'BOSS' | 'MINION' | 'CRASHER' | 'SNIPER' | 'BLOATER' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER' | 'PUDDLE';
 export type SmasherState = 'APPROACH' | 'FLANK' | 'ATTACK' | 'DODGE';
 
 export interface Enemy {
@@ -39,7 +39,7 @@ export interface Enemy {
   type: EnemyType; 
   speedMultiplier?: number; // For Crasher
   lastShotTime?: number; // For Sniper
-  // For Aura's random movement
+  // For Bloater's random movement
   targetX?: number; // Random target X coordinate for wandering
   targetY?: number; // Random target Y coordinate for wandering
   //For Flankers
@@ -54,8 +54,13 @@ export interface Enemy {
   rotationSpeed?: number;
   speedPhase?: number;
   onDeath?: (enemies: Enemy[], spawner: any, deadEnemy: Enemy, player: Player) => void;
+  onUpdate?: (enemy: Enemy, player: Player, deltaTime: number) => void;
+  onSpawn?: (enemy: Enemy, canvasWidth: number, canvasHeight: number) => void;
   isPassive?: boolean;      // If true, doesn't count toward wave progression
   canDespawn?: boolean;     // If true, can be removed silently off-screen
+  isGhost?: boolean; // If true, bullets will pass through
+  spawnTime?: number;   // When it was created
+  lifespan?: number;    // How long it lasts (ms)
 }
 
 export interface EnemySpawnWeight {
