@@ -9,7 +9,7 @@ const ENEMY_SPAWN_WEIGHTS: EnemySpawnWeight[] = [
     { type: 'AURA', weight: 0.1 },
     { type: 'GUNNER', weight: 0.1 },
     { type: 'MOTHER', weight: 0.05 },
-    { type: 'REGULAR', weight: 0.4 },
+    { type: 'ROLLER', weight: 0.4 },
 ];
 
 @Injectable({
@@ -28,7 +28,7 @@ export class EnemySpawnerService {
         isBoss: boolean
     ): void {
         // 1. Determine the Type
-        let type: EnemyType = 'REGULAR';
+        let type: EnemyType = 'ROLLER';
 
         if (isBoss) {
             type = 'BOSS';

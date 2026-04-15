@@ -4,9 +4,10 @@ import { CrasherEnemy } from './crasher.enemy';
 import { SniperEnemy } from './sniper.enemy';
 import { BossEnemy } from './boss.enemy';
 import { AuraEnemy } from './aura.enemy';
-import { StandardEnemy } from './standard.enemy';
+import { RollerEnemy } from './roller.enemy';
 import { GunnerEnemy } from './gunner.enemy';
 import { MotherEnemy } from './mother.enemy';
+import { MinionEnemy } from './minion.enemy';
 
 /**
  * The EnemyRegistry acts as the central "Switchboard".
@@ -23,10 +24,10 @@ export class EnemyRegistry {
     'SNIPER': SniperEnemy,
     'BOSS': BossEnemy,
     'AURA': AuraEnemy,
-    'REGULAR': StandardEnemy,
-    'MINION': StandardEnemy,
+    'ROLLER': RollerEnemy,
     'GUNNER': GunnerEnemy,
-    'MOTHER': MotherEnemy
+    'MOTHER': MotherEnemy,
+    'MINION': MinionEnemy
   };
 
   /**
@@ -103,6 +104,6 @@ export class EnemyRegistry {
    * Internal helper to find the correct handler or fallback to Standard.
    */
   private static getHandler(type: EnemyType): any {
-    return this.mapping[type] || StandardEnemy;
+    return this.mapping[type] || RollerEnemy;
   }
 }
