@@ -7,8 +7,8 @@ const ENEMY_SPAWN_WEIGHTS: EnemySpawnWeight[] = [
     { type: 'CRASHER', weight: 0.1 },
     { type: 'SNIPER', weight: 0.1 },
     { type: 'AURA', weight: 0.1 },
-    { type: 'GUARD', weight: 0.1 },
-    { type: 'MOTHER', weight: 0.1 },
+    { type: 'GUNNER', weight: 0.1 },
+    { type: 'MOTHER', weight: 0.05 },
     { type: 'REGULAR', weight: 0.4 },
 ];
 
