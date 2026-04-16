@@ -126,7 +126,7 @@ If not already done, type `npm install -g angular-cli-ghpages` in terminal. Then
 
 ## Secondary Account Commands
 
-When using a secondary account, commit under primary account creds by running `git config --global user.email "your-main-account-email@example.com"`
+When using a secondary account, commit under other creds by running `git config --global user.email "your-main-account-email@example.com"`
 and `git config --global user.name "Your Main Account Name"`
 
 If not already done, type `npm install -g angular-cli-ghpages` in terminal. Then, run `ng build --configuration production --base-href /Calebs-Compendium/` and  `npx angular-cli-ghpages --dir=dist/example-website/browser/`. After that, the site should be updated at `https://calebrobertketterer.github.io/Calebs-Compendium/`
