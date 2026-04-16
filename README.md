@@ -121,5 +121,10 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 
 If not already done, type `npm install -g angular-cli-ghpages` in terminal. Then, run `ng build --configuration production --base-href /Calebs-Virtual-Compendium/` and  `npx angular-cli-ghpages --dir=dist/example-website/browser/`. After that, the site should be updated at `https://calebketterer.github.io/Calebs-Virtual-Compendium/`
 
+<details>
+  <summary><strong>Misc Notes</strong></summary>
+  
+## Secondary Account Commands
 
-
+Note for self: When using a secondary account, you can commit under primary account creds by running `git config --global user.email "your-main-account-email@example.com"`
+and `git config --global user.name "Your Main Account Name"`
