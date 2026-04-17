@@ -11,6 +11,7 @@ import { MinionEnemy } from './minion.enemy';
 import { HealerEnemy } from './healer.enemy';
 import { PuddleEnemy } from './puddle.enemy';
 import { HaunterEnemy } from './haunter.enemy';
+import { BomberEnemy } from './bomber.enemy';
 
 /**
  * The EnemyRegistry acts as the central "Switchboard".
@@ -33,7 +34,8 @@ export class EnemyRegistry {
     'MINION': MinionEnemy,
     'HEALER': HealerEnemy,
     'PUDDLE': PuddleEnemy,
-    'HAUNTER' : HaunterEnemy
+    'HAUNTER' : HaunterEnemy,
+    'BOMBER' : BomberEnemy
   };
 
   /**
@@ -79,9 +81,9 @@ export class EnemyRegistry {
   /**
    * Delegates the drawing logic to the specific enemy file.
    */
-  public static draw(ctx: CanvasRenderingContext2D, enemy: Enemy, player: Player): void {
+  public static draw(ctx: CanvasRenderingContext2D, enemy: Enemy, player: Player, bullets: Bullet[]): void {
     const handler = this.getHandler(enemy.type);
-    handler.draw(ctx, enemy, player);
+    handler.draw(ctx, enemy, player, bullets);
   }
 
   /**

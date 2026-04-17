@@ -99,7 +99,14 @@ export class DiepGameEngineService {
         this.lastAngle = playerUpdate.lastAngle;
 
         // 2. Subsystem: Projectiles & Environment
-        this.bullets = this.projectileService.updateBullets(this.bullets, F, this.width, this.height);
+        this.bullets = this.projectileService.updateBullets(
+            this.bullets, 
+            F, 
+            this.width, 
+            this.height, 
+            this.player,
+            deltaTime
+        );
         this.toxicTrails = this.projectileService.updateTrails(this.toxicTrails, this.bullets, this.player, Date.now());
 
         // 3. Auto-fire

@@ -245,7 +245,7 @@ export class DiepComponent implements AfterViewInit {
         enemiesToDraw = g.enemies;
       }
     
-      DiepEntities.drawEnemiesWithBars(this.ctx, enemiesToDraw, g.player);
+      DiepEntities.drawEnemiesWithBars(this.ctx, enemiesToDraw, g.player, g.bullets);
     }
     
     // --- 7. Game Over Screen ---

@@ -11,10 +11,10 @@ export class DiepEntities {
   /**
    * Main entry point for drawing the enemy layer.
    */
-  public static drawEnemiesWithBars(ctx: CanvasRenderingContext2D, enemies: Enemy[], player: Player): void {
+  public static drawEnemiesWithBars(ctx: CanvasRenderingContext2D, enemies: Enemy[], player: Player, bullets: Bullet[]): void {
     enemies.forEach(enemy => {
       // 1. Delegate specific shape drawing to the individual enemy files via the Registry
-      EnemyRegistry.draw(ctx, enemy, player);
+      EnemyRegistry.draw(ctx, enemy, player, bullets);
       
       // 2. Draw the Health Bar (Common UI element for all enemies)
       this.drawHealthBar(ctx, enemy);

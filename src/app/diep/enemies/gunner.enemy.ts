@@ -13,23 +13,31 @@ export const GunnerEnemy = {
         const dist = Math.sqrt(dx * dx + dy * dy);
         enemy.rotationAngle = Math.atan2(dy, dx);
 
-        if (dist > 200) {
+        // --- READABILITY VARIABLES (LOOPS & TUNING) ---
+        const bulletSpeed = 5;      // Slower, heavy projectiles
+        const bulletSize = 12.5;    // Larger impact zone
+        const fireRate = 750;       // Timing between shots in ms
+        const stopDistance = 200;   // Distance to stop chasing
+        const retreatDistance = 100; // Distance to start backing away
+
+        if (dist > stopDistance) {
             moveTowards(enemy, deltaTime, player.x, player.y, 2.0);
-        } else if (dist < 100) {
+        } else if (dist < retreatDistance) {
             const retreatX = enemy.x - Math.cos(enemy.rotationAngle) * 100;
             const retreatY = enemy.y - Math.sin(enemy.rotationAngle) * 100;
             moveTowards(enemy, deltaTime, retreatX, retreatY, 2.0);
         } else {
-            if (currentTime - (enemy.lastShotTime || 0) > 400) {
+            // Shooting Logic
+            if (currentTime - (enemy.lastShotTime || 0) > fireRate) {
                 bullets.push({
                     x: enemy.x, 
                     y: enemy.y,
-                    dx: Math.cos(enemy.rotationAngle) * 10,
-                    dy: Math.sin(enemy.rotationAngle) * 10,
-                    radius: 10, 
+                    dx: Math.cos(enemy.rotationAngle) * bulletSpeed,
+                    dy: Math.sin(enemy.rotationAngle) * bulletSpeed,
+                    radius: bulletSize, 
                     color: enemy.color, 
                     ownerType: 'ENEMY' as OwnerType,
-                    hasTrail: true // This enables the toxic sludge dropping
+                    hasTrail: true
                 });
                 enemy.lastShotTime = currentTime;
             }
@@ -37,7 +45,7 @@ export const GunnerEnemy = {
     },
 
     draw: (ctx: CanvasRenderingContext2D, enemy: Enemy) => {
-        const barrelWidth = 20;
+        const barrelWidth = 25;
         const barrelLength = enemy.radius * 1.5;
 
         // Draw Nozzle behind body
