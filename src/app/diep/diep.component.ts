@@ -184,7 +184,7 @@ export class DiepComponent implements AfterViewInit {
     this.ctx.font = 'bold 20px Inter, sans-serif';
     this.ctx.fillStyle = uiTextColor;
     this.ctx.textAlign = 'right';
-    this.ctx.fillText('WAVE: ' + g.waveCount, this.width - 20, 60);
+    this.ctx.fillText('WAVE: ' + g.waveManager.waveCount, this.width - 20, 60);
   }
 
   /**
