@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DiepGameEngineService } from './diep.game-engine.service';
+import { DiepMenus } from './diep.menus';
 
 @Injectable({
   providedIn: 'root'
@@ -7,53 +8,50 @@ import { DiepGameEngineService } from './diep.game-engine.service';
 export class DiepButtonHandlerService {
   
   constructor(private gameEngine: DiepGameEngineService) {}
-  
-  /**
-   * Handles all mouse click logic for UI buttons and shooting.
-   * @param x The translated mouse X coordinate.
-   * @param y The translated mouse Y coordinate.
-   * @param width The canvas width.
-   * @param height The canvas height.
-   * @param gameLoopCallback A function to call to resume the game loop if a button unpauses or starts the game.
-   * @param drawCallback A function to call to force a canvas redraw immediately, used primarily for paused UI updates.
-   * @returns true if a button was clicked and handled, false otherwise.
-   */
-  public handleCanvasClick(x: number, y: number, width: number, height: number, gameLoopCallback: () => void, drawCallback: () => void): boolean {
-    const g = this.gameEngine;
-    
-    // Check if the click should result in a game state change (button press)
-    let buttonClicked = false;
 
-    // 0. Start Game Button (ONLY active when game has NOT started)
+  /**
+   * Processes raw MouseEvents, translates coordinates, and executes game logic.
+   */
+  public handleMouseEvent(
+    event: MouseEvent, 
+    canvas: HTMLCanvasElement, 
+    gameLoopCallback: () => void, 
+    drawCallback: () => void
+  ): boolean {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const g = this.gameEngine;
+    const { width, height } = g;
+
+    // 0. START GAME BUTTON (Restored exact math)
     if (!g.isGameStarted) {
       const startBtnW = 200;
       const startBtnH = 55;
       const startBtnX = width / 2 - (startBtnW / 2);
       const startBtnY = height / 2 + 20;
 
-      if (
-        x >= startBtnX && x <= startBtnX + startBtnW &&
-        y >= startBtnY && y <= startBtnY + startBtnH
-      ) {
-        g.startGame(); // DELEGATE to engine
+      if (x >= startBtnX && x <= startBtnX + startBtnW &&
+          y >= startBtnY && y <= startBtnY + startBtnH) {
+        g.startGame();
         gameLoopCallback();
-        buttonClicked = true;
+        return true;
       }
     }
-    
-    // 1. Small Top-Center Pause/Play button
+
+    // 1. TOP-CENTER PAUSE BUTTON
     const btnRadius = 20;
     const btnX = width / 2;
     const btnY = 35;
     const distToPauseBtn = Math.sqrt(Math.pow(x - btnX, 2) + Math.pow(y - btnY, 2));
 
     if (g.isGameStarted && !g.gameOver && distToPauseBtn < btnRadius) {
-      const wasPaused = g.togglePause(); // DELEGATE to engine
-      if (!wasPaused) gameLoopCallback(); // Resume loop if unpaused
-      buttonClicked = true;
+      const wasPaused = g.togglePause();
+      if (!wasPaused) gameLoopCallback();
+      return true;
     }
 
-    // 2. Pause Menu Buttons 
+    // 2. PAUSE MENU BUTTONS
     if (g.isPaused) {
       // Resume Button
       const playBtnX = width / 2 - 80;
@@ -63,55 +61,50 @@ export class DiepButtonHandlerService {
       
       if (x >= playBtnX && x <= playBtnX + playBtnW &&
           y >= playBtnY && y <= playBtnY + playBtnH) {
-        g.togglePause(); // DELEGATE to engine
-        gameLoopCallback(); // Resume loop
-        buttonClicked = true;
+        g.togglePause();
+        gameLoopCallback();
+        return true;
       }
 
-      // Dark Mode Toggle Button
+      // Dark Mode Toggle
       const toggleBtnW = 280;
+      const toggleBtnH = 45;
       const toggleBtnX = width / 2 - (toggleBtnW / 2);
       const toggleBtnY = height / 2 + 40;
-      const toggleBtnH = 45;
 
       if (x >= toggleBtnX && x <= toggleBtnX + toggleBtnW &&
           y >= toggleBtnY && y <= toggleBtnY + toggleBtnH) {
-        g.toggleDarkMode(); // DELEGATE to engine
-        
-        // --- FIX: Immediately redraw the canvas to show the new mode while paused ---
-        drawCallback(); 
-        
-        buttonClicked = true;
+        g.toggleDarkMode();
+        drawCallback();
+        return true;
       }
     }
-    
-    // 3. Game Over Buttons 
+
+    // 3. GAME OVER BUTTONS
     if (g.gameOver && g.deathAnimationTimeStart === null) {
-      // REPLAY Button check
       const btnX_go = width / 2 - 80;
-      const btnY_go = height / 2 + 60; 
       const btnW_go = 160;
       const btnH_go = 45;
-      
-      if (x >= btnX_go && x <= btnX_go + btnW_go &&
-          y >= btnY_go && y <= btnY_go + btnH_go) {
-        g.restartGame(); // DELEGATE to engine
-        gameLoopCallback();
-        buttonClicked = true;
-      }
-      
-      // MAIN MENU Button check
-      const menuBtnY_go = height / 2 + 120;
 
+      // Replay Button
+      const replayBtnY = height / 2 + 60;
       if (x >= btnX_go && x <= btnX_go + btnW_go &&
-          y >= menuBtnY_go && y <= menuBtnY_go + btnH_go) {
-        g.returnToMainMenu(); // DELEGATE to engine
+          y >= replayBtnY && y <= replayBtnY + btnH_go) {
+        g.restartGame();
         gameLoopCallback();
-        buttonClicked = true;
+        return true;
+      }
+
+      // Main Menu Button (Restored exact math)
+      const menuBtnY = height / 2 + 120;
+      if (x >= btnX_go && x <= btnX_go + btnW_go &&
+          y >= menuBtnY && y <= menuBtnY + btnH_go) {
+        g.returnToMainMenu();
+        gameLoopCallback();
+        return true;
       }
     }
-    
-    // Return true if a button was clicked, false otherwise
-    return buttonClicked;
+
+    return false;
   }
 }

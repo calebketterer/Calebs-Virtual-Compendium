@@ -32,6 +32,11 @@ export class DiepGameEngineService {
     public enemiesRemainingForAnimation: Enemy[] = [];
     public topScores: HighScore[] = [];
 
+    // Ticker properties
+    private animationFrameId: number | null = null;
+    private lastTime: number = 0;
+    private onRenderCallback: () => void = () => {};
+
     constructor(
         private spawner: EnemySpawnerService,
         private highScoresService: HighScoresService,
@@ -46,6 +51,49 @@ export class DiepGameEngineService {
 
     private getDefaultPlayer(): Player {
         return { x: 400, y: 300, radius: 20, angle: 0, maxSpeed: 3, color: '#3498db', health: 100, maxHealth: 100, fireRate: 150 };
+    }
+
+    /**
+     * Starts the internal game loop.
+     */
+    public startTicker(renderFn: () => void) {
+        this.onRenderCallback = renderFn;
+        this.lastTime = performance.now();
+        if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
+        this.ticker(this.lastTime);
+    }
+
+    private ticker = (time: number) => {
+        if (this.isPaused) {
+            this.onRenderCallback();
+            this.lastTime = 0; // Reset so next frame doesn't jump
+            return;
+        }
+
+        let deltaTime = time - this.lastTime;
+        if (this.lastTime === 0) {
+            this.lastTime = time;
+            deltaTime = 1000 / 60;
+        } else {
+            this.lastTime = time;
+        }
+
+        this.update(deltaTime);
+        this.onRenderCallback();
+
+        // Continue loop if not game over OR if in death animation
+        if (!this.gameOver || (this.gameOver && this.deathAnimationTimeStart !== null)) {
+            this.animationFrameId = requestAnimationFrame(this.ticker);
+        }
+    }
+
+    public getVisibleEnemies(): Enemy[] {
+        if (this.gameOver && this.deathAnimationTimeStart !== null) {
+            const timeElapsed = Date.now() - this.deathAnimationTimeStart;
+            const enemiesToDisappear = Math.floor((timeElapsed / 1000) * this.enemiesRemainingForAnimation.length);
+            return this.enemiesRemainingForAnimation.slice(enemiesToDisappear);
+        }
+        return this.enemies;
     }
 
     public resetState(startGameImmediately: boolean) {
@@ -94,38 +142,25 @@ export class DiepGameEngineService {
         if (this.gameOver && this.deathAnimationTimeStart) this.handleDeathAnimation(Date.now());
         if (!this.isGameStarted || this.isPaused || this.gameOver) return;
 
-        // 1. Subsystem: Player
         const playerUpdate = this.playerService.update(this.player, this.keys, this.mousePos, this.mouseAiming, this.width, this.height, F, deltaTime);
         this.lastAngle = playerUpdate.lastAngle;
 
-        // 2. Subsystem: Projectiles & Environment
-        this.bullets = this.projectileService.updateBullets(
-            this.bullets, 
-            F, 
-            this.width, 
-            this.height, 
-            this.player,
-            deltaTime
-        );
+        this.bullets = this.projectileService.updateBullets(this.bullets, F, this.width, this.height, this.player, deltaTime);
         this.toxicTrails = this.projectileService.updateTrails(this.toxicTrails, this.bullets, this.player, Date.now());
 
-        // 3. Auto-fire
         if (this.mouseAiming && this.mouseDown && this.player.health > 0) this.shootBullet();
 
-        // 4. Subsystem: Enemy AI
         if (this.player.health > 0) {
             if (this.isStartingNewGame) this.isStartingNewGame = false;
             else this.enemyService.updateAI(this.enemies, this.bullets, this.player, deltaTime, this.width, this.height);
         }
 
-        // 5. Subsystem: Collision Physics
         const col = this.collisionService.handleCollisions(this.player, this.bullets, this.enemies, (e) => this.killEnemy(e));
         this.bullets = col.bullets;
         this.enemies = col.enemies;
 
         if (this.player.health <= 0) { this.handleGameOver(); return; }
 
-        // 6. Cleanup & Wave Progression
         this.enemies = this.enemyService.cleanup(this.enemies, this.width, this.height);
         this.waveManager.updateWaves(this.enemies, this.width, this.height);
     }
@@ -150,8 +185,24 @@ export class DiepGameEngineService {
         }
     }
 
-    public restartGame() { this.resetState(true); this.waveManager.startFirstWave(this.enemies, this.width, this.height); }
-    public returnToMainMenu() { this.resetState(false); }
-    public togglePause() { if (!this.gameOver && this.isGameStarted) this.isPaused = !this.isPaused; return this.isPaused; }
+    public restartGame() { 
+        this.resetState(true); 
+        this.waveManager.startFirstWave(this.enemies, this.width, this.height); 
+        this.startTicker(this.onRenderCallback); // Re-trigger loop
+    }
+    
+    public returnToMainMenu() { 
+        this.resetState(false); 
+        this.startTicker(this.onRenderCallback); // Keep ticking to render menu
+    }
+
+    public togglePause() { 
+        if (!this.gameOver && this.isGameStarted) {
+            this.isPaused = !this.isPaused;
+            if (!this.isPaused) this.startTicker(this.onRenderCallback);
+        }
+        return this.isPaused; 
+    }
+
     public toggleDarkMode() { this.isDarkMode = !this.isDarkMode; }
 }
