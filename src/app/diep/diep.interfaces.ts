@@ -21,10 +21,15 @@ export interface Bullet {
   color: string;
   ownerType: OwnerType;
   hasTrail?: boolean;
+  isBomb?: boolean;
+  timer?: number;      // Countdown in ms or frames
+  maxTimer?: number;   // Total fuse time
+  explosionRadius?: number;
+  isExploding?: boolean; // To trigger a visual blast effect
 }
 
 // Define EnemyType enum (using type alias for flexibility)
-export type EnemyType = 'ROLLER' | 'BOSS' | 'MINION' | 'CRASHER' | 'SNIPER' | 'BLOATER' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER' | 'PUDDLE'| 'HAUNTER';
+export type EnemyType = 'ROLLER' | 'BOSS' | 'MINION' | 'CRASHER' | 'SNIPER' | 'BLOATER' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER' | 'PUDDLE'| 'HAUNTER' |'BOMBER';
 export type SmasherState = 'APPROACH' | 'FLANK' | 'ATTACK' | 'DODGE';
 
 export interface Enemy {
@@ -42,7 +47,7 @@ export interface Enemy {
   // For Bloater's random movement
   targetX?: number; // Random target X coordinate for wandering
   targetY?: number; // Random target Y coordinate for wandering
-  //For Flankers
+  //For Smashers
   smasherState?: SmasherState; // Using exported type
   dodgeEndTime?: number;
   rotationAngle?: number;
@@ -82,4 +87,21 @@ export interface TrailSegment {
     opacity: number;
     creationTime: number;
     lifespan: number;
+}
+
+export interface ButtonArea {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+export interface DiepButton extends ButtonArea {
+  id: string;
+  label: string;
+  color: string;
+  borderColor: string;
+  textColor?: string;
+  fontSize?: string;
+  action: () => void;
 }

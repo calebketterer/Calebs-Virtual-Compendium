@@ -2,14 +2,11 @@ import { Enemy, Player, Bullet } from './diep.interfaces';
 import { EnemyRegistry } from './enemies/enemy.registry';
 
 /**
- * Utility class dedicated to updating the state, position, and actions
- * of all enemy types each frame via the EnemyRegistry.
+ * Utility class dedicated to updating the state, position, and actions of all enemy types each frame via the EnemyRegistry.
  */
 export class DiepEnemyLogic {
 
-    /**
-     * Executes the update logic for all enemies in the game.
-     */
+    //Executes the update logic for all enemies in the game.
     public static updateAllEnemies(
         enemies: Enemy[], 
         bullets: Bullet[], 
@@ -21,15 +18,14 @@ export class DiepEnemyLogic {
     ): void {
     
         enemies.forEach(enemy => {
-            // This calls the registry, which finds the correct .ts file (Sniper, Guard, Smasher, etc.)
-            // and runs the specific update logic we moved there.
+            // This calls the registry, which finds the correct .ts file (Sniper, Guard, Smasher, etc.) and runs the specific update logic there.
             EnemyRegistry.update(enemy, player, bullets, deltaTime, currentTime);
 
             // Global logic (like bounds checking or player collision) stays here
             this.handleGlobalCollision(enemy, player);
         });
 
-        // NEW: Apply separation logic after individual movements to prevent stacking
+        // Apply separation logic after individual movements to prevent stacking
         // This ensures that even if they are all targeting the player, they nudge each other apart.
         this.handleEnemySeparation(enemies);
     }
