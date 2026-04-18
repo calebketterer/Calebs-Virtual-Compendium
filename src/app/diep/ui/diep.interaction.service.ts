@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { DiepGameEngineService } from '../diep.game-engine.service';
+import { DiepGameEngineService } from '../engine/diep.game-engine.service';
 import { DiepButton } from '../diep.interfaces';
 import { DiepUIConfig } from './diep.ui-layout';
 

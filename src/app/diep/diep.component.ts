@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, HostListener, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DiepMenus } from './ui/diep.menus-manager';
-import { DiepGameEngineService } from './diep.game-engine.service'; 
-import { DiepInputService } from './diep.input.service';
+import { DiepGameEngineService } from './engine/diep.game-engine.service'; 
+import { DiepInputService } from './engine/diep.input.service';
 
 @Component({
   selector: 'app-diep',

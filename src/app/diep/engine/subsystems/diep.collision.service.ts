@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Player, Bullet, Enemy } from '../diep.interfaces';
-import { EnemySpawnerService } from '../diep.enemy-spawner';
+import { Player, Bullet, Enemy } from '../../diep.interfaces';
+import { EnemySpawnerService } from './diep.enemy-spawner';
 
 @Injectable({
     providedIn: 'root'

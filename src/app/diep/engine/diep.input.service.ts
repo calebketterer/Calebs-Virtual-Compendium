@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DiepGameEngineService } from './diep.game-engine.service';
-import { DiepButtonHandlerService } from './ui/diep.interaction.service';
+import { DiepButtonHandlerService } from '../ui/diep.interaction.service';
 
 @Injectable({
   providedIn: 'root'

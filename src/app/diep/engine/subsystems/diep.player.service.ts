@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Player } from '../diep.interfaces';
+import { Player } from '../../diep.interfaces';
 
 @Injectable({ providedIn: 'root' })
 export class DiepPlayerService {
