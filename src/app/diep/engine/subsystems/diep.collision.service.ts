@@ -27,25 +27,30 @@ export class DiepCollisionService {
 
             if (bullet.ownerType === 'PLAYER') {
                 enemies.forEach(enemy => {
-                    if (enemy.isGhost || enemy.health <= 0) return;
+                    if (enemy.isGhost || enemy.health <= 0 || hit) return;
 
                     const dx = bullet.x - enemy.x;
                     const dy = bullet.y - enemy.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
 
                     if (dist < bullet.radius + enemy.radius) {
-                        enemy.health -= 15;
+                        // Consumes the bullet
                         hit = true;
 
-                        // Mother Boss specific mid-combat spawn logic
-                        if (enemy.type === 'MOTHER' && Math.random() < 0.5) {
-                            const angle = Math.random() * Math.PI * 2;
-                            const spawnX = enemy.x + Math.cos(angle) * (enemy.radius + 5);
-                            const spawnY = enemy.y + Math.sin(angle) * (enemy.radius + 5);
-                            this.spawner.spawnBossMinion(enemies, spawnX, spawnY);
-                        }
+                        // Only deal damage if NOT invulnerable
+                        if (!enemy.isInvulnerable) {
+                            enemy.health -= 15;
 
-                        if (enemy.health <= 0) onKillEnemy(enemy);
+                            // Mother Boss specific mid-combat spawn logic
+                            if (enemy.type === 'MOTHER' && Math.random() < 0.5) {
+                                const angle = Math.random() * Math.PI * 2;
+                                const spawnX = enemy.x + Math.cos(angle) * (enemy.radius + 5);
+                                const spawnY = enemy.y + Math.sin(angle) * (enemy.radius + 5);
+                                this.spawner.spawnBossMinion(enemies, spawnX, spawnY);
+                            }
+
+                            if (enemy.health <= 0) onKillEnemy(enemy);
+                        }
                     }
                 });
             } else if (bullet.ownerType === 'ENEMY') {
@@ -65,6 +70,7 @@ export class DiepCollisionService {
         // 2. Player vs Enemy Body Collision
         const remainingEnemies: Enemy[] = [];
         enemies.forEach(enemy => {
+            // Ghosts can't be touched physically
             if (enemy.isGhost) {
                 remainingEnemies.push(enemy);
                 return;
@@ -75,10 +81,17 @@ export class DiepCollisionService {
             const dist = Math.sqrt(dx * dx + dy * dy);
 
             if (dist < enemy.radius + player.radius) {
-                const damageToPlayer = enemy.health * collisionDamageFraction;
+                // Player always takes damage for touching a physical enemy
+                const damageToPlayer = (enemy.health || 100) * collisionDamageFraction;
                 player.health -= damageToPlayer;
-                onKillEnemy(enemy);
-                // Enemy is "killed" on impact, so it's not pushed to remainingEnemies
+
+                // Only kill the enemy on impact if it's NOT invulnerable
+                if (!enemy.isInvulnerable) {
+                    onKillEnemy(enemy);
+                } else {
+                    // Invulnerable enemies survive the collision
+                    remainingEnemies.push(enemy);
+                }
             } else {
                 remainingEnemies.push(enemy);
             }

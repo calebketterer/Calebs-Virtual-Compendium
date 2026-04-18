@@ -12,6 +12,7 @@ import { HealerEnemy } from './healer.enemy';
 import { PuddleEnemy } from './green/puddle.enemy';
 import { HaunterEnemy } from './haunter.enemy';
 import { BomberEnemy } from './bomber.enemy';
+import { BlasterEnemy } from './blaster.enemy';
 
 /**
  * The EnemyRegistry acts as the central "Switchboard".
@@ -35,7 +36,8 @@ export class EnemyRegistry {
     'HEALER': HealerEnemy,
     'PUDDLE': PuddleEnemy,
     'HAUNTER' : HaunterEnemy,
-    'BOMBER' : BomberEnemy
+    'BOMBER' : BomberEnemy,
+    'BLASTER' : BlasterEnemy,
   };
 
   /**
