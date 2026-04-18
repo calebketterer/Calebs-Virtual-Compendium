@@ -1,4 +1,4 @@
-import { Enemy, Player } from '../diep.interfaces'; // Note the double dots '../'
+import { Enemy, Player } from '../../diep.interfaces'; // Note the double dots '../'
 
 export const CrasherEnemy = {
     create: (x: number, y: number): Partial<Enemy> => {

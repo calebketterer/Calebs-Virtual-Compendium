@@ -29,7 +29,7 @@ export interface Bullet {
 }
 
 // Define EnemyType enum (using type alias for flexibility)
-export type EnemyType = 'ROLLER' | 'BOSS' | 'MINION' | 'CRASHER' | 'SNIPER' | 'BLOATER' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER' | 'PUDDLE'| 'HAUNTER' |'BOMBER';
+export type EnemyType = 'ROLLER' | 'BOSS' | 'MINION' | 'CRASHER' | 'SNIPER' | 'BLOATER' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER' | 'PUDDLE'| 'HAUNTER' |'BOMBER'| 'BLASTER'| 'CASTER'|'ECHO';
 export type SmasherState = 'APPROACH' | 'FLANK' | 'ATTACK' | 'DODGE';
 
 export interface Enemy {
@@ -63,9 +63,17 @@ export interface Enemy {
   onSpawn?: (enemy: Enemy, canvasWidth: number, canvasHeight: number) => void;
   isPassive?: boolean;      // If true, doesn't count toward wave progression
   canDespawn?: boolean;     // If true, can be removed silently off-screen
+  opacity?: number;      // To handle transparency for ghostly enemies
+  needsSpawn?: boolean;  // To signal the spawner from within the logic
   isGhost?: boolean; // If true, bullets will pass through
+  isInvulnerable?: boolean;  // Bullets hit and disappear, but deal 0 damage
   spawnTime?: number;   // When it was created
   lifespan?: number;    // How long it lasts (ms)
+  isPriming?: boolean;     // Is the player in the danger zone?
+  blastTimer?: number;    // Current countdown (ms)
+  maxBlastTimer?: number; // Total time needed to explode
+  blastRadius?: number;   // Detection/Blast range
+  
 }
 
 export interface EnemySpawnWeight {

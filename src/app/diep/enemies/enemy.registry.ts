@@ -1,17 +1,20 @@
 import { Enemy, Player, Bullet, EnemyType } from '../diep.interfaces';
-import { SmasherEnemy } from './smasher.enemy';
-import { CrasherEnemy } from './crasher.enemy';
-import { SniperEnemy } from './sniper.enemy';
+import { SmasherEnemy } from './red/smasher.enemy';
+import { CrasherEnemy } from './purple/crasher.enemy';
+import { SniperEnemy } from './red/sniper.enemy';
 import { BossEnemy } from './boss.enemy';
-import { BloaterEnemy } from './bloater.enemy';
-import { RollerEnemy } from './roller.enemy';
-import { GunnerEnemy } from './gunner.enemy';
-import { MotherEnemy } from './mother.enemy';
-import { MinionEnemy } from './minion.enemy';
+import { BloaterEnemy } from './green/bloater.enemy';
+import { RollerEnemy } from './red/roller.enemy';
+import { GunnerEnemy } from './green/gunner.enemy';
+import { MotherEnemy } from './purple/mother.enemy';
+import { MinionEnemy } from './purple/minion.enemy';
 import { HealerEnemy } from './healer.enemy';
-import { PuddleEnemy } from './puddle.enemy';
-import { HaunterEnemy } from './haunter.enemy';
-import { BomberEnemy } from './bomber.enemy';
+import { PuddleEnemy } from './green/puddle.enemy';
+import { HaunterEnemy } from './blue/haunter.enemy';
+import { BomberEnemy } from './orange/bomber.enemy';
+import { BlasterEnemy } from './orange/blaster.enemy';
+import { CasterEnemy } from './blue/caster.enemy';
+import { EchoEnemy } from './blue/echo.enemy';
 
 /**
  * The EnemyRegistry acts as the central "Switchboard".
@@ -35,7 +38,10 @@ export class EnemyRegistry {
     'HEALER': HealerEnemy,
     'PUDDLE': PuddleEnemy,
     'HAUNTER' : HaunterEnemy,
-    'BOMBER' : BomberEnemy
+    'BOMBER' : BomberEnemy,
+    'BLASTER' : BlasterEnemy,
+    'CASTER' : CasterEnemy,
+    'ECHO' : EchoEnemy,
   };
 
   /**

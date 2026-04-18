@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Enemy, Player, Bullet } from '../../diep.interfaces';
-import { DiepEnemyLogic } from '../../diep.enemy-logic';
+import { DiepEnemyLogic } from './diep.enemy-logic';
 
 @Injectable({ providedIn: 'root' })
 export class DiepEnemyService {
