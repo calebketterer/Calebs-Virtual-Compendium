@@ -15,7 +15,7 @@ export class DiepInputService {
     const key = event.key.toLowerCase();
     this.gameEngine.keys[key] = true;
 
-    if (key === 'p') {
+    if (key === 'p'|| key === ' ') {
       const wasPaused = this.gameEngine.togglePause();
       drawCallback();
       if (!wasPaused) gameLoopCallback();
@@ -23,7 +23,7 @@ export class DiepInputService {
       return;
     }
 
-    if ((key === ' ' || key === 'k') && !this.gameEngine.mouseAiming) {
+    if ((key === 'k') && !this.gameEngine.mouseAiming) {
       this.gameEngine.shootBullet();
       event.preventDefault();
     }
