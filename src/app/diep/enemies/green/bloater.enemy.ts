@@ -1,4 +1,4 @@
-import { Enemy, Player } from '../diep.interfaces';
+import { Enemy, Player } from '../../diep.interfaces';
 import { PuddleEnemy } from './puddle.enemy'; // Import the new file
 
 export const BloaterEnemy = {

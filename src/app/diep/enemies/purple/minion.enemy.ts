@@ -1,4 +1,4 @@
-import { Enemy, Player } from '../diep.interfaces';
+import { Enemy, Player } from '../../diep.interfaces';
 
 export const MinionEnemy = {
     create: (x: number, y: number): Partial<Enemy> => ({

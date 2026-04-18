@@ -1,4 +1,4 @@
-import { Enemy, Player } from '../diep.interfaces';
+import { Enemy, Player } from '../../diep.interfaces';
 
 export const PuddleEnemy = {
     create: (x: number, y: number, radius: number, lifespan: number): Partial<Enemy> => {
