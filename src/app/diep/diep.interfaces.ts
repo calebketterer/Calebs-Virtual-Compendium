@@ -88,3 +88,20 @@ export interface TrailSegment {
     creationTime: number;
     lifespan: number;
 }
+
+export interface ButtonArea {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+export interface DiepButton extends ButtonArea {
+  id: string;
+  label: string;
+  color: string;
+  borderColor: string;
+  textColor?: string;
+  fontSize?: string;
+  action: () => void;
+}

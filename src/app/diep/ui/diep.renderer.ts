@@ -1,5 +1,5 @@
-import { Player, Enemy, Bullet, TrailSegment } from './diep.interfaces';
-import { EnemyRegistry } from './enemies/enemy.registry';
+import { Player, Enemy, Bullet, TrailSegment } from '../diep.interfaces';
+import { EnemyRegistry } from '../enemies/enemy.registry';
 
 /**
  * DiepEntities acts as the master drawing coordinator for the game world.
@@ -21,9 +21,7 @@ export class DiepEntities {
     });
   }
 
-  /**
-   * Draws the health bar above an enemy if they have taken damage.
-   */
+  // Draws the health bar above an enemy if they have taken damage.
   private static drawHealthBar(ctx: CanvasRenderingContext2D, enemy: Enemy): void {
     if (enemy.health >= enemy.maxHealth) return;
 
@@ -40,9 +38,8 @@ export class DiepEntities {
     ctx.fillRect(x, y, barWidth * healthPct, barHeight);
   }
 
-  /**
-   * Draws the player tank and its barrel.
-   */
+
+  //Draws the player tank and its barrel.
   public static drawPlayer(ctx: CanvasRenderingContext2D, player: Player, isGameOver: boolean): void {
     if (isGameOver) return;
 
@@ -69,9 +66,8 @@ export class DiepEntities {
     ctx.restore();
   }
 
-  /**
-   * Draws all active bullets on the screen.
-   */
+
+  //Draws all active bullets on the screen.
   public static drawBullets(ctx: CanvasRenderingContext2D, bullets: Bullet[]): void {
     bullets.forEach(bullet => {
       ctx.beginPath();
@@ -85,9 +81,8 @@ export class DiepEntities {
     });
   }
 
-  /**
-   * NEW: Draws the toxic trails (called before player/enemies for layering)
-   */
+
+  // Draws the toxic trails (called before player/enemies for layering)
   public static drawToxicTrails(ctx: CanvasRenderingContext2D, trails: TrailSegment[]): void {
     trails.forEach(trail => {
       ctx.beginPath();
@@ -100,9 +95,7 @@ export class DiepEntities {
     ctx.globalAlpha = 1.0; 
   }
 
-  /**
-   * NEW: Draws the HUD (Player Health, Score, Wave)
-   */
+  // Draws the HUD (Player Health, Score, Wave)
   public static drawUIOverlay(ctx: CanvasRenderingContext2D, gameEngine: any, width: number): void {
     const g = gameEngine;
     const isOverlayActive = g.isPaused || (g.gameOver && g.deathAnimationTimeStart === null);
@@ -134,9 +127,7 @@ export class DiepEntities {
     ctx.fillText('WAVE: ' + g.waveManager.waveCount, width - 20, 60);
   }
 
-  /**
-   * NEW: Handles the background fill
-   */
+  // Handles the background fill
   public static drawBackground(ctx: CanvasRenderingContext2D, isDarkMode: boolean, width: number, height: number): void {
     ctx.fillStyle = isDarkMode ? '#1e1e1e' : '#f4f4f4';
     ctx.fillRect(0, 0, width, height);
