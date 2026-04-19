@@ -23,6 +23,11 @@ export class DiepMenus {
     if (g.gameOver && g.deathAnimationTimeStart === null) this.drawGameOverScreen(ctx, g, width, height);
     
     this.drawInGamePauseButton(ctx, g, width, height);
+
+    // --- DRAW TRANSITION LAST ---
+    if (g.transition) {
+        g.transition.draw(ctx, width, height);
+    }
   }
 
   private static drawButton(ctx: CanvasRenderingContext2D, btn: DiepButton): void {

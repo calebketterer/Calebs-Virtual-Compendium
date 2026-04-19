@@ -25,6 +25,9 @@ export class DiepComponent implements AfterViewInit {
     this.ctx = this.canvasRef.nativeElement.getContext('2d')!;
     this.canvasRef.nativeElement.focus(); 
     
+    // Ensure the manager knows it should be fading in
+    this.gameEngine.transition.fadeIn();
+
     // Start the engine ticker and tell it how to draw
     this.gameEngine.startTicker(() => this.draw());
   }
