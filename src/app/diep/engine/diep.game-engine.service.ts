@@ -32,6 +32,7 @@ export class DiepGameEngineService {
     public deathAnimationTimeStart: number | null = null;
     public enemiesRemainingForAnimation: Enemy[] = [];
     public topScores: HighScore[] = [];
+    public showingQuadrivium = false;
 
     // Initialize TransitionManager - Starts at opacity 1 for the initial load fade
     public transition = new TransitionManager();
@@ -176,6 +177,7 @@ export class DiepGameEngineService {
         this.isStartingNewGame = startGameImmediately;
         this.waveManager.reset();
         this.topScores = this.highScoresService.getHighScores();
+        this.showingQuadrivium = false;
     }
 
     public shootBullet() {

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DiepGameEngineService } from './diep.game-engine.service';
-import { DiepButtonHandlerService } from '../ui/diep.interaction.service';
+import { DiepInteractionService } from '../ui/diep.interaction.service';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +8,7 @@ import { DiepButtonHandlerService } from '../ui/diep.interaction.service';
 export class DiepInputService {
   constructor(
     private gameEngine: DiepGameEngineService,
-    private buttonHandler: DiepButtonHandlerService
+    private buttonHandler: DiepInteractionService
   ) {}
 
   public handleKeyDown(event: KeyboardEvent, drawCallback: () => void, gameLoopCallback: () => void) {

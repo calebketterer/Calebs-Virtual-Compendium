@@ -7,12 +7,47 @@ export class DiepUIConfig {
         id: 'start-btn',
         label: 'START GAME',
         x: width / 2 - 100,
-        y: height / 2,
+        y: height / 2 - 20,
         w: 200,
         h: 50,
         color: '#2ecc71',
         borderColor: '#27ae60',
         action: () => g.startGameWithFade()
+      },
+      {
+        id: 'quadrivium-btn',
+        label: 'QUADRIVIUM',
+        x: width / 2 - 100,
+        y: height / 2 + 50,
+        w: 200,
+        h: 50,
+        color: '#9b59b6',
+        borderColor: '#7c4592',
+        action: () => {
+          g.transition.fadeOut(() => {
+            g.showingQuadrivium = true;
+          });
+        }
+      }
+    ];
+  }
+
+  public static getQuadriviumButtons(g: any, width: number, height: number): DiepButton[] {
+    return [
+      {
+        id: 'back-to-menu-btn',
+        label: 'BACK',
+        x: width / 2 - 100,
+        y: height - 100,
+        w: 200,
+        h: 50,
+        color: '#e74c3c',
+        borderColor: '#c0392b',
+        action: () => {
+          g.transition.fadeOut(() => {
+            g.showingQuadrivium = false;
+          });
+        }
       }
     ];
   }
