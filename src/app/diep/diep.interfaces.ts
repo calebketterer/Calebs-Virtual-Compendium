@@ -1,25 +1,25 @@
 export type OwnerType = 'PLAYER' | 'ENEMY'; 
 
 export interface Player {
-  x: number;
-  y: number;
-  radius: number;
-  angle: number; // Rotation angle (radians)
-  maxSpeed: number;
-  color: string;
-  health: number;
-  maxHealth: number;
-  fireRate: number; // Cooldown in ms
+  x: number;
+  y: number;
+  radius: number;
+  angle: number; // Rotation angle (radians)
+  maxSpeed: number;
+  color: string;
+  health: number;
+  maxHealth: number;
+  fireRate: number; // Cooldown in ms
 }
 
 export interface Bullet {
-  x: number;
-  y: number;
-  dx: number;
-  dy: number;
-  radius: number;
-  color: string;
-  ownerType: OwnerType;
+  x: number;
+  y: number;
+  dx: number;
+  dy: number;
+  radius: number;
+  color: string;
+  ownerType: OwnerType;
   hasTrail?: boolean;
   isBomb?: boolean;
   timer?: number;      // Countdown in ms or frames
@@ -28,31 +28,32 @@ export interface Bullet {
   isExploding?: boolean; // To trigger a visual blast effect
 }
 
-// Define EnemyType enum (using type alias for flexibility)
+// Define EnemyType enum
 export type EnemyType = 'ROLLER' | 'BOSS' | 'MINION' | 'CRASHER' | 'SNIPER' | 'BLOATER' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER' | 'PUDDLE'| 'HAUNTER' |'BOMBER'| 'BLASTER'| 'CASTER'|'ECHO';
-export type SmasherState = 'APPROACH' | 'FLANK' | 'ATTACK' | 'DODGE';
 
 export interface Enemy {
-  x: number;
-  y: number;
-  radius: number;
-  color: string;
-  health: number;
-  maxHealth: number;
-  scoreValue: number;
-  isBoss: boolean; 
-  type: EnemyType; 
-  speedMultiplier?: number; // For Crasher
-  lastShotTime?: number; // For Sniper
-  // For Bloater's random movement
-  targetX?: number; // Random target X coordinate for wandering
-  targetY?: number; // Random target Y coordinate for wandering
-  //For Smashers
-  smasherState?: SmasherState; // Using exported type
-  dodgeEndTime?: number;
-  rotationAngle?: number;
-  smasherOrbitDirection ?: 1 | -1;
-  smasherAttackRange?: number; 
+  x: number;
+  y: number;
+  radius: number;
+  color: string;
+  health: number;
+  maxHealth: number;
+  scoreValue: number;
+  isBoss: boolean; 
+  type: EnemyType; 
+  speedMultiplier?: number; // For Crasher
+  lastShotTime?: number; // For Sniper
+  // For Bloater's random movement
+  targetX?: number; // Random target X coordinate for wandering
+  targetY?: number; // Random target Y coordinate for wandering
+  
+  // Smasher properties managed via 'any' or generic fields to keep this file clean
+  smasherState?: any; 
+  dodgeEndTime?: number;
+  rotationAngle?: number;
+  smasherOrbitDirection ?: 1 | -1;
+  smasherAttackRange?: number; 
+
   vx?: number;
   vy?: number;
   rotation?: number;
@@ -73,12 +74,11 @@ export interface Enemy {
   blastTimer?: number;    // Current countdown (ms)
   maxBlastTimer?: number; // Total time needed to explode
   blastRadius?: number;   // Detection/Blast range
-  
 }
 
 export interface EnemySpawnWeight {
-    type: EnemyType;
-    weight: number;
+    type: EnemyType;
+    weight: number;
 }
 
 export interface HighScore {

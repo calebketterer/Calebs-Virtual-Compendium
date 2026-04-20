@@ -1,11 +1,11 @@
 import { Enemy, Player } from '../../diep.interfaces';
 
 export class RollerEnemy {
-    // metadata is now a static class property
+
     public static metadata = {
         name: 'Roller',
         faction: 'Red',
-        description: 'A relentless crimson unit that maintains high momentum to crush targets.'
+        description: 'A slow, standard enemy.'
     };
 
     public static create(x: number, y: number): Partial<Enemy> {

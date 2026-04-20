@@ -149,7 +149,7 @@ export class DiepQuadriviumMenu {
     
     ctx.font = '900 10px Inter, sans-serif';
     ctx.fillStyle = 'rgba(155, 89, 182, 0.5)';
-    ctx.fillText('DRAG OR USE WASD/ARROWS TO EXPLORE', width / 2, 85);
+    ctx.fillText('DRAG OR USE W AND A TO EXPLORE', width / 2, 85);
   }
 
   private static drawScrollbar(ctx: CanvasRenderingContext2D, w: number, h: number, startY: number, viewH: number): void {
