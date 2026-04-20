@@ -1,27 +1,49 @@
 import { Enemy, Player } from '../../diep.interfaces';
 
-export const MotherEnemy = {
-    create: (x: number, y: number): Partial<Enemy> => ({
-        x, y, radius: 40, color: '#9b59b6',
-        health: 300, maxHealth: 300, scoreValue: 500,
-        
-        onDeath: (enemies: Enemy[], spawner: any, deadEnemy: Enemy) => {
-            const minionCount = Math.floor(Math.random() * 4) + 3;
-            for (let i = 0; i < minionCount; i++) {
-                // Use deadEnemy.x and deadEnemy.y instead of the initial x and y
-                const spawnX = deadEnemy.x + (Math.random() - 0.5) * 20;
-                const spawnY = deadEnemy.y + (Math.random() - 0.5) * 20;
-                spawner.spawnBossMinion(enemies, spawnX, spawnY);
+export class MotherEnemy {
+    public static metadata = {
+        name: 'Mother',
+        faction: 'Purple',
+        description: 'A heavy unit that regenerates health over time and spawns a swarm of Minions upon destruction.'
+    };
+
+    public static create(x: number, y: number): Partial<Enemy> {
+        return {
+            id: Math.random().toString(36).substr(2, 9),
+            type: 'MOTHER',
+            x, y, 
+            radius: 40, 
+            color: '#9b59b6',
+            health: 300, 
+            maxHealth: 300, 
+            scoreValue: 500,
+            onUpdate: (enemy: Enemy, player: Player, deltaTime: number) => {
+                const moveTowards = (enemy as any).moveTowards;
+                MotherEnemy.update(enemy, player, deltaTime, Date.now(), moveTowards);
+            },
+            onDraw: (ctx: CanvasRenderingContext2D, enemy: Enemy) => {
+                MotherEnemy.draw(ctx, enemy);
+            },
+            onDeath: (enemies: Enemy[], spawner: any, deadEnemy: Enemy) => {
+                const minionCount = Math.floor(Math.random() * 4) + 3;
+                for (let i = 0; i < minionCount; i++) {
+                    const spawnX = deadEnemy.x + (Math.random() - 0.5) * 20;
+                    const spawnY = deadEnemy.y + (Math.random() - 0.5) * 20;
+                    spawner.spawnBossMinion(enemies, spawnX, spawnY);
+                }
             }
-        }
-    }),
+        };
+    }
 
-    update: (enemy: Enemy, player: Player, deltaTime: number, currentTime: number, moveTowards: Function) => {
+    public static update(enemy: Enemy, player: Player, deltaTime: number, currentTime: number, moveTowards: Function): void {
+        // Passive regeneration
         enemy.health = Math.min(enemy.maxHealth, enemy.health + (1 * deltaTime / 1000));
-        moveTowards(enemy, deltaTime, player.x, player.y, 0.6);
-    },
+        if (moveTowards) {
+            moveTowards(enemy, deltaTime, player.x, player.y, 0.6);
+        }
+    }
 
-    draw: (ctx: CanvasRenderingContext2D, enemy: Enemy) => {
+    public static draw(ctx: CanvasRenderingContext2D, enemy: Enemy): void {
         ctx.save();
         ctx.beginPath();
         ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
@@ -37,4 +59,4 @@ export const MotherEnemy = {
         ctx.stroke();
         ctx.restore();
     }
-};
+}

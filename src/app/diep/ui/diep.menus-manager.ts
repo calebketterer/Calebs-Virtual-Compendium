@@ -1,6 +1,7 @@
 import { HighScore, DiepButton } from '../diep.interfaces';
 import { DiepEntities } from './diep.renderer';
 import { DiepUIConfig } from './diep.ui-layout';
+import { DiepQuadriviumMenu } from './diep.quadrivium-menu';
 
 export class DiepMenus {
 
@@ -18,11 +19,20 @@ export class DiepMenus {
       DiepEntities.drawUIOverlay(ctx, g, width);
     }
 
-    if (!g.isGameStarted) this.drawStartMenu(ctx, g, width, height);
-    if (g.isPaused) this.drawPauseScreen(ctx, g, width, height);
-    if (g.gameOver && g.deathAnimationTimeStart === null) this.drawGameOverScreen(ctx, g, width, height);
+    // --- QUADRIVIUM OVERRIDE ---
+    if (g.showingQuadrivium) {
+      DiepQuadriviumMenu.render(ctx, g, width, height);
+    } else {
+      if (!g.isGameStarted) this.drawStartMenu(ctx, g, width, height);
+      if (g.isPaused) this.drawPauseScreen(ctx, g, width, height);
+      if (g.gameOver && g.deathAnimationTimeStart === null) this.drawGameOverScreen(ctx, g, width, height);
+    }
     
     this.drawInGamePauseButton(ctx, g, width, height);
+
+    if (g.transition) {
+      g.transition.draw(ctx, width, height);
+    }
   }
 
   private static drawButton(ctx: CanvasRenderingContext2D, btn: DiepButton): void {
@@ -32,12 +42,10 @@ export class DiepMenus {
     ctx.lineWidth = 3;
     ctx.strokeRect(btn.x, btn.y, btn.w, btn.h);
 
-    // Use the custom font size if provided, otherwise default to bold 20px
     ctx.font = btn.fontSize || 'bold 20px Inter, sans-serif';
     ctx.fillStyle = btn.textColor || '#fff';
     ctx.textAlign = 'center';
     
-    // Adjust vertical alignment slightly based on font size
     const verticalOffset = btn.fontSize?.includes('30px') ? 10 : 7;
     ctx.fillText(btn.label, btn.x + btn.w / 2, btn.y + btn.h / 2 + verticalOffset);
   }
@@ -59,7 +67,7 @@ export class DiepMenus {
 
     ctx.font = '16px Inter, sans-serif';
     ctx.fillStyle = '#7f8c8d';
-    ctx.fillText('Use WASD to move and Mouse to aim.', width / 2, height / 2 + 120);
+    ctx.fillText('Use WASD to move and Mouse to aim.', width / 2, height / 2 + 130);
   }
 
   private static drawGameOverScreen(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {
@@ -124,7 +132,7 @@ export class DiepMenus {
         listY += 25;
       });
     }
-    ctx.textAlign = 'center'; // Reset for other draw calls
+    ctx.textAlign = 'center';
   }
 
   private static drawInGamePauseButton(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {

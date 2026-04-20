@@ -1,8 +1,15 @@
 import { Enemy, Player } from '../../diep.interfaces';
 import { PuddleEnemy } from './puddle.enemy'; // Import the new file
 
-export const BloaterEnemy = {
-    create: (x: number, y: number): Partial<Enemy> => {
+export class BloaterEnemy {
+
+    public static metadata = {
+        name: 'Bloater',
+        faction: 'Green',
+        description: 'A volatile bio-hazard unit that emits a toxic aura and bursts into corrosive puddles upon death.'
+    };
+
+    public static create(x: number, y: number): Partial<Enemy> {
         const randomBodySize = Math.floor(Math.random() * (50 - 25 + 1)) + 25;
         const toxicRange = Math.floor(Math.random() * (50 - 25 + 1)) + 75;
 
@@ -16,12 +23,12 @@ export const BloaterEnemy = {
             isBoss: false,
             type: 'BLOATER',
 
-            onSpawn: (enemy, canvasWidth, canvasHeight) => {
+            onSpawn: (enemy: any, canvasWidth: number, canvasHeight: number) => {
                 enemy.targetX = Math.random() * canvasWidth;
                 enemy.targetY = Math.random() * canvasHeight;
             },
 
-            onUpdate: (enemy: Enemy, player: Player, deltaTime: number) => {
+            onUpdate: (enemy: any, player: Player, deltaTime: number) => {
                 const toxicDamage = 0.5;
                 const dx = enemy.x - player.x;
                 const dy = enemy.y - player.y;
@@ -51,15 +58,21 @@ export const BloaterEnemy = {
                 }
             }
         };
-    },
+    }
 
-    update: (enemy: Enemy, player: Player, deltaTime: number, currentTime: number, moveTowards: Function) => {
+    public static update(
+        enemy: Enemy, 
+        player: Player, 
+        deltaTime: number, 
+        currentTime: number, 
+        moveTowards: Function
+    ): void {
         if (enemy.targetX !== undefined && enemy.targetY !== undefined) {
             moveTowards(enemy, deltaTime, enemy.targetX, enemy.targetY, 0.5);
         }
-    },
+    }
 
-    draw: (ctx: CanvasRenderingContext2D, enemy: Enemy) => {
+    public static draw(ctx: CanvasRenderingContext2D, enemy: Enemy): void {
         const pulse = Math.sin(Date.now() / 600) * 8;
         ctx.save();
         ctx.beginPath();
@@ -75,4 +88,4 @@ export const BloaterEnemy = {
         ctx.stroke();
         ctx.restore();
     }
-};
+}

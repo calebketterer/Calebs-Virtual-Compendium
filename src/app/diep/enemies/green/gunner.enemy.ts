@@ -1,13 +1,29 @@
 import { Enemy, Player, Bullet, OwnerType } from '../../diep.interfaces';
 
-export const GunnerEnemy = {
-    create: (x: number, y: number): Partial<Enemy> => ({
-        x, y, radius: 22, color: '#27ae60',
-        health: 80, maxHealth: 80, scoreValue: 100,
-        lastShotTime: 0, rotationAngle: 0
-    }),
+export class GunnerEnemy {
 
-    update: (enemy: Enemy, player: Player, deltaTime: number, currentTime: number, moveTowards: Function, bullets: Bullet[]) => {
+    public static metadata = {
+        name: 'Gunner',
+        faction: 'Green',
+        description: 'An agile marksman that maintains distance while suppressing targets with heavy, high-impact projectiles.'
+    };
+
+    public static create(x: number, y: number): Partial<Enemy> {
+        return {
+            x, y, radius: 22, color: '#27ae60',
+            health: 80, maxHealth: 80, scoreValue: 100,
+            lastShotTime: 0, rotationAngle: 0
+        };
+    }
+
+    public static update(
+        enemy: Enemy, 
+        player: Player, 
+        deltaTime: number, 
+        currentTime: number, 
+        moveTowards: Function, 
+        bullets: Bullet[]
+    ): void {
         const dx = player.x - enemy.x;
         const dy = player.y - enemy.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -42,9 +58,9 @@ export const GunnerEnemy = {
                 enemy.lastShotTime = currentTime;
             }
         }
-    },
+    }
 
-    draw: (ctx: CanvasRenderingContext2D, enemy: Enemy) => {
+    public static draw(ctx: CanvasRenderingContext2D, enemy: Enemy): void {
         const barrelWidth = 25;
         const barrelLength = enemy.radius * 1.5;
 
@@ -70,4 +86,4 @@ export const GunnerEnemy = {
         ctx.lineWidth = 2.5;
         ctx.stroke();
     }
-};
+}

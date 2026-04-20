@@ -1,7 +1,14 @@
-import { Enemy, Player, Bullet } from '../../diep.interfaces';
+import { Enemy, Player } from '../../diep.interfaces';
 
-export const HaunterEnemy = {
-    create: (x: number, y: number): Partial<Enemy> => {
+export class HaunterEnemy {
+
+    public static metadata = {
+        name: 'Haunter',
+        faction: 'Blue',
+        description: 'A stalking entity that blinks through the ethereal plane. It reacts to player aim by vanishing and reappearing at a new position.'
+    };
+
+    public static create(x: number, y: number): Partial<Enemy> {
         return {
             x, y,
             radius: 18,
@@ -18,15 +25,15 @@ export const HaunterEnemy = {
             blinkCooldown: 3000,
             reflexCooldown: 0
         } as any;
-    },
+    }
 
-    update: (
+    public static update(
         enemy: any, 
         player: Player, 
         deltaTime: number, 
         currentTime: number, 
         moveTowards: any
-    ) => {
+    ): void {
         const tick = deltaTime / 16.66;
         enemy.stateTimer += deltaTime;
         if (enemy.reflexCooldown > 0) enemy.reflexCooldown -= deltaTime;
@@ -90,9 +97,9 @@ export const HaunterEnemy = {
                 enemy.stateTimer = 0;
             }
         }
-    },
+    }
 
-    draw: (ctx: CanvasRenderingContext2D, enemy: any) => {
+    public static draw(ctx: CanvasRenderingContext2D, enemy: any): void {
         ctx.save();
         ctx.globalAlpha = enemy.opacity ?? 0.02;
         ctx.shadowBlur = 12;
@@ -106,4 +113,4 @@ export const HaunterEnemy = {
         ctx.stroke();
         ctx.restore();
     }
-};
+}

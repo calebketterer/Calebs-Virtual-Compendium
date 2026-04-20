@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DiepMenus } from './ui/diep.menus-manager';
 import { DiepGameEngineService } from './engine/diep.game-engine.service'; 
 import { DiepInputService } from './engine/diep.input.service';
+import { DiepInteractionService } from './ui/diep.interaction.service';
 
 @Component({
   selector: 'app-diep',
@@ -18,13 +19,17 @@ export class DiepComponent implements AfterViewInit {
 
   constructor(
     public gameEngine: DiepGameEngineService, 
-    private inputService: DiepInputService
+    private inputService: DiepInputService,
+    private interactionService: DiepInteractionService
   ) {}
 
   ngAfterViewInit() {
     this.ctx = this.canvasRef.nativeElement.getContext('2d')!;
     this.canvasRef.nativeElement.focus(); 
     
+    // Ensure the manager knows it should be fading in
+    this.gameEngine.transition.fadeIn();
+
     // Start the engine ticker and tell it how to draw
     this.gameEngine.startTicker(() => this.draw());
   }
@@ -46,12 +51,23 @@ export class DiepComponent implements AfterViewInit {
 
   @HostListener('document:mousedown', ['$event'])
   onMouseDown(event: MouseEvent) {
-    this.inputService.handleMouseDown(
+    // 1. First, check if the user clicked a UI button or the pause icon
+    const handledByUi = this.interactionService.handleMouseEvent(
       event, 
       this.canvasRef.nativeElement,
       () => this.gameEngine.startTicker(() => this.draw()), 
       () => this.draw()
     );
+
+    // 2. If it wasn't a UI click, proceed to game input (e.g., shooting)
+    if (!handledByUi) {
+      this.inputService.handleMouseDown(
+        event, 
+        this.canvasRef.nativeElement,
+        () => this.gameEngine.startTicker(() => this.draw()), 
+        () => this.draw()
+      );
+    }
   }
 
   @HostListener('document:mouseup', ['$event'])

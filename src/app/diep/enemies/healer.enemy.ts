@@ -1,30 +1,39 @@
 import { Enemy, Player } from '../diep.interfaces';
 
-export const HealerEnemy = {
-    create: (x: number, y: number): Partial<Enemy> => ({
-        x, y, radius: 15, color: '#f1c40f',
-        health: 25, maxHealth: 25, scoreValue: 100,
-        type: 'HEALER',
-        isPassive: true,
-        canDespawn: true, 
-        
-        // Original Movement state
-        vx: (Math.random() - 0.5) * 2,
-        vy: (Math.random() - 0.5) * 2,
-        rotation: 0,
-        rotationSpeed: (Math.random() - 0.5) * 0.1,
-        speedPhase: Math.random() * Math.PI * 2,
-        
-        // Lifespan state
-        spawnTime: Date.now(),
-        isLeaving: false,
+export class HealerEnemy {
 
-        onDeath: (enemies: Enemy[], spawner: any, deadEnemy: Enemy, player: Player) => {
-            player.health = Math.min(player.maxHealth, player.health + 25);
-        }
-    }) as any as Partial<Enemy>,
+    public static metadata = {
+        name: 'Healer',
+        faction: 'Yellow',
+        description: 'A passive support unit that wanders the battlefield. Destroying it provides an immediate health boost to the player.'
+    };
 
-    update: (enemy: any, player: Player, deltaTime: number) => {
+    public static create(x: number, y: number): Partial<Enemy> {
+        return {
+            x, y, radius: 15, color: '#f1c40f',
+            health: 25, maxHealth: 25, scoreValue: 100,
+            type: 'HEALER',
+            isPassive: true,
+            canDespawn: true, 
+            
+            // Original Movement state
+            vx: (Math.random() - 0.5) * 2,
+            vy: (Math.random() - 0.5) * 2,
+            rotation: 0,
+            rotationSpeed: (Math.random() - 0.5) * 0.1,
+            speedPhase: Math.random() * Math.PI * 2,
+            
+            // Lifespan state
+            spawnTime: Date.now(),
+            isLeaving: false,
+
+            onDeath: (enemies: Enemy[], spawner: any, deadEnemy: Enemy, player: Player) => {
+                player.health = Math.min(player.maxHealth, player.health + 25);
+            }
+        } as any;
+    }
+
+    public static update(enemy: any, player: Player, deltaTime: number): void {
         const tick = deltaTime / 10;
         enemy.rotation += enemy.rotationSpeed * tick;
         enemy.speedPhase += 0.02;
@@ -63,9 +72,9 @@ export const HealerEnemy = {
                 enemy.health = 0;
             }
         }
-    },
+    }
 
-    draw: (ctx: CanvasRenderingContext2D, enemy: any) => {
+    public static draw(ctx: CanvasRenderingContext2D, enemy: any): void {
         ctx.save();
         ctx.translate(enemy.x, enemy.y);
         ctx.rotate(enemy.rotation);
@@ -77,4 +86,4 @@ export const HealerEnemy = {
         ctx.strokeRect(-enemy.radius, -enemy.radius, size, size);
         ctx.restore();
     }
-};
+}

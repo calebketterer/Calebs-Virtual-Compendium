@@ -1,11 +1,18 @@
-import { Enemy, Player } from '../../diep.interfaces'; // Note the double dots '../'
+import { Enemy, Player } from '../../diep.interfaces';
 
-export const CrasherEnemy = {
-    create: (x: number, y: number): Partial<Enemy> => {
+export class CrasherEnemy {
+    public static metadata = {
+        name: 'Crasher',
+        faction: 'Purple',
+        description: 'A swift, triangular unit that relies on high-speed impacts to deal damage.'
+    };
+
+    public static create(x: number, y: number): Partial<Enemy> {
         const sizeVariation = (Math.random() * 6) - 3;
         const speedVariation = (Math.random() * 0.4) - 0.2;
 
         return {
+            id: Math.random().toString(36).substr(2, 9),
             x, y, 
             radius: 15 + sizeVariation, 
             color: '#ff69b4',
@@ -13,18 +20,38 @@ export const CrasherEnemy = {
             maxHealth: 40, 
             scoreValue: 50,
             type: 'CRASHER',
-            speedMultiplier: 1.8 + speedVariation
+            speedMultiplier: 1.8 + speedVariation,
+            onUpdate: (enemy: Enemy, player: Player, deltaTime: number) => {
+                const moveTowards = (enemy as any).moveTowards;
+                CrasherEnemy.update(enemy, player, deltaTime, Date.now(), moveTowards);
+            },
+            // FIX: Removed 'player' from the signature to match diep.interfaces.ts
+            onDraw: (ctx: CanvasRenderingContext2D, enemy: Enemy) => {
+                // We pass 'undefined' or a global player reference if your engine provides one
+                // The draw method below now handles a null player gracefully
+                const player = (enemy as any).playerReference; 
+                CrasherEnemy.draw(ctx, enemy, player);
+            }
         };
-    },
+    }
 
-    update: (enemy: Enemy, player: Player, deltaTime: number, currentTime: number, moveTowards: Function) => {
-        moveTowards(enemy, deltaTime, player.x, player.y, 2 * (enemy.speedMultiplier || 1));
-    },
+    public static update(enemy: Enemy, player: Player, deltaTime: number, currentTime: number, moveTowards: Function): void {
+        if (moveTowards) {
+            moveTowards(enemy, deltaTime, player.x, player.y, 2 * (enemy.speedMultiplier || 1));
+        }
+    }
 
-    draw: (ctx: CanvasRenderingContext2D, enemy: Enemy, player: Player) => {
+    public static draw(ctx: CanvasRenderingContext2D, enemy: Enemy, player?: Player): void {
         ctx.save();
         ctx.translate(enemy.x, enemy.y);
-        ctx.rotate(Math.atan2(player.y - enemy.y, player.x - enemy.x) + Math.PI / 2);
+        
+        // Calculate rotation: Use player position if available, otherwise default to "up"
+        let angle = 0;
+        if (player) {
+            angle = Math.atan2(player.y - enemy.y, player.x - enemy.x) + Math.PI / 2;
+        }
+        
+        ctx.rotate(angle);
         
         ctx.beginPath();
         ctx.moveTo(0, -enemy.radius);
@@ -39,4 +66,4 @@ export const CrasherEnemy = {
         ctx.stroke();
         ctx.restore();
     }
-};
+}

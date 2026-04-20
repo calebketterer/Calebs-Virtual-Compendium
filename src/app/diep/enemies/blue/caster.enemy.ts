@@ -1,7 +1,14 @@
 import { Enemy, Player, Bullet } from '../../diep.interfaces';
 
-export const CasterEnemy = {
-    create: (x: number, y: number): Partial<Enemy> => {
+export class CasterEnemy {
+
+    public static metadata = {
+        name: 'Caster',
+        faction: 'Blue',
+        description: 'An elusive phantom that utilizes lightning-fast teleports and summoning rituals. Hard to hit unless it is actively pulsing.'
+    };
+
+    public static create(x: number, y: number): Partial<Enemy> {
         return {
             x, y,
             radius: 22,
@@ -26,9 +33,16 @@ export const CasterEnemy = {
             teleStartX: 0, teleStartY: 0,
             teleProgress: 0
         } as any;
-    },
+    }
 
-    update: (enemy: any, player: Player, deltaTime: number, currentTime: number, moveTowards: any, bullets: Bullet[]) => {
+    public static update(
+        enemy: any, 
+        player: Player, 
+        deltaTime: number, 
+        currentTime: number, 
+        moveTowards: any, 
+        bullets: Bullet[]
+    ): void {
         const tick = deltaTime / 16.66;
         enemy.stateTimer += deltaTime;
         enemy.pulseTimer += deltaTime;
@@ -95,7 +109,7 @@ export const CasterEnemy = {
             }
         }
 
-        // Normal Wandering/Summoning Logic (Same as before)
+        // Normal Wandering/Summoning Logic
         if (enemy.state === 'WANDERING') {
             if (distToPlayer < 150) {
                 const escapeAngle = Math.atan2(enemy.y - player.y, enemy.x - player.x);
@@ -137,9 +151,9 @@ export const CasterEnemy = {
                 enemy.hasSummoned = false; enemy.teleportCount = 0; 
             }
         }
-    },
+    }
 
-    draw: (ctx: CanvasRenderingContext2D, enemy: any) => {
+    public static draw(ctx: CanvasRenderingContext2D, enemy: any): void {
         ctx.save();
 
         if (enemy.state === 'TELEPORTING') {
@@ -188,4 +202,4 @@ export const CasterEnemy = {
         ctx.stroke();
         ctx.restore();
     }
-};
+}

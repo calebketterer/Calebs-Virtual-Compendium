@@ -1,18 +1,34 @@
 import { Enemy, Player, Bullet, OwnerType } from '../../diep.interfaces';
 
-export const BomberEnemy = {
-    create: (x: number, y: number): Partial<Enemy> => ({
-        x, y, radius: 25, color: '#e67e22',
-        health: 120, maxHealth: 120, scoreValue: 150,
-        rotationAngle: 0,
-        type: 'BOMBER',
-        targetX: x, 
-        targetY: y,
-        lastShotTime: 0, 
-        spawnTime: 0 
-    }),
+export class BomberEnemy {
 
-    update: (enemy: Enemy, player: Player, deltaTime: number, currentTime: number, moveTowards: Function, bullets: Bullet[]) => {
+    public static metadata = {
+        name: 'Bomber',
+        faction: 'Orange',
+        description: 'A tactical unit that launches heavy bombs which explode on contact or after a short delay.'
+    };
+
+    public static create(x: number, y: number): Partial<Enemy> {
+        return {
+            x, y, radius: 25, color: '#e67e22',
+            health: 120, maxHealth: 120, scoreValue: 150,
+            rotationAngle: 0,
+            type: 'BOMBER',
+            targetX: x, 
+            targetY: y,
+            lastShotTime: 0, 
+            spawnTime: 0 
+        };
+    }
+
+    public static update(
+        enemy: Enemy, 
+        player: Player, 
+        deltaTime: number, 
+        currentTime: number, 
+        moveTowards: Function, 
+        bullets: Bullet[]
+    ): void {
         // PAUSE CHECK: Do not process logic if the game is paused.
         if (deltaTime <= 0) return;
 
@@ -82,9 +98,14 @@ export const BomberEnemy = {
                 }
             }
         });
-    },
+    }
 
-    draw: (ctx: CanvasRenderingContext2D, enemy: Enemy, player: Player, bullets: Bullet[]) => {
+    public static draw(
+        ctx: CanvasRenderingContext2D, 
+        enemy: Enemy, 
+        player: Player, 
+        bullets: Bullet[]
+    ): void {
         if (bullets) {
             bullets.forEach(b => {
                 if (b.isBomb && b.timer !== undefined) {
@@ -100,7 +121,7 @@ export const BomberEnemy = {
                         ctx.stroke();
                         ctx.restore();
                     } else {
-                        // Restore Speed-based Warning Ring
+                        // Speed-based Warning Ring
                         const velocity = Math.sqrt(b.dx * b.dx + b.dy * b.dy);
                         const speedFactor = 1 - Math.min(1, velocity / 1.5); 
                         
@@ -124,7 +145,7 @@ export const BomberEnemy = {
             });
         }
 
-        // Tank Body
+        // Tank Body (Barrel)
         ctx.save();
         ctx.translate(enemy.x, enemy.y);
         ctx.rotate(enemy.rotationAngle || 0);
@@ -135,6 +156,7 @@ export const BomberEnemy = {
         ctx.strokeRect(0, -18, 45, 36);
         ctx.restore();
 
+        // Main Body
         ctx.beginPath();
         ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
         ctx.fillStyle = enemy.color;
@@ -143,4 +165,4 @@ export const BomberEnemy = {
         ctx.lineWidth = 3;
         ctx.stroke();
     }
-};
+}
