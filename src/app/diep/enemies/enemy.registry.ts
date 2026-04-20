@@ -45,6 +45,33 @@ export class EnemyRegistry {
   };
 
   /**
+   * Returns all registered enemy types for the Quadrivium to parse.
+   */
+  public static getRegisteredTypes(): EnemyType[] {
+    return Object.keys(this.mapping) as EnemyType[];
+  }
+
+  /**
+   * Fetches metadata (Name/Desc) from the specific enemy class.
+   * Looks for a static 'metadata' property on the enemy class.
+   */
+  public static getMetadata(type: EnemyType): { name: string, faction: string, description: string } {
+    const handler = this.getHandler(type);
+    
+    return handler.metadata || { 
+      name: 'Unknown Name', 
+      description: 'Unknown behaviors' ,
+      faction: 'Unknown'
+    };
+    
+  }
+  public static getDefaultStats(type: EnemyType): any {
+    const handler = this.getHandler(type);
+    // We call create at (0,0) just to peek at the returned color/radius
+    return handler.create(0, 0);
+  }
+
+  /**
    * Factory method to initialize a new enemy with its default stats.
    */
   public static createEnemy(type: EnemyType, x: number, y: number): Enemy {
@@ -73,7 +100,6 @@ export class EnemyRegistry {
   ): void {
     const handler = this.getHandler(enemy.type);
     
-    // We pass 'moveTowardsTarget' as a reference so enemies can use it
     handler.update(
       enemy, 
       player, 
@@ -107,7 +133,6 @@ export class EnemyRegistry {
     const dist = Math.sqrt(dx * dx + dy * dy);
 
     if (dist > 0 && targetSpeed > 0) {
-      // BASE_SPEED_FACTOR (0.06) ensures frame-rate independence
       const finalSpeed = targetSpeed * 0.06 * deltaTime;
       enemy.x += (dx / dist) * finalSpeed;
       enemy.y += (dy / dist) * finalSpeed;
@@ -115,7 +140,7 @@ export class EnemyRegistry {
   }
 
   /**
-   * Internal helper to find the correct handler or fallback to Standard.
+   * Internal helper to find the correct handler or fallback to Roller.
    */
   private static getHandler(type: EnemyType): any {
     return this.mapping[type] || RollerEnemy;

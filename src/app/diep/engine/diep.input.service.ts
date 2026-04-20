@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DiepGameEngineService } from './diep.game-engine.service';
 import { DiepInteractionService } from '../ui/diep.interaction.service';
+import { DiepQuadriviumMenu } from '../ui/diep.quadrivium-menu';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,14 @@ export class DiepInputService {
     const key = event.key.toLowerCase();
     this.gameEngine.keys[key] = true;
 
-    if (key === 'p'|| key === ' ') {
+    // Prevent browser scroll when navigating the Quadrivium
+    if (this.gameEngine.showingQuadrivium) {
+      if (['arrowup', 'arrowdown', 'w', 's', ' '].includes(key)) {
+        event.preventDefault();
+      }
+    }
+
+    if (key === 'p' || key === ' ') {
       const wasPaused = this.gameEngine.togglePause();
       drawCallback();
       if (!wasPaused) gameLoopCallback();
@@ -37,8 +45,16 @@ export class DiepInputService {
 
   public handleMouseMove(event: MouseEvent, canvas: HTMLCanvasElement) {
     const rect = canvas.getBoundingClientRect();
-    this.gameEngine.mousePos.x = event.clientX - rect.left;
-    this.gameEngine.mousePos.y = event.clientY - rect.top;
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    this.gameEngine.mousePos.x = mouseX;
+    this.gameEngine.mousePos.y = mouseY;
+
+    // Quadrivium Scroll Hook
+    if (this.gameEngine.showingQuadrivium) {
+      DiepQuadriviumMenu.handleInputMove(mouseY);
+    }
   }
 
   public handleMouseDown(
@@ -48,11 +64,17 @@ export class DiepInputService {
     drawCallback: () => void
   ) {
     const rect = canvas.getBoundingClientRect();
+    const mouseY = event.clientY - rect.top;
 
     // 1. Boundary Check
     if (event.clientX < rect.left || event.clientX > rect.right ||
         event.clientY < rect.top || event.clientY > rect.bottom) {
       return;
+    }
+
+    // Quadrivium Scroll Hook
+    if (this.gameEngine.showingQuadrivium) {
+      DiepQuadriviumMenu.handleInputDown(mouseY);
     }
 
     // 2. UI Interception
@@ -76,6 +98,11 @@ export class DiepInputService {
   }
 
   public handleMouseUp(event: MouseEvent) {
+    // Quadrivium Scroll Hook
+    if (this.gameEngine.showingQuadrivium) {
+      DiepQuadriviumMenu.handleInputUp();
+    }
+
     if (event.button === 0) {
       this.gameEngine.mouseDown = false;
     }
