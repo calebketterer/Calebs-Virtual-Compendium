@@ -11,14 +11,14 @@ export class HaunterEnemy {
     public static create(x: number, y: number): Partial<Enemy> {
         return {
             x, y,
-            radius: 18,
-            color: '#00ffff',
-            health: 60,
-            maxHealth: 60,
-            scoreValue: 600,
+            radius: 20,
+            color: '#00B2E1',
+            health: 100,
+            maxHealth: 100,
+            scoreValue: 100,
             type: 'HAUNTER',
             isGhost: true,
-            opacity: 0.02,
+            opacity: 0,
             state: 'MOVING',
             stateTimer: 0,
             swayTimer: Math.random() * 100,
@@ -103,13 +103,13 @@ export class HaunterEnemy {
         ctx.save();
         ctx.globalAlpha = enemy.opacity ?? 0.02;
         ctx.shadowBlur = 12;
-        ctx.shadowColor = '#00ffff';
+        ctx.shadowColor = '#62ffff9c';
         ctx.beginPath();
         ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
-        ctx.fillStyle = '#00ffff66';
+        ctx.fillStyle = '#00B2E1';
         ctx.fill();
-        ctx.strokeStyle = enemy.isGhost ? '#006666' : '#555555';
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = enemy.isGhost ? '#006c8a' : 'rgba(120, 184, 204, 0.5)'
+        ctx.lineWidth = 4;
         ctx.stroke();
         ctx.restore();
     }

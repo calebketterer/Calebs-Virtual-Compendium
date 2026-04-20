@@ -50,7 +50,6 @@ export class HealerEnemy {
 
         // --- BOUNDARY LOGIC ---
         const margin = enemy.radius + 5;
-        // Find where your game stores canvas size (e.g., worldWidth, worldHeight)
         const width = 2000; 
         const height = 2000; 
 

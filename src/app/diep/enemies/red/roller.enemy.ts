@@ -19,7 +19,7 @@ export class RollerEnemy {
             color: '#e74c3c',
             health: health, 
             maxHealth: health,
-            scoreValue: Math.floor(10 + (radius - 18) * 1.5),
+            scoreValue: health,
             speedMultiplier: 8.0 - normalizedRadius * 2.0
         };
     }

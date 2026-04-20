@@ -13,9 +13,9 @@ export class BlasterEnemy {
             x, y,
             radius: 26,
             color: '#e67e22',
-            health: 130,
-            maxHealth: 130,
-            scoreValue: 550,
+            health: 200,
+            maxHealth: 200,
+            scoreValue: 200,
             type: 'BLASTER',
             isInvulnerable: true,
             isGhost: false,
@@ -111,8 +111,9 @@ export class BlasterEnemy {
         } as any as Partial<Enemy>;
     }
 
-    public static update(): void {
-        // Logic handled by onUpdate inside create() to preserve original structure
+    public static update(enemy: Enemy, player: Player, deltaTime: number, currentTime: number, moveTowards: Function): void {
+        // Passive regeneration
+        enemy.health = Math.min(enemy.maxHealth, enemy.health + (10 * deltaTime / 1000));
     }
 
     public static draw(ctx: CanvasRenderingContext2D, enemy: any): void {

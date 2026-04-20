@@ -55,7 +55,6 @@ export class SmasherEnemy {
         moveTowards: Function
     ): void {
         if (!enemy.state) return;
-        // ... (rest of update logic is unchanged)
         const speedMod = enemy.speedMultiplier || 1;
         const dx = player.x - enemy.x;
         const dy = player.y - enemy.y;
@@ -84,8 +83,6 @@ export class SmasherEnemy {
     }
 
     public static draw(ctx: CanvasRenderingContext2D, enemy: Enemy): void {
-        // FIX: Instead of returning, we check if the state exists. 
-        // If it doesn't (Quadrivium preview), we default to 'APPROACH' visuals.
         const phase = enemy.state ? enemy.state['phase'] : 'APPROACH';
         const isAttacking = phase === 'ATTACK';
         
@@ -111,7 +108,7 @@ export class SmasherEnemy {
 
         // Core
         ctx.beginPath();
-        ctx.arc(0, 0, enemy.radius * 0.7, 0, Math.PI * 2);
+        ctx.arc(0, 0, enemy.radius * 0.8, 0, Math.PI * 2);
         ctx.fillStyle = '#e74c3c';
         if (isAttacking) {
             ctx.shadowBlur = 15;

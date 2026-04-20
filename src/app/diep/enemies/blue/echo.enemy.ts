@@ -73,9 +73,9 @@ export class EchoEnemy {
         ctx.lineTo(enemy.radius * 0.7, enemy.radius);
         ctx.closePath();
         
-        ctx.fillStyle = '#b3e5fc';
+        ctx.fillStyle = '#00B2E1';
         ctx.fill();
-        ctx.strokeStyle = '#00ffff';
+        ctx.strokeStyle = '#006c8a';
         ctx.lineWidth = 1.5;
         ctx.stroke();
         ctx.restore();

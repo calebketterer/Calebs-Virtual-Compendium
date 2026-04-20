@@ -12,12 +12,12 @@ export class CasterEnemy {
         return {
             x, y,
             radius: 22,
-            health: 90,
-            maxHealth: 90,
-            scoreValue: 800,
+            health: 100,
+            maxHealth: 100,
+            scoreValue: 200,
             type: 'CASTER',
             isGhost: true, 
-            opacity: 0.1,
+            opacity: 1,
             angle: 0, 
             state: 'WANDERING',
             stateTimer: 0,
@@ -28,7 +28,6 @@ export class CasterEnemy {
             targetX: x, targetY: y,
             vx: 0, vy: 0,
             maxSpeed: 1.2,
-            // New Animation Props
             teleX: 0, teleY: 0,
             teleStartX: 0, teleStartY: 0,
             teleProgress: 0
@@ -182,7 +181,7 @@ export class CasterEnemy {
             ctx.stroke();
         }
 
-        // Draw actual Phantom body
+        // Draw actual body
         ctx.translate(enemy.x, enemy.y);
         ctx.rotate(enemy.angle + Math.PI / 2); 
         ctx.globalAlpha = Math.max(0.1, enemy.opacity || 0.1);
@@ -195,9 +194,9 @@ export class CasterEnemy {
             ctx.lineTo(enemy.radius * Math.cos(angle), enemy.radius * Math.sin(angle));
         }
         ctx.closePath();
-        ctx.fillStyle = '#297fb9'; 
+        ctx.fillStyle = '#00B2E1'; 
         ctx.fill();
-        ctx.strokeStyle = enemy.isGhost ? '#2980b9' : '#81d4fa'; 
+        ctx.strokeStyle = enemy.isGhost ? '#006c8a' : '#27627e3f'; 
         ctx.lineWidth = 3;
         ctx.stroke();
         ctx.restore();
