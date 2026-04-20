@@ -1,7 +1,14 @@
 import { Enemy, Player } from '../../diep.interfaces';
 
-export const BlasterEnemy = {
-    create: (x: number, y: number): Partial<Enemy> => {
+export class BlasterEnemy {
+
+    public static metadata = {
+        name: 'Blaster',
+        faction: 'Orange',
+        description: 'An explosive proximity-based enemy that primes and detonates when near the player.'
+    };
+
+    public static create(x: number, y: number): Partial<Enemy> {
         return {
             x, y,
             radius: 26,
@@ -102,11 +109,13 @@ export const BlasterEnemy = {
                 }
             }
         } as any as Partial<Enemy>;
-    },
+    }
 
-    update: () => {},
+    public static update(): void {
+        // Logic handled by onUpdate inside create() to preserve original structure
+    }
 
-    draw: (ctx: CanvasRenderingContext2D, enemy: any) => {
+    public static draw(ctx: CanvasRenderingContext2D, enemy: any): void {
         const timerRatio = 1 - (enemy.blastTimer / enemy.maxBlastTimer);
 
         ctx.save();
@@ -160,4 +169,4 @@ export const BlasterEnemy = {
 
         ctx.restore();
     }
-};
+}

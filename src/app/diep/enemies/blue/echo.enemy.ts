@@ -1,13 +1,20 @@
-import { Enemy, Player, Bullet } from '../../diep.interfaces';
+import { Enemy, Player } from '../../diep.interfaces';
 
-export const EchoEnemy = {
-    create: (x: number, y: number): Partial<Enemy> => {
+export class EchoEnemy {
+
+    public static metadata = {
+        name: 'Echo',
+        faction: 'Blue',
+        description: 'A weak, nearly invisible minion summoned by Casters. They become visible and aggressive when in close proximity to the player.'
+    };
+
+    public static create(x: number, y: number): Partial<Enemy> {
         return {
             x, y,
             radius: 10,
             health: 15,
             maxHealth: 15,
-            scoreValue: 10, // Corrected value
+            scoreValue: 10,
             type: 'ECHO',
             isGhost: true,
             opacity: 0.02,
@@ -16,9 +23,9 @@ export const EchoEnemy = {
             age: 0,
             swayTimer: Math.random() * 100
         } as any;
-    },
+    }
 
-    update: (enemy: any, player: Player, deltaTime: number) => {
+    public static update(enemy: any, player: Player, deltaTime: number): void {
         const tick = deltaTime / 16.66;
         enemy.age += deltaTime;
         enemy.swayTimer += deltaTime * 0.004;
@@ -52,9 +59,9 @@ export const EchoEnemy = {
 
         enemy.x += enemy.vx * tick;
         enemy.y += enemy.vy * tick;
-    },
+    }
 
-    draw: (ctx: CanvasRenderingContext2D, enemy: any) => {
+    public static draw(ctx: CanvasRenderingContext2D, enemy: any): void {
         ctx.save();
         ctx.translate(enemy.x, enemy.y);
         ctx.rotate(Math.atan2(enemy.vy, enemy.vx) + Math.PI / 2);
@@ -73,4 +80,4 @@ export const EchoEnemy = {
         ctx.stroke();
         ctx.restore();
     }
-};
+}

@@ -20,12 +20,13 @@ export class SniperEnemy {
             scoreValue: 100,
             lastShotTime: 0,
             rotationAngle: 0,
-            // Attach hooks so the registry/spawner can trigger them automatically
             onUpdate: (enemy: Enemy, player: Player, deltaTime: number) => {
-                // We use Date.now() for currentTime and pass through engine functions
                 const moveTowards = (enemy as any).moveTowards;
-                const bullets = (enemy as any).bulletsArray || []; 
-                SniperEnemy.update(enemy, player, deltaTime, Date.now(), moveTowards, bullets);
+                // Mechanical necessity: ensure we are using the live array from the engine
+                const bullets = (enemy as any).bulletsArray; 
+                if (Array.isArray(bullets)) {
+                    SniperEnemy.update(enemy, player, deltaTime, Date.now(), moveTowards, bullets);
+                }
             },
             onDraw: (ctx: CanvasRenderingContext2D, enemy: Enemy) => {
                 SniperEnemy.draw(ctx, enemy);
@@ -46,13 +47,17 @@ export class SniperEnemy {
         const dist = Math.sqrt(dx * dx + dy * dy);
         enemy.rotationAngle = Math.atan2(dy, dx);
 
+        // --- Original Stop-and-Shoot Logic ---
         if (dist > 400) {
+            // Too far: Move closer
             if (moveTowards) moveTowards(enemy, deltaTime, player.x, player.y, 1.0);
         } else if (dist < 250) {
+            // Too close: Retreat
             const retreatX = enemy.x - Math.cos(enemy.rotationAngle) * 100;
             const retreatY = enemy.y - Math.sin(enemy.rotationAngle) * 100;
             if (moveTowards) moveTowards(enemy, deltaTime, retreatX, retreatY, 1.0);
         } else {
+            // Perfect range: Stop movement and fire
             if (currentTime - (enemy.lastShotTime || 0) > 3500) {
                 bullets.push({
                     x: enemy.x,
@@ -72,27 +77,24 @@ export class SniperEnemy {
         const barrelWidth = 18; 
         const barrelLength = enemy.radius * 2; 
 
-        // --- 1. Draw the Barrel FIRST ---
+        // Draw Barrel
         ctx.save();
         ctx.translate(enemy.x, enemy.y);
         ctx.rotate(enemy.rotationAngle || 0);
-
         ctx.fillStyle = '#999999';   
         ctx.strokeStyle = '#727272'; 
         ctx.lineWidth = 2;
-
         ctx.beginPath();
         ctx.rect(0, -barrelWidth / 2, barrelLength, barrelWidth);
         ctx.fill();
         ctx.stroke();
         ctx.restore();
 
-        // --- 2. Draw the Body SECOND ---
+        // Draw Body
         ctx.beginPath();
         ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
         ctx.fillStyle = enemy.color;
         ctx.fill();
-
         ctx.strokeStyle = '#c0392b'; 
         ctx.lineWidth = 2.5;
         ctx.stroke();
