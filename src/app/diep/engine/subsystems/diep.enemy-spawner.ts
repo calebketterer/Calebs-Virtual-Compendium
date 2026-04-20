@@ -5,7 +5,7 @@ import { EnemyRegistry } from '../../enemies/enemy.registry';
 const ENEMY_SPAWN_WEIGHTS: EnemySpawnWeight[] = [
     { type: 'SMASHER', weight: 1 },
     //{ type: 'CRASHER', weight: 0.05 },
-    //{ type: 'SNIPER', weight: 0.05 },
+    // { type: 'SNIPER', weight: 1 },
     //{ type: 'BLOATER', weight: 0.05 },
     //{ type: 'GUNNER', weight: 0.05 },
     //{ type: 'MOTHER', weight: 0.05 },
