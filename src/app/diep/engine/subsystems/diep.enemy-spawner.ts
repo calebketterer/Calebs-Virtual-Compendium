@@ -22,10 +22,6 @@ const ENEMY_SPAWN_WEIGHTS: EnemySpawnWeight[] = [
 })
 export class EnemySpawnerService {
 
-    /**
-     * Spawns a single enemy based on weighted random selection or boss flags.
-     * Note: If type is 'CRASHER', it triggers a swarm spawn.
-     */
     public spawnSingleEnemy(
         enemies: Enemy[],
         canvasWidth: number,
@@ -33,7 +29,6 @@ export class EnemySpawnerService {
         spawnPadding: number,
         isBoss: boolean
     ): void {
-        // 1. Determine the Type
         let type: EnemyType = 'ROLLER';
 
         if (isBoss) {
@@ -51,75 +46,57 @@ export class EnemySpawnerService {
             }
         }
 
-        // 2. Calculate Spawn Position (Off-screen)
         const { x, y } = this.calculateSpawnPosition(canvasWidth, canvasHeight, spawnPadding);
 
-        // 3. Create the Enemy Object(s)
         if (type === 'CRASHER') {
-            // CRASHER SWARM: Spawn a cluster of 3 to 6 crashers
             const swarmSize = Math.floor(Math.random() * 4) + 3;
-            
             for (let i = 0; i < swarmSize; i++) {
-                // Add jitter so they spawn in a loose pack
                 const jitterX = (Math.random() - 0.5) * 40;
                 const jitterY = (Math.random() - 0.5) * 40;
                 
                 const crasher = EnemyRegistry.createEnemy('CRASHER', x + jitterX, y + jitterY);
                 
+                // Attach Metadata so Achievements can track Faction/Type
+                (crasher as any).metadata = EnemyRegistry.getMetadata('CRASHER');
+
                 if (crasher.onSpawn) {
                     crasher.onSpawn(crasher, canvasWidth, canvasHeight);
                 }
-                
                 enemies.push(crasher as Enemy);
             }
         } else {
-            // STANDARD SPAWN: Create a single enemy via the Registry Factory
             const newEnemy = EnemyRegistry.createEnemy(type, x, y);
 
-            // 4. Handle ANY enemy's unique initialization (Generic Hook)
+            // Attach Metadata so Achievements can track Faction/Type
+            (newEnemy as any).metadata = EnemyRegistry.getMetadata(type);
+
             if (newEnemy.onSpawn) {
                 newEnemy.onSpawn(newEnemy, canvasWidth, canvasHeight);
             }
-
             enemies.push(newEnemy as Enemy);
         }
     }
 
-    /**
-     * Helper to determine off-screen coordinates based on a random edge.
-     */
     private calculateSpawnPosition(width: number, height: number, padding: number): { x: number, y: number } {
         const edge = Math.floor(Math.random() * 4);
         switch (edge) {
-            case 0: // Top
-                return { x: Math.random() * width, y: -padding };
-            case 1: // Right
-                return { x: width + padding, y: Math.random() * height };
-            case 2: // Bottom
-                return { x: Math.random() * width, y: height + padding };
-            case 3: // Left
-            default:
-                return { x: -padding, y: Math.random() * height };
+            case 0: return { x: Math.random() * width, y: -padding };
+            case 1: return { x: width + padding, y: Math.random() * height };
+            case 2: return { x: Math.random() * width, y: height + padding };
+            case 3: default: return { x: -padding, y: Math.random() * height };
         }
     }
 
-    /**
-     * Manual minion spawn (triggered by Mother or Boss logic).
-     */
     public spawnBossMinion(enemies: Enemy[], x: number, y: number): void {
         const minion = EnemyRegistry.createEnemy('MINION', x, y);
+        (minion as any).metadata = EnemyRegistry.getMetadata('MINION');
         
-        // Ensure minions also get their onSpawn hook if they have one
         if (minion.onSpawn) {
             minion.onSpawn(minion, 0, 0); 
         }
-        
         enemies.push(minion as Enemy);
     }
 
-    /**
-     * The main wave orchestrator.
-     */
     public spawnEnemies(
         enemies: Enemy[],
         count: number,
@@ -129,12 +106,8 @@ export class EnemySpawnerService {
         canvasHeight: number
     ): void {
         const spawnPadding = 50;
-
-        // Determine if a boss spawn should be attempted (20% chance after wave 0)
         const bossAttempt = !preventBossSpawn && currentWave > 0 && Math.random() < 0.2;
         let regularEnemyCount = count;
-
-        // Miniboss spawn logic: Only after Wave 5
         const spawnMiniboss = bossAttempt && currentWave > 5;
 
         if (spawnMiniboss) {
@@ -142,7 +115,6 @@ export class EnemySpawnerService {
             regularEnemyCount = Math.max(0, count - 1); 
         }
 
-        // Spawn remaining regular enemies
         for (let i = 0; i < regularEnemyCount; i++) {
             this.spawnSingleEnemy(enemies, canvasWidth, canvasHeight, spawnPadding, false);
         }

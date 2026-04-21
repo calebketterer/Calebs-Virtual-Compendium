@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { DiepGameEngineService } from './diep.game-engine.service';
 import { DiepInteractionService } from '../ui/diep.interaction.service';
 import { DiepQuadriviumMenu } from '../ui/diep.quadrivium-menu';
+import { DiepAchievementMenu } from '../ui/diep.achievement-menu';
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +17,8 @@ export class DiepInputService {
     const key = event.key.toLowerCase();
     this.gameEngine.keys[key] = true;
 
-    // Prevent browser scroll when navigating the Quadrivium
-    if (this.gameEngine.showingQuadrivium) {
+    // Prevent browser scroll when navigating sub-menus
+    if (this.gameEngine.showingQuadrivium || this.gameEngine.showingAchievements) {
       if (['arrowup', 'arrowdown', 'w', 's', ' '].includes(key)) {
         event.preventDefault();
       }
@@ -51,9 +52,11 @@ export class DiepInputService {
     this.gameEngine.mousePos.x = mouseX;
     this.gameEngine.mousePos.y = mouseY;
 
-    // Quadrivium Scroll Hook
+    // Scroll Hooks
     if (this.gameEngine.showingQuadrivium) {
       DiepQuadriviumMenu.handleInputMove(mouseY);
+    } else if (this.gameEngine.showingAchievements) {
+      DiepAchievementMenu.handleInputMove(mouseY);
     }
   }
 
@@ -72,9 +75,11 @@ export class DiepInputService {
       return;
     }
 
-    // Quadrivium Scroll Hook
+    // Scroll Hooks
     if (this.gameEngine.showingQuadrivium) {
       DiepQuadriviumMenu.handleInputDown(mouseY);
+    } else if (this.gameEngine.showingAchievements) {
+      DiepAchievementMenu.handleInputDown(mouseY);
     }
 
     // 2. UI Interception
@@ -98,9 +103,11 @@ export class DiepInputService {
   }
 
   public handleMouseUp(event: MouseEvent) {
-    // Quadrivium Scroll Hook
+    // Scroll Hooks
     if (this.gameEngine.showingQuadrivium) {
       DiepQuadriviumMenu.handleInputUp();
+    } else if (this.gameEngine.showingAchievements) {
+      DiepAchievementMenu.handleInputUp();
     }
 
     if (event.button === 0) {

@@ -28,7 +28,9 @@ export class DiepInteractionService {
     let activeButtons: DiepButton[] = [];
     if (g.showingQuadrivium) {
       activeButtons = DiepUIConfig.getQuadriviumButtons(g, width, height);
-    } else if (!g.isGameStarted) {
+    } else if (g.showingAchievements) {
+      activeButtons = DiepUIConfig.getAchievementMenuButtons(g, width, height);
+    }else if (!g.isGameStarted) {
       activeButtons = DiepUIConfig.getStartMenuButtons(g, width, height);
     } else if (g.isPaused) {
       activeButtons = DiepUIConfig.getPauseMenuButtons(g, width, height);

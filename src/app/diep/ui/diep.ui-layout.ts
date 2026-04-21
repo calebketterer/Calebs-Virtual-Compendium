@@ -28,6 +28,21 @@ export class DiepUIConfig {
             g.showingQuadrivium = true;
           });
         }
+      },
+      {
+        id: 'achievements-btn',
+        label: 'ACHIEVEMENTS',
+        x: width / 2 - 100,
+        y: height / 2 + 120,
+        w: 200,
+        h: 50,
+        color: '#f1c40f',
+        borderColor: '#f39c12',
+        action: () => {
+          g.transition.fadeOut(() => {
+            g.showingAchievements = true;
+          });
+        }
       }
     ];
   }
@@ -46,6 +61,26 @@ export class DiepUIConfig {
         action: () => {
           g.transition.fadeOut(() => {
             g.showingQuadrivium = false;
+          });
+        }
+      }
+    ];
+  }
+
+  public static getAchievementMenuButtons(g: any, width: number, height: number): DiepButton[] {
+    return [
+      {
+        id: 'back-to-menu-btn',
+        label: 'BACK',
+        x: width / 2 - 100,
+        y: height - 80,
+        w: 200,
+        h: 50,
+        color: '#e74c3c',
+        borderColor: '#c0392b',
+        action: () => {
+          g.transition.fadeOut(() => {
+            g.showingAchievements = false;
           });
         }
       }
