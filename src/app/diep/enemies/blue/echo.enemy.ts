@@ -76,7 +76,7 @@ export class EchoEnemy {
         ctx.fillStyle = '#00B2E1';
         ctx.fill();
         ctx.strokeStyle = '#006c8a';
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 2;
         ctx.stroke();
         ctx.restore();
     }

@@ -109,7 +109,7 @@ export class HaunterEnemy {
         ctx.fillStyle = '#00B2E1';
         ctx.fill();
         ctx.strokeStyle = enemy.isGhost ? '#006c8a' : 'rgba(120, 184, 204, 0.5)'
-        ctx.lineWidth = 4;
+        ctx.lineWidth = 2;
         ctx.stroke();
         ctx.restore();
     }
