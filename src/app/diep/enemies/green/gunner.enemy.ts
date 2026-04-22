@@ -10,8 +10,8 @@ export class GunnerEnemy {
 
     public static create(x: number, y: number): Partial<Enemy> {
         return {
-            x, y, radius: 22, color: '#27ae60',
-            health: 80, maxHealth: 80, scoreValue: 100,
+            x, y, radius: 22, color: '#00E673',
+            health: 100, maxHealth: 100, scoreValue: 100,
             lastShotTime: 0, rotationAngle: 0
         };
     }
@@ -31,7 +31,7 @@ export class GunnerEnemy {
 
         // --- READABILITY VARIABLES (LOOPS & TUNING) ---
         const bulletSpeed = 5;      // Slower, heavy projectiles
-        const bulletSize = 12.5;    // Larger impact zone
+        const bulletSize = 15;    // Larger impact zone
         const fireRate = 750;       // Timing between shots in ms
         const stopDistance = 200;   // Distance to stop chasing
         const retreatDistance = 100; // Distance to start backing away
@@ -82,7 +82,7 @@ export class GunnerEnemy {
         ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
         ctx.fillStyle = enemy.color;
         ctx.fill();
-        ctx.strokeStyle = '#1e8449'; // Darker green outline
+        ctx.strokeStyle = '#007e3f'; // Darker green outline
         ctx.lineWidth = 2.5;
         ctx.stroke();
     }

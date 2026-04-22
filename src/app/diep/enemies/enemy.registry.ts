@@ -139,9 +139,7 @@ export class EnemyRegistry {
     }
   }
 
-  /**
-   * Internal helper to find the correct handler or fallback to Roller.
-   */
+  // Internal helper to find the correct handler or fallback to Roller.
   private static getHandler(type: EnemyType): any {
     return this.mapping[type] || RollerEnemy;
   }

@@ -46,40 +46,32 @@ export interface Enemy {
   scoreValue: number;
   isBoss: boolean; 
   type: EnemyType; 
-  
   speedMultiplier?: number;
   lastShotTime?: number;
   targetX?: number; 
   targetY?: number; 
   spawnTime?: number;   
-  lifespan?: number;    
-
+  lifespan?: number;     
   vx?: number;
   vy?: number;
   rotation?: number;
   rotationAngle?: number;
   rotationSpeed?: number;
   speedPhase?: number;
-
   state?: Record<string, any>;
-
-  isPassive?: boolean;      
-  canDespawn?: boolean;     
-  opacity?: number;      
+  isPassive?: boolean;        
+  canDespawn?: boolean;      
+  opacity?: number;        
   needsSpawn?: boolean;  
   isGhost?: boolean; 
   isInvulnerable?: boolean;  
-
   isPriming?: boolean;     
-  blastTimer?: number;    
+  blastTimer?: number;     
   maxBlastTimer?: number; 
-  blastRadius?: number;   
-
-  // Callback Hooks
+  blastRadius?: number;    
   onDeath?: (enemies: Enemy[], spawner: any, deadEnemy: Enemy, player: Player) => void;
   onUpdate?: (enemy: Enemy, player: Player, deltaTime: number) => void;
   onSpawn?: (enemy: Enemy, canvasWidth: number, canvasHeight: number) => void;
-  /** Added onDraw to the interface to fix the TS error **/
   onDraw?: (ctx: CanvasRenderingContext2D, enemy: Enemy) => void;
 }
 
@@ -119,4 +111,22 @@ export interface DiepButton extends ButtonArea {
   textColor?: string;
   fontSize?: string;
   action: () => void;
+}
+
+export type AchievementType = 'KILL' | 'WAVE' | 'SCORE';
+
+export interface Achievement {
+  id: string;
+  groupId?: string;
+  tier?: number;
+  name: string;
+  description: string;
+  targetValue: number;
+  currentValue: number;
+  isUnlocked: boolean;
+  type: 'WAVE' | 'KILL' | 'SCORE';
+  weight: number;
+  enemyType?: string; 
+  faction?: 'Red' | 'Orange' | 'Yellow' | 'Green' | 'Blue' | 'Purple';
+  isSingleGame?: boolean;
 }

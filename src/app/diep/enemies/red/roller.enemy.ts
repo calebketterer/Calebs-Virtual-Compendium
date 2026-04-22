@@ -19,7 +19,7 @@ export class RollerEnemy {
             color: '#e74c3c',
             health: health, 
             maxHealth: health,
-            scoreValue: Math.floor(10 + (radius - 18) * 1.5),
+            scoreValue: health,
             speedMultiplier: 8.0 - normalizedRadius * 2.0
         };
     }
@@ -41,8 +41,8 @@ export class RollerEnemy {
         ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
         ctx.fillStyle = enemy.color;
         ctx.fill();
-        ctx.strokeStyle = '#c0392b';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#aa281a';
+        ctx.lineWidth = 2.5;
         ctx.stroke();
     }
 }

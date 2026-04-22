@@ -15,7 +15,7 @@ export class CrasherEnemy {
             id: Math.random().toString(36).substr(2, 9),
             x, y, 
             radius: 15 + sizeVariation, 
-            color: '#ff69b4',
+            color: '#BE7FF5',
             health: 40, 
             maxHealth: 40, 
             scoreValue: 50,
@@ -25,10 +25,8 @@ export class CrasherEnemy {
                 const moveTowards = (enemy as any).moveTowards;
                 CrasherEnemy.update(enemy, player, deltaTime, Date.now(), moveTowards);
             },
-            // FIX: Removed 'player' from the signature to match diep.interfaces.ts
             onDraw: (ctx: CanvasRenderingContext2D, enemy: Enemy) => {
-                // We pass 'undefined' or a global player reference if your engine provides one
-                // The draw method below now handles a null player gracefully
+                // We pass 'undefined' or a global player reference if engine provides one
                 const player = (enemy as any).playerReference; 
                 CrasherEnemy.draw(ctx, enemy, player);
             }

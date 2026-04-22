@@ -6,7 +6,7 @@ import { EnemySpawnerService } from './diep.enemy-spawner';
     providedIn: 'root'
 })
 export class DiepWaveManagerService {
-    public waveCount = 0;
+    public waveCount = 1;
     public enemySpawnCount = 5;
     public isRegularWaveActive = false;
 
@@ -16,7 +16,7 @@ export class DiepWaveManagerService {
      * Resets wave progression for a new game session.
      */
     public reset() {
-        this.waveCount = 0;
+        this.waveCount = 1;
         this.enemySpawnCount = 5;
         this.isRegularWaveActive = false;
     }

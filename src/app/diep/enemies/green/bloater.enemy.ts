@@ -16,10 +16,10 @@ export class BloaterEnemy {
         return {
             x, y, 
             radius: randomBodySize,
-            color: '#33cc33',
-            health: 100 + (randomBodySize * 2),
-            maxHealth: 100 + (randomBodySize * 2),
-            scoreValue: 400,
+            color: '#00E673',
+            health: (randomBodySize * 4),
+            maxHealth: (randomBodySize * 4),
+            scoreValue: (randomBodySize * 2),
             isBoss: false,
             type: 'BLOATER',
 

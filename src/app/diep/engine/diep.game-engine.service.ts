@@ -8,6 +8,7 @@ import { DiepProjectileService } from './subsystems/diep.projectile.service';
 import { DiepPlayerService } from './subsystems/diep.player.service';
 import { DiepEnemyService } from './subsystems/diep.enemy.service';
 import { TransitionManager } from '../ui/diep.transition-manager';
+import { AchievementService } from './diep.achievement.service';
 
 @Injectable({ providedIn: 'root' })
 export class DiepGameEngineService {
@@ -19,6 +20,7 @@ export class DiepGameEngineService {
     public toxicTrails: TrailSegment[] = [];
     public keys: { [key: string]: boolean } = {};
     public score = 0;
+    public sessionKills = 0; // NEW: Tracks kills for single-session achievements
     public gameOver = false;
     public isPaused = false;
     public isDarkMode = true;
@@ -33,8 +35,8 @@ export class DiepGameEngineService {
     public enemiesRemainingForAnimation: Enemy[] = [];
     public topScores: HighScore[] = [];
     public showingQuadrivium = false;
+    public showingAchievements = false;
 
-    // Initialize TransitionManager - Starts at opacity 1 for the initial load fade
     public transition = new TransitionManager();
 
     private animationFrameId: number | null = null;
@@ -48,10 +50,10 @@ export class DiepGameEngineService {
         private projectileService: DiepProjectileService,
         private playerService: DiepPlayerService,
         private enemyService: DiepEnemyService,
-        public waveManager: DiepWaveManagerService
+        public waveManager: DiepWaveManagerService,
+        public achievementService: AchievementService
     ) {
         this.topScores = this.highScoresService.getHighScores();
-        // Immediately trigger the fade-in from black
         this.transition.fadeIn();
     }
 
@@ -75,7 +77,6 @@ export class DiepGameEngineService {
         }
         this.lastTime = time;
 
-        // Process transition heartbeat
         this.transition.update(deltaTime);
 
         if (!this.isPaused) {
@@ -84,10 +85,6 @@ export class DiepGameEngineService {
 
         this.onRenderCallback();
 
-        // Keep loop alive if:
-        // 1. Game is running
-        // 2. We are in the middle of a fade (intro or between screens)
-        // 3. We are in the start menu (allows the initial fade-in to happen)
         const isFading = this.transition.opacity > 0 || (this.transition as any).targetOpacity === 1;
         const isDeadAnimating = this.deathAnimationTimeStart !== null;
 
@@ -97,8 +94,6 @@ export class DiepGameEngineService {
             this.animationFrameId = null;
         }
     }
-
-    // --- FADE WRAPPERS ---
 
     public startGameWithFade() {
         this.transition.fadeOut(() => {
@@ -161,6 +156,8 @@ export class DiepGameEngineService {
 
         this.enemies = this.enemyService.cleanup(this.enemies, this.width, this.height);
         this.waveManager.updateWaves(this.enemies, this.width, this.height);
+
+        this.achievementService.updateProgress('WAVE', this.waveManager.waveCount);
     }
 
     public resetState(startGameImmediately: boolean) {
@@ -169,6 +166,7 @@ export class DiepGameEngineService {
         this.enemies = []; 
         this.toxicTrails = [];
         this.score = 0; 
+        this.sessionKills = 0; // Reset session kills
         this.gameOver = false; 
         this.isPaused = false;
         this.lastAngle = 0; 
@@ -178,6 +176,7 @@ export class DiepGameEngineService {
         this.waveManager.reset();
         this.topScores = this.highScoresService.getHighScores();
         this.showingQuadrivium = false;
+        this.showingAchievements = false;
     }
 
     public shootBullet() {
@@ -198,8 +197,22 @@ export class DiepGameEngineService {
 
     public killEnemy(enemy: Enemy) {
         this.score += enemy.scoreValue;
+        this.sessionKills++; // Increment session-specific kill count
+
         enemy.onDeath?.(this.enemies, this.spawner, enemy, this.player);
         enemy.health = 0;
+
+        // FIXED: Extract metadata attached by the Spawner
+        const meta = (enemy as any).metadata || {};
+        
+        // Pass Type, Faction, and Session Total to the service
+        this.achievementService.incrementKills(
+            enemy.type, 
+            meta.faction, 
+            this.sessionKills
+        );
+
+        this.achievementService.updateProgress('SCORE', this.score);
     }
 
     private handleGameOver() {

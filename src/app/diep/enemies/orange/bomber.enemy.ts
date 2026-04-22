@@ -11,7 +11,7 @@ export class BomberEnemy {
     public static create(x: number, y: number): Partial<Enemy> {
         return {
             x, y, radius: 25, color: '#e67e22',
-            health: 120, maxHealth: 120, scoreValue: 150,
+            health: 200, maxHealth: 200, scoreValue: 200,
             rotationAngle: 0,
             type: 'BOMBER',
             targetX: x, 

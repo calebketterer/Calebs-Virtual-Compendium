@@ -13,7 +13,7 @@ export class MotherEnemy {
             type: 'MOTHER',
             x, y, 
             radius: 40, 
-            color: '#9b59b6',
+            color: '#BE7FF5',
             health: 300, 
             maxHealth: 300, 
             scoreValue: 500,
@@ -37,7 +37,7 @@ export class MotherEnemy {
 
     public static update(enemy: Enemy, player: Player, deltaTime: number, currentTime: number, moveTowards: Function): void {
         // Passive regeneration
-        enemy.health = Math.min(enemy.maxHealth, enemy.health + (1 * deltaTime / 1000));
+        enemy.health = Math.min(enemy.maxHealth, enemy.health + (2 * deltaTime / 1000));
         if (moveTowards) {
             moveTowards(enemy, deltaTime, player.x, player.y, 0.6);
         }
@@ -51,7 +51,7 @@ export class MotherEnemy {
         
         // Mother's glow
         ctx.shadowBlur = 10;
-        ctx.shadowColor = '#8e44ad';
+        ctx.shadowColor = '#be7ff5';
         ctx.fill();
         
         ctx.strokeStyle = '#4b0082';

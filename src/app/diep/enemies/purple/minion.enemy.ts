@@ -13,7 +13,7 @@ export class MinionEnemy {
             type: 'MINION',
             x, y, 
             radius: 10, 
-            color: '#d2b4de',
+            color: '#BE7FF5',
             health: 20, 
             maxHealth: 20, 
             scoreValue: 5,

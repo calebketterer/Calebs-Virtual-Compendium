@@ -130,3 +130,7 @@ When using a secondary account, commit under other creds by running `git config 
 and `git config --global user.name "Your Main Account Name"`
 
 If not already done, type `npm install -g angular-cli-ghpages` in terminal. Then, run `ng build --configuration production --base-href /Calebs-Compendium/` and  `npx angular-cli-ghpages --dir=dist/example-website/browser/`. After that, the site should be updated at `https://calebrobertketterer.github.io/Calebs-Compendium/`
+
+## Command for Returning Tree (VSCODE Codespace/Linux)
+
+If not already done, type `alias dieptreeapp='find src/app/diep -maxdepth 4 -not -path "*/.*" | sed -e "s/[^-][^\/]*\// |/g" -e "s/|\([^ ]\)/|-\1/"'` in terminal and enter dieptreeapp whenever you wanna see the diep file tree.
