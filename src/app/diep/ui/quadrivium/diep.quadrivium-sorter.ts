@@ -1,5 +1,5 @@
-import { EnemyRegistry } from '../enemies/enemy.registry';
-import { EnemyType } from '../diep.interfaces';
+import { EnemyRegistry } from '../../enemies/enemy.registry';
+import { EnemyType } from '../../diep.interfaces';
 
 export class QuadriviumSorter {
   // Define the Priority of Factions (ROYGBIV)
@@ -47,7 +47,7 @@ export class QuadriviumSorter {
     let score = 0;
     if (meta.name && !meta.name.includes('Unknown')) score += 1;
     if (meta.description && !meta.description.includes('Unknown')) score += 1;
-    // You could add a check here for 'hasDrawing' if you add that to metadata later
+    // Could add a check here for 'hasDrawing' if I add that to metadata later
     return score;
   }
 }

@@ -22,15 +22,22 @@ export class AchievementService {
     // --- SINGLE SESSION KILL SERIES ---
     { id: 'hunter_session_1', groupId: 'hunter_session', tier: 1, name: 'Rampage', description: 'Destroy 100 shapes in one game', targetValue: 100, currentValue: 0, isUnlocked: false, type: 'KILL', weight: 10, isSingleGame: true },
     { id: 'hunter_session_2', groupId: 'hunter_session', tier: 2, name: 'Rampage', description: 'Destroy 250 shapes in one game', targetValue: 250, currentValue: 0, isUnlocked: false, type: 'KILL', weight: 25, isSingleGame: true },
-    { id: 'hunter_session_2', groupId: 'hunter_session', tier: 3, name: 'Rampage', description: 'Destroy 500 shapes in one game', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', weight: 50, isSingleGame: true },
+    { id: 'hunter_session_3', groupId: 'hunter_session', tier: 3, name: 'Rampage', description: 'Destroy 500 shapes in one game', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', weight: 50, isSingleGame: true },
 
     // --- FACTION SPECIFIC (LIFETIME) ---
     { id: 'f_red_1', groupId: 'f_red', tier: 1, name: 'Code Red', description: 'Defeat 50 red shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Red', weight: 5 },
+    { id: 'f_red_2', groupId: 'f_red', tier: 2, name: 'Code Red', description: 'Defeat 500 red shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Red', weight: 20 },
     { id: 'f_orange_1', groupId: 'f_orange', tier: 1, name: 'Juiced', description: 'Defeat 50 orange shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Orange', weight: 5 },
-    { id: 'f_yellow_1', groupId: 'f_yellow', tier: 1, name: 'Showers?', description: 'Defeat 50 yellow shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Yellow', weight: 5 },
+    { id: 'f_orange_2', groupId: 'f_orange', tier: 2, name: 'Juiced', description: 'Defeat 500 orange shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Orange', weight: 20 },
+    { id: 'f_yellow_1', groupId: 'f_yellow', tier: 1, name: 'Showers?', description: 'Defeat 50 yellow shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Yellow', weight: 5 },   
+    { id: 'f_yellow_2', groupId: 'f_yellow', tier: 2, name: 'Showers?', description: 'Defeat 500 yellow shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Yellow', weight: 20 },
     { id: 'f_green_1', groupId: 'f_green', tier: 1, name: 'Defoliator', description: 'Defeat 50 green shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Green', weight: 5 },
+    { id: 'f_green_2', groupId: 'f_green', tier: 2, name: 'Defoliator', description: 'Defeat 500 green shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Green', weight: 20 },
     { id: 'f_blue_1', groupId: 'f_blue', tier: 1, name: 'Deep Blue', description: 'Defeat 50 blue shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Blue', weight: 5 },
+    { id: 'f_blue_2', groupId: 'f_blue', tier: 2, name: 'Deep Blue', description: 'Defeat 500 blue shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Blue', weight: 20 },
     { id: 'f_purple_1', groupId: 'f_purple', tier: 1, name: 'Purple Haze', description: 'Defeat 50 purple shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Purple', weight: 5 },
+    { id: 'f_purple_2', groupId: 'f_purple', tier: 2, name: 'Purple Haze', description: 'Defeat 500 purple shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Purple', weight: 20 },
+
     //
     // --- ENEMY TYPE SPECIFIC ---
     //{ id: 'slay_haunter_1', groupId: 'slay_haunter', tier: 1, name: 'Exorcist', description: 'Banish 20 Haunters', targetValue: 20, currentValue: 0, isUnlocked: false, type: 'KILL', enemyType: 'Haunter', weight: 15 },

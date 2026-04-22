@@ -1,8 +1,8 @@
 import { HighScore, DiepButton } from '../diep.interfaces';
 import { DiepEntities } from './diep.renderer';
 import { DiepUIConfig } from './diep.ui-layout';
-import { DiepQuadriviumMenu } from './diep.quadrivium-menu';
-import { DiepAchievementMenu } from './diep.achievement-menu';
+import { DiepQuadriviumMenu } from './quadrivium/diep.quadrivium-menu';
+import { DiepAchievementMenu } from './achievements/diep.achievement-menu';
 
 export class DiepMenus {
 
