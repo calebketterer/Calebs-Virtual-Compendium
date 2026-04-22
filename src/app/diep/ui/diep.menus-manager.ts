@@ -78,7 +78,7 @@ export class DiepMenus {
 
     ctx.font = '16px Inter, sans-serif';
     ctx.fillStyle = '#7f8c8d';
-    ctx.fillText('Use WASD to move and Mouse to aim.', width / 2, height / 2 + 190);
+    ctx.fillText('Use WASD to move and Mouse to aim.', width / 2, height / 2 + 225);
   }
 
   private static drawGameOverScreen(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {

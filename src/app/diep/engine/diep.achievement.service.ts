@@ -31,10 +31,10 @@ export class AchievementService {
     { id: 'f_green_1', groupId: 'f_green', tier: 1, name: 'Defoliator', description: 'Defeat 50 green shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Green', weight: 5 },
     { id: 'f_blue_1', groupId: 'f_blue', tier: 1, name: 'Deep Blue', description: 'Defeat 50 blue shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Blue', weight: 5 },
     { id: 'f_purple_1', groupId: 'f_purple', tier: 1, name: 'Purple Haze', description: 'Defeat 50 purple shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Purple', weight: 5 },
-
+    //
     // --- ENEMY TYPE SPECIFIC ---
-    { id: 'slay_haunter_1', groupId: 'slay_haunter', tier: 1, name: 'Exorcist', description: 'Banish 20 Haunters', targetValue: 20, currentValue: 0, isUnlocked: false, type: 'KILL', enemyType: 'Haunter', weight: 15 },
-    { id: 'slay_healer_1', groupId: 'slay_healer', tier: 1, name: 'Malpractice', description: 'Destroy 20 Healers', targetValue: 20, currentValue: 0, isUnlocked: false, type: 'KILL', enemyType: 'Healer', weight: 15 }
+    //{ id: 'slay_haunter_1', groupId: 'slay_haunter', tier: 1, name: 'Exorcist', description: 'Banish 20 Haunters', targetValue: 20, currentValue: 0, isUnlocked: false, type: 'KILL', enemyType: 'Haunter', weight: 15 },
+    //{ id: 'slay_healer_1', groupId: 'slay_healer', tier: 1, name: 'Malpractice', description: 'Destroy 20 Healers', targetValue: 20, currentValue: 0, isUnlocked: false, type: 'KILL', enemyType: 'Healer', weight: 15 }
   ];
 
   constructor() { this.load(); }

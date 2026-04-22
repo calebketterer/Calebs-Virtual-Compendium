@@ -87,10 +87,13 @@ export class DiepAchievementMenu {
     const halfHeight = cardHeight / 2;
     const bottomEdge = startY + viewHeight;
 
+    const cardTop = y - halfHeight;
+    const cardBottom = y + halfHeight;
     const fadeDistance = 40; 
+
     let alpha = 1;
-    if (y - halfHeight < startY + fadeDistance) alpha = Math.min(alpha, ((y - halfHeight) - startY) / fadeDistance);
-    if (y + halfHeight > bottomEdge - fadeDistance) alpha = Math.min(alpha, (bottomEdge - (y + halfHeight)) / fadeDistance);
+    if (cardTop < startY) alpha = Math.min(alpha, 1 - (startY - cardTop) / fadeDistance);
+    if (cardBottom > bottomEdge) alpha = Math.min(alpha, 1 - (cardBottom - bottomEdge) / fadeDistance);
 
     const cardAlpha = Math.max(0, Math.min(1, alpha));
     if (cardAlpha <= 0) return;
@@ -98,22 +101,47 @@ export class DiepAchievementMenu {
     ctx.save();
     ctx.globalAlpha = cardAlpha;
 
-    ctx.fillStyle = isUnlocked ? 'rgba(241, 196, 15, 0.1)' : 'rgba(255, 255, 255, 0.03)';
+    const completedTiers = (ach.tier || 1) - 1;
+    const totalTiers = (ach as any)._totalTiers || 1;
+    const goldRatio = completedTiers / totalTiers;
+
+    if (isUnlocked) {
+      ctx.fillStyle = 'rgba(241, 196, 15, 0.15)';
+    } else if (goldRatio > 0) {
+      const bgGrad = ctx.createLinearGradient(x, 0, x + width, 0);
+      bgGrad.addColorStop(0, 'rgba(241, 196, 15, 0.12)'); 
+      bgGrad.addColorStop(goldRatio, 'rgba(241, 196, 15, 0.12)');
+      bgGrad.addColorStop(goldRatio, 'rgba(255, 255, 255, 0.03)');
+      ctx.fillStyle = bgGrad;
+    } else {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+    }
+    
     ctx.beginPath();
     ctx.roundRect(x, y - halfHeight, width, cardHeight, 12);
     ctx.fill();
 
-    // COMPLETION BUBBLE COLORS: Gold (Unlocked), Blue (In Progress), Slate (Untouched)
+    const bubbleX = x + 40;
+    const bubbleRadius = 20;
+    const bubbleLeft = bubbleX - bubbleRadius;
+    const bubbleRight = bubbleX + bubbleRadius;
+
     if (isUnlocked) {
-        ctx.fillStyle = '#f1c40f'; // Gold
-    } else if (progress > 0) {
-        ctx.fillStyle = '#3498db'; // Blue
+      ctx.fillStyle = '#f1c40f';
+    } else if (goldRatio > 0) {
+      const bubbleGrad = ctx.createLinearGradient(bubbleLeft, 0, bubbleRight, 0);
+      bubbleGrad.addColorStop(0, '#f1c40f');
+      bubbleGrad.addColorStop(goldRatio, '#f1c40f');
+      const remainingColor = progress > 0 ? '#3498db' : '#2c3e50';
+      bubbleGrad.addColorStop(goldRatio, remainingColor);
+      bubbleGrad.addColorStop(1, remainingColor);
+      ctx.fillStyle = bubbleGrad;
     } else {
-        ctx.fillStyle = '#2c3e50'; // Slate
+      ctx.fillStyle = progress > 0 ? '#3498db' : '#2c3e50';
     }
     
     ctx.beginPath();
-    ctx.arc(x + 40, y, 20, 0, Math.PI * 2);
+    ctx.arc(bubbleX, y, bubbleRadius, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.textAlign = 'left';
@@ -146,7 +174,6 @@ export class DiepAchievementMenu {
     ctx.roundRect(barX, bottomY - 11, barW, barH, 4); 
     ctx.fill();
 
-    // PROGRESS BAR FILL: Gold (Unlocked) or Blue (Progress)
     ctx.fillStyle = isUnlocked ? '#f1c40f' : '#3498db';
     if (progress > 0) {
       ctx.beginPath();
@@ -173,64 +200,37 @@ export class DiepAchievementMenu {
     const activeAchievements: Achievement[] = [];
     groups.forEach((list) => {
       const sortedTiers = list.sort((a, b) => (a.tier || 0) - (b.tier || 0));
-      const currentTask = sortedTiers.find(a => !a.isUnlocked);
-      activeAchievements.push(currentTask || sortedTiers[sortedTiers.length - 1]);
+      const currentTask = sortedTiers.find(a => !a.isUnlocked) || sortedTiers[sortedTiers.length - 1];
+      (currentTask as any)._totalTiers = sortedTiers.length;
+      activeAchievements.push(currentTask);
     });
 
     return activeAchievements.sort((a, b) => {
-      // 1. Status: Unlocked first
       if (a.isUnlocked !== b.isUnlocked) return a.isUnlocked ? -1 : 1;
-
-      // 2. Sorting for Unlocked Achievements (Highest Weight First)
-      if (a.isUnlocked && b.isUnlocked) {
-          return b.weight - a.weight;
-      }
-
-      // 3. Sorting for Locked Achievements
-      // Progress: Higher completion % first
-      const aProg = a.currentValue / a.targetValue;
-      const bProg = b.currentValue / b.targetValue;
-      if (aProg !== bProg) return bProg - aProg;
-
-      // Value: Lower weight first (easier targets first)
+      if (a.isUnlocked && b.isUnlocked) return b.weight - a.weight;
+      const aMasterProg = (a.tier || 1) + (a.currentValue / a.targetValue);
+      const bMasterProg = (b.tier || 1) + (b.currentValue / b.targetValue);
+      if (aMasterProg !== bMasterProg) return bMasterProg - aMasterProg;
       if (a.weight !== b.weight) return a.weight - b.weight;
-
-      // Alphabetical tie-breaker
       return a.name.localeCompare(b.name);
     });
-  }
-
-  private static drawAchievementButton(ctx: CanvasRenderingContext2D, btn: DiepButton): void {
-    ctx.fillStyle = 'rgba(12, 10, 5, 0.7)';
-    ctx.fillRect(btn.x - 5, btn.y - 5, btn.w + 10, btn.h + 10);
-
-    ctx.fillStyle = btn.color;
-    ctx.fillRect(btn.x, btn.y, btn.w, btn.h);
-    ctx.strokeStyle = btn.borderColor;
-    ctx.lineWidth = 4;
-    ctx.strokeRect(btn.x, btn.y, btn.w, btn.h);
-    ctx.font = '900 22px Inter, sans-serif';
-    ctx.fillStyle = '#fff';
-    ctx.textAlign = 'center';
-    ctx.fillText(btn.label.toUpperCase(), btn.x + btn.w / 2, btn.y + btn.h / 2 + 8);
   }
 
   private static drawFades(ctx: CanvasRenderingContext2D, w: number, h: number, startY: number, viewH: number): void {
     const fadeColor = 'rgba(12, 10, 5, 1)';
     const transparent = 'rgba(12, 10, 5, 0)';
-    
-    const topGrad = ctx.createLinearGradient(0, startY - 10, 0, startY + 20);
+    const topGrad = ctx.createLinearGradient(0, startY - 15, 0, startY + 5);
     topGrad.addColorStop(0, fadeColor);
     topGrad.addColorStop(1, transparent);
     ctx.fillStyle = topGrad;
-    ctx.fillRect(0, startY - 10, w, 30);
+    ctx.fillRect(0, startY - 15, w, 20); 
 
     const bottomY = startY + viewH;
-    const botGrad = ctx.createLinearGradient(0, bottomY - 30, 0, bottomY);
+    const botGrad = ctx.createLinearGradient(0, bottomY - 20, 0, bottomY + 10);
     botGrad.addColorStop(0, transparent);
     botGrad.addColorStop(1, fadeColor);
     ctx.fillStyle = botGrad;
-    ctx.fillRect(0, bottomY - 30, w, 30);
+    ctx.fillRect(0, bottomY - 20, w, 30);
   }
 
   private static drawScrollbar(ctx: CanvasRenderingContext2D, w: number, startY: number, viewH: number, totalH: number): void {
@@ -245,21 +245,27 @@ export class DiepAchievementMenu {
     ctx.fill();
   }
 
-  public static handleInputDown(mouseY: number): void {
-    this.isDragging = true;
-    this.lastMouseY = mouseY;
+  private static drawAchievementButton(ctx: CanvasRenderingContext2D, btn: DiepButton): void {
+    ctx.fillStyle = 'rgba(12, 10, 5, 0.7)';
+    ctx.fillRect(btn.x - 5, btn.y - 5, btn.w + 10, btn.h + 10);
+    ctx.fillStyle = btn.color;
+    ctx.fillRect(btn.x, btn.y, btn.w, btn.h);
+    ctx.strokeStyle = btn.borderColor;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(btn.x, btn.y, btn.w, btn.h);
+    ctx.font = '900 22px Inter, sans-serif';
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.fillText(btn.label.toUpperCase(), btn.x + btn.w / 2, btn.y + btn.h / 2 + 8);
   }
 
-  public static handleInputUp(): void {
-    this.isDragging = false;
-  }
-
+  public static handleInputDown(mouseY: number): void { this.isDragging = true; this.lastMouseY = mouseY; }
+  public static handleInputUp(): void { this.isDragging = false; }
   public static handleInputMove(mouseY: number): void {
     if (!this.isDragging) return;
     this.targetScrollY += (mouseY - this.lastMouseY);
     this.lastMouseY = mouseY;
   }
-
   private static handleKeyboardScroll(g: any): void {
     const speed = 12;
     if (g.keys['w'] || g.keys['W'] || g.keys['arrowup']) this.targetScrollY += speed;
