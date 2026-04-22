@@ -1,7 +1,8 @@
 import { EnemyRegistry } from '../../enemies/enemy.registry';
-import { DiepUIConfig } from '../diep.ui-layout';
 import { QuadriviumSorter } from './diep.quadrivium-sorter';
 import { QuadriviumEntryRenderer } from './quadrivium-entry.renderer';
+import { DiepButton } from '../../core/diep.interfaces';
+import { DiepMainMenu } from '../main-menu/diep.main-menu';
 
 export class DiepQuadriviumMenu {
   private static rotation = 0;
@@ -57,8 +58,10 @@ export class DiepQuadriviumMenu {
       this.drawScrollbar(ctx, width, height, startY, viewHeight);
     }
 
-    const buttons = DiepUIConfig.getQuadriviumButtons(g, width, height);
-    buttons.forEach(btn => this.drawMenuButton(ctx, btn));
+    const buttons = this.getButtons(g, width, height);
+    buttons.forEach((btn: DiepButton) => {
+      DiepMainMenu.drawButton(ctx, btn);
+    });
   }
 
   private static drawHeader(ctx: CanvasRenderingContext2D, width: number): void {
@@ -108,15 +111,6 @@ export class DiepQuadriviumMenu {
     ctx.fill();
   }
 
-  private static drawMenuButton(ctx: CanvasRenderingContext2D, btn: any): void {
-    ctx.fillStyle = btn.color;
-    ctx.fillRect(btn.x, btn.y, btn.w, btn.h);
-    ctx.font = '900 22px Inter, sans-serif';
-    ctx.fillStyle = '#fff';
-    ctx.textAlign = 'center';
-    ctx.fillText(btn.label, btn.x + btn.w / 2, btn.y + btn.h / 2 + 7);
-  }
-
   public static handleInputDown(mouseY: number): void { this.isDragging = true; this.lastMouseY = mouseY; }
   public static handleInputUp(): void { this.isDragging = false; }
   public static handleInputMove(mouseY: number): void {
@@ -134,5 +128,16 @@ export class DiepQuadriviumMenu {
   private static constrainScroll(): void {
     if (this.targetScrollY > 0) this.targetScrollY = 0;
     if (this.targetScrollY < -this.maxScroll) this.targetScrollY = -this.maxScroll;
+  }
+  public static getButtons(g: any, width: number, height: number): DiepButton[] {
+    return [
+      {
+        id: 'back-to-menu-btn',
+        label: 'BACK',
+        x: width / 2 - 100, y: height - 100, w: 200, h: 50,
+        color: '#e74c3c', borderColor: '#c0392b',
+        action: () => g.transition.fadeOut(() => g.showingQuadrivium = false)
+      }
+    ];
   }
 }

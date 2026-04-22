@@ -1,4 +1,4 @@
-import { Enemy, Player, Bullet, EnemyType } from '../diep.interfaces';
+import { Enemy, Player, Bullet, EnemyType } from '../core/diep.interfaces';
 import { SmasherEnemy } from './red/smasher.enemy';
 import { CrasherEnemy } from './purple/crasher.enemy';
 import { SniperEnemy } from './red/sniper.enemy';

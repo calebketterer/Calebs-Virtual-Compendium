@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Enemy, EnemyType, EnemySpawnWeight } from '../../diep.interfaces';
+import { Enemy, EnemyType, EnemySpawnWeight } from '../../core/diep.interfaces';
 import { EnemyRegistry } from '../../enemies/enemy.registry';
 
 const ENEMY_SPAWN_WEIGHTS: EnemySpawnWeight[] = [

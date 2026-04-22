@@ -1,5 +1,5 @@
 import { EnemyRegistry } from '../../enemies/enemy.registry';
-import { EnemyType } from '../../diep.interfaces';
+import { EnemyType } from '../../core/diep.interfaces';
 
 export class QuadriviumEntryRenderer {
   public static drawEntry(ctx: CanvasRenderingContext2D, type: EnemyType, x: number, y: number, w: number, rotation: number): void {

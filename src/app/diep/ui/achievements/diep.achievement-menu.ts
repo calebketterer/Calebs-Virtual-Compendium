@@ -1,7 +1,7 @@
-import { Achievement, DiepButton } from '../../diep.interfaces';
-import { DiepUIConfig } from '../diep.ui-layout';
+import { Achievement, DiepButton } from '../../core/diep.interfaces';
 import { AchievementListSorter } from './achievement-list.sorter';
 import { AchievementCardRenderer } from './achievement-card.renderer';
+import { DiepMainMenu } from '../main-menu/diep.main-menu';
 
 export class DiepAchievementMenu {
   private static scrollY = 0;
@@ -56,8 +56,10 @@ export class DiepAchievementMenu {
     this.drawHeader(ctx, width, totalScore);
     this.drawScrollbar(ctx, width, startY, viewHeight, totalHeight);
 
-    const buttons = DiepUIConfig.getAchievementMenuButtons(g, width, height);
-    buttons.forEach(btn => this.drawAchievementButton(ctx, btn));
+    const buttons = this.getButtons(g, width, height);
+    buttons.forEach((btn: DiepButton) => {
+      DiepMainMenu.drawButton(ctx, btn);
+    });
   }
 
   private static drawHeader(ctx: CanvasRenderingContext2D, width: number, score: number): void {
@@ -112,20 +114,6 @@ export class DiepAchievementMenu {
     ctx.fill();
   }
 
-  private static drawAchievementButton(ctx: CanvasRenderingContext2D, btn: DiepButton): void {
-    ctx.fillStyle = 'rgba(12, 10, 5, 0.7)';
-    ctx.fillRect(btn.x - 5, btn.y - 5, btn.w + 10, btn.h + 10);
-    ctx.fillStyle = btn.color;
-    ctx.fillRect(btn.x, btn.y, btn.w, btn.h);
-    ctx.strokeStyle = btn.borderColor;
-    ctx.lineWidth = 4;
-    ctx.strokeRect(btn.x, btn.y, btn.w, btn.h);
-    ctx.font = '900 22px Inter, sans-serif';
-    ctx.fillStyle = '#fff';
-    ctx.textAlign = 'center';
-    ctx.fillText(btn.label.toUpperCase(), btn.x + btn.w / 2, btn.y + btn.h / 2 + 8);
-  }
-
   public static handleInputDown(mouseY: number): void { this.isDragging = true; this.lastMouseY = mouseY; }
   public static handleInputUp(): void { this.isDragging = false; }
   public static handleInputMove(mouseY: number): void {
@@ -137,5 +125,16 @@ export class DiepAchievementMenu {
     const speed = 12;
     if (g.keys['w'] || g.keys['W'] || g.keys['arrowup']) this.targetScrollY += speed;
     if (g.keys['s'] || g.keys['S'] || g.keys['arrowdown']) this.targetScrollY -= speed;
+  }
+  public static getButtons(g: any, width: number, height: number): DiepButton[] {
+    return [
+      {
+        id: 'back-to-menu-btn',
+        label: 'BACK',
+        x: width / 2 - 100, y: height - 80, w: 200, h: 50,
+        color: '#e74c3c', borderColor: '#c0392b',
+        action: () => g.transition.fadeOut(() => g.showingAchievements = false)
+      }
+    ];
   }
 }

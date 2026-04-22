@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Player, Bullet, Enemy, HighScore, TrailSegment } from '../diep.interfaces';
+import { Player, Bullet, Enemy, HighScore, TrailSegment } from '../core/diep.interfaces';
 import { EnemySpawnerService } from './subsystems/diep.enemy-spawner';
-import { HighScoresService } from '../diep.high-scores.service';
+import { HighScoresService } from '../core/diep.high-scores.service';
 import { DiepCollisionService } from './subsystems/diep.collision.service';
 import { DiepWaveManagerService } from './subsystems/diep.wave-manager';
 import { DiepProjectileService } from './subsystems/diep.projectile.service';
 import { DiepPlayerService } from './subsystems/diep.player.service';
 import { DiepEnemyService } from './subsystems/diep.enemy.service';
 import { TransitionManager } from '../ui/diep.transition-manager';
-import { AchievementService } from './diep.achievement.service';
+import { AchievementService } from '../core/diep.achievement.service';
 
 @Injectable({ providedIn: 'root' })
 export class DiepGameEngineService {

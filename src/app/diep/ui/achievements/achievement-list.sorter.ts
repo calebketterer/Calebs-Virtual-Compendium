@@ -1,4 +1,4 @@
-import { Achievement } from '../../diep.interfaces';
+import { Achievement } from '../../core/diep.interfaces';
 
 export class AchievementListSorter {
   public static getSortedAchievements(achievements: Achievement[]): Achievement[] {

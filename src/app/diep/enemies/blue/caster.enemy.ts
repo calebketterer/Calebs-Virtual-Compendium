@@ -1,4 +1,4 @@
-import { Enemy, Player, Bullet } from '../../diep.interfaces';
+import { Enemy, Player, Bullet } from '../../core/diep.interfaces';
 
 export class CasterEnemy {
 

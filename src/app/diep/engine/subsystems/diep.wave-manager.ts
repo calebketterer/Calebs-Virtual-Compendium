@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Enemy } from '../../diep.interfaces';
+import { Enemy } from '../../core/diep.interfaces';
 import { EnemySpawnerService } from './diep.enemy-spawner';
 
 @Injectable({

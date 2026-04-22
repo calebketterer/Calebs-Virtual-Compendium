@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Achievement } from '../diep.interfaces';
+import { Achievement } from './diep.interfaces';
 
 @Injectable({ providedIn: 'root' })
 export class AchievementService {
