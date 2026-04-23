@@ -1,4 +1,4 @@
-import { Player, Enemy, Bullet, TrailSegment } from '../diep.interfaces';
+import { Player, Enemy, Bullet, TrailSegment } from '../core/diep.interfaces';
 import { EnemyRegistry } from '../enemies/enemy.registry';
 
 /**

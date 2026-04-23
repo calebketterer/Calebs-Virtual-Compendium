@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Bullet, TrailSegment, Player } from '../../diep.interfaces';
+import { Bullet, TrailSegment, Player } from '../../core/diep.interfaces';
 
 @Injectable({
     providedIn: 'root'

@@ -1,4 +1,4 @@
-import { Enemy, Player } from '../../diep.interfaces';
+import { Enemy, Player } from '../../core/diep.interfaces';
 
 export type SmasherState = 'APPROACH' | 'FLANK' | 'ATTACK' | 'DODGE';
 
