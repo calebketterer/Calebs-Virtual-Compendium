@@ -1,17 +1,17 @@
 import { DiepButton } from '../../core/diep.interfaces';
+import { DiepDynamicTitle } from './diep.dynamic-title';
 
 export class DiepMainMenu {
   public static draw(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
     ctx.fillRect(0, 0, width, height);
 
-    ctx.font = '900 70px Inter, sans-serif';
-    ctx.fillStyle = '#3498db';
-    ctx.textAlign = 'center';
-    ctx.fillText('Diep Singleplayer', width / 2, height / 2 - 120);
+    // Call our new dynamic title
+    DiepDynamicTitle.draw(ctx, width / 2, height / 2 - 120, g.frameCounter || 0);
 
     ctx.font = 'italic bold 20px Inter, sans-serif';
     ctx.fillStyle = '#bdc3c7';
+    ctx.textAlign = 'center';
     ctx.fillText('Shape Warfare: Destroy Shapes and Dodge Enemies', width / 2, height / 2 - 60);
 
     this.getButtons(g, width, height).forEach((btn) => this.drawButton(ctx, btn));

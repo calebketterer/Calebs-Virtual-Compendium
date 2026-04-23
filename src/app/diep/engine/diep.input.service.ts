@@ -3,6 +3,7 @@ import { DiepGameEngineService } from './diep.game-engine.service';
 import { DiepInteractionService } from '../ui/diep.interaction.service';
 import { DiepQuadriviumMenu } from '../ui/quadrivium/diep.quadrivium-menu';
 import { DiepAchievementMenu } from '../ui/achievements/diep.achievement-menu';
+import { DiepDynamicTitle } from '../ui/main-menu/diep.dynamic-title';
 
 @Injectable({
   providedIn: 'root'
@@ -67,12 +68,21 @@ export class DiepInputService {
     drawCallback: () => void
   ) {
     const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
 
     // 1. Boundary Check
     if (event.clientX < rect.left || event.clientX > rect.right ||
         event.clientY < rect.top || event.clientY > rect.bottom) {
       return;
+    }
+
+    // Dynamic Title Interaction Hook
+    // We check if the game hasn't started (Main Menu) and if the click is in the upper title area
+    if (!this.gameEngine.isGameStarted && mouseY < 250) {
+      // event.detail is 1 for single click, 2 for double click
+      const isDoubleClick = event.detail === 2;
+      DiepDynamicTitle.handleClick(isDoubleClick);
     }
 
     // Scroll Hooks
