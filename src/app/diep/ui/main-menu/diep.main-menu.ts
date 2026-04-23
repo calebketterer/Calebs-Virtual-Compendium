@@ -1,12 +1,12 @@
 import { DiepButton } from '../../core/diep.interfaces';
 import { DiepDynamicTitle } from './diep.dynamic-title';
+import { DiepTipsManager } from './diep.tips-manager';
 
 export class DiepMainMenu {
   public static draw(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
     ctx.fillRect(0, 0, width, height);
 
-    // Call our new dynamic title
     DiepDynamicTitle.draw(ctx, width / 2, height / 2 - 120, g.frameCounter || 0);
 
     ctx.font = 'italic bold 20px Inter, sans-serif';
@@ -16,34 +16,20 @@ export class DiepMainMenu {
 
     this.getButtons(g, width, height).forEach((btn) => this.drawButton(ctx, btn));
 
-    ctx.font = '16px Inter, sans-serif';
-    ctx.fillStyle = '#7f8c8d';
-    ctx.fillText('Use WASD to move and Mouse to aim.', width / 2, height / 2 + 225);
+    DiepTipsManager.draw(ctx, width, height);
+  }
+
+  public static handleInteraction(x: number, y: number, width: number, height: number, isDoubleClick: boolean): void {
+    DiepDynamicTitle.handleClick(isDoubleClick);
+    // Updated to match the function name in DiepTipsManager
+    DiepTipsManager.handleInteraction(x, y, width, height);
   }
 
   public static getButtons(g: any, width: number, height: number): DiepButton[] {
     return [
-      {
-        id: 'start-btn',
-        label: 'START GAME',
-        x: width / 2 - 100, y: height / 2 - 20, w: 200, h: 50,
-        color: '#2ecc71', borderColor: '#27ae60',
-        action: () => g.startGameWithFade()
-      },
-      {
-        id: 'quadrivium-btn',
-        label: 'QUADRIVIUM',
-        x: width / 2 - 100, y: height / 2 + 50, w: 200, h: 50,
-        color: '#9b59b6', borderColor: '#7c4592',
-        action: () => g.transition.fadeOut(() => g.showingQuadrivium = true)
-      },
-      {
-        id: 'achievements-btn',
-        label: 'ACHIEVEMENTS',
-        x: width / 2 - 100, y: height / 2 + 120, w: 200, h: 50,
-        color: '#f1c40f', borderColor: '#f39c12',
-        action: () => g.transition.fadeOut(() => g.showingAchievements = true)
-      }
+      { id: 'start-btn', label: 'START GAME', x: width / 2 - 100, y: height / 2 - 20, w: 200, h: 50, color: '#2ecc71', borderColor: '#27ae60', action: () => g.startGameWithFade() },
+      { id: 'quadrivium-btn', label: 'QUADRIVIUM', x: width / 2 - 100, y: height / 2 + 50, w: 200, h: 50, color: '#9b59b6', borderColor: '#7c4592', action: () => g.transition.fadeOut(() => g.showingQuadrivium = true) },
+      { id: 'achievements-btn', label: 'ACHIEVEMENTS', x: width / 2 - 100, y: height / 2 + 120, w: 200, h: 50, color: '#f1c40f', borderColor: '#f39c12', action: () => g.transition.fadeOut(() => g.showingAchievements = true) }
     ];
   }
 
@@ -53,11 +39,9 @@ export class DiepMainMenu {
     ctx.strokeStyle = btn.borderColor;
     ctx.lineWidth = 3;
     ctx.strokeRect(btn.x, btn.y, btn.w, btn.h);
-
     ctx.font = btn.fontSize || 'bold 20px Inter, sans-serif';
     ctx.fillStyle = btn.textColor || '#fff';
     ctx.textAlign = 'center';
-    const verticalOffset = btn.fontSize?.includes('30px') ? 10 : 7;
-    ctx.fillText(btn.label, btn.x + btn.w / 2, btn.y + btn.h / 2 + verticalOffset);
+    ctx.fillText(btn.label, btn.x + btn.w / 2, btn.y + btn.h / 2 + (btn.fontSize?.includes('30px') ? 10 : 7));
   }
 }

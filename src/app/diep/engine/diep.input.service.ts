@@ -4,6 +4,7 @@ import { DiepInteractionService } from '../ui/diep.interaction.service';
 import { DiepQuadriviumMenu } from '../ui/quadrivium/diep.quadrivium-menu';
 import { DiepAchievementMenu } from '../ui/achievements/diep.achievement-menu';
 import { DiepDynamicTitle } from '../ui/main-menu/diep.dynamic-title';
+import { DiepTipsManager } from '../ui/main-menu/diep.tips-manager';
 
 @Injectable({
   providedIn: 'root'
@@ -79,11 +80,15 @@ export class DiepInputService {
 
     // Dynamic Title Interaction Hook
     // We check if the game hasn't started (Main Menu) and if the click is in the upper title area
-    if (!this.gameEngine.isGameStarted && mouseY < 250) {
-      // event.detail is 1 for single click, 2 for double click
-      const isDoubleClick = event.detail === 2;
-      DiepDynamicTitle.handleClick(isDoubleClick);
-    }
+    if (!this.gameEngine.isGameStarted) {
+    // 1. Title check
+    if (mouseY < 250) {
+        DiepDynamicTitle.handleClick(event.detail === 2);
+    } 
+    
+    // 2. ADD THIS: Simple pass-through for the tips
+    DiepTipsManager.handleInteraction(mouseX, mouseY, canvas.width, canvas.height);
+}
 
     // Scroll Hooks
     if (this.gameEngine.showingQuadrivium) {
