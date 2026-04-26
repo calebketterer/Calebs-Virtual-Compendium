@@ -13,8 +13,8 @@ export class BlasterEnemy {
             x, y,
             radius: 26,
             color: '#e67e22',
-            health: 200,
-            maxHealth: 200,
+            health: 100,
+            maxHealth: 100,
             scoreValue: 200,
             type: 'BLASTER',
             isInvulnerable: true,
@@ -113,7 +113,7 @@ export class BlasterEnemy {
 
     public static update(enemy: Enemy, player: Player, deltaTime: number, currentTime: number, moveTowards: Function): void {
         // Passive regeneration without check causes bug where blaster grows indefinitely at death and kills player.
-        if (enemy.health > 10){enemy.health = Math.min(enemy.maxHealth, enemy.health + (10 * deltaTime / 1000));}
+        if (enemy.health > 10){enemy.health = Math.min(enemy.maxHealth, enemy.health + (5 * deltaTime / 1000));}
     }
 
     public static draw(ctx: CanvasRenderingContext2D, enemy: any): void {

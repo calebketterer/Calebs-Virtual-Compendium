@@ -78,7 +78,25 @@ export class DiepEntities {
       ctx.strokeStyle = 'rgba(0,0,0,0.2)';
       ctx.lineWidth = 1;
       ctx.stroke();
+
+      if (bullet.health < bullet.maxHealth) {
+        this.drawBulletHealthBar(ctx, bullet);
+      }
     });
+  }
+
+  private static drawBulletHealthBar(ctx: CanvasRenderingContext2D, bullet: Bullet): void {
+    const barWidth = bullet.radius * 2.5;
+    const barHeight = 3;
+    const x = bullet.x - barWidth / 2;
+    const y = bullet.y - bullet.radius - 8;
+
+    ctx.fillStyle = 'rgba(52, 73, 94, 0.5)'; // Transparent background for bullet bars
+    ctx.fillRect(x, y, barWidth, barHeight);
+
+    const healthPct = bullet.health / bullet.maxHealth;
+    ctx.fillStyle = healthPct > 0.4 ? '#2ecc71' : '#e67e22';
+    ctx.fillRect(x, y, barWidth * healthPct, barHeight);
   }
 
 
