@@ -1,27 +1,41 @@
 import { Injectable } from '@angular/core';
-import { Enemy, Player, Bullet } from '../../core/diep.interfaces';
+import { Enemy, Player, Bullet, EnemyType } from '../../core/diep.interfaces';
 import { DiepEnemyLogic } from './diep.enemy-logic';
+import { DiepPhysics } from '../../core/diep.physics';
 
 @Injectable({ providedIn: 'root' })
 export class DiepEnemyService {
+
     /**
-     * Executes AI updates for all enemies.
+     * Factory method that applies automatic defaults to ANY enemy.
+     * Use this to prevent "Missing Property" errors in the future.
      */
-    public updateAI(
-        enemies: Enemy[],
-        bullets: Bullet[],
-        player: Player,
-        deltaTime: number,
-        width: number,
-        height: number
-    ) {
+    public spawnEnemy(config: Partial<Enemy> & { type: EnemyType }): Enemy {
+        const defaults: Partial<Enemy> = {
+            id: Math.random().toString(36).substr(2, 9),
+            vx: 0, vy: 0,
+            mass: 10,
+            isBoss: false,
+            canDespawn: true,
+            isGhost: false,
+            isInvulnerable: false
+        };
+
+        const enemy = { ...defaults, ...config } as Enemy;
+        
+        // Final safety check: if mass wasn't provided, calculate it.
+        if (!enemy.mass) {
+            enemy.mass = DiepPhysics.calculateMass(enemy.radius, enemy.maxHealth);
+        }
+
+        return enemy;
+    }
+
+    public updateAI(enemies: Enemy[], bullets: Bullet[], player: Player, deltaTime: number, width: number, height: number) {
         enemies.forEach(enemy => enemy.onUpdate?.(enemy, player, deltaTime));
         DiepEnemyLogic.updateAllEnemies(enemies, bullets, player, deltaTime, width, height, performance.now());
     }
 
-    /**
-     * Filters out dead enemies and those that have despawned off-screen.
-     */
     public cleanup(enemies: Enemy[], width: number, height: number): Enemy[] {
         return enemies.filter(e => {
             const isOffScreen = e.x < -150 || e.x > width + 150 || e.y < -150 || e.y > height + 150;

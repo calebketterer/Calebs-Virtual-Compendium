@@ -3,23 +3,35 @@ export type OwnerType = 'PLAYER' | 'ENEMY';
 export interface Player {
   x: number;
   y: number;
+  vx: number;         // Velocity X for recoil/momentum
+  vy: number;         // Velocity Y for recoil/momentum
   radius: number;
+  mass: number;
   angle: number; 
   maxSpeed: number;
   color: string;
   health: number;
   maxHealth: number;
-  fireRate: number; 
+  fireRate: number;
+  bodyDamage: number; // Damage dealt by touching the player
+  bulletDamage: number; // MUST BE HERE
+  bulletHealth: number; // MUST BE HERE
+  bulletSpeed: number;  // MUST BE HERE
 }
 
 export interface Bullet {
+  id: string;         // Unique ID for tracking
   x: number;
   y: number;
   dx: number;
   dy: number;
   radius: number;
+  mass: number;
   color: string;
   ownerType: OwnerType;
+  health: number;     // Current HP of the bullet
+  maxHealth: number;
+  damage: number;     // How much HP this bullet removes from targets
   hasTrail?: boolean;
   isBomb?: boolean;
   timer?: number;      
@@ -39,10 +51,14 @@ export interface Enemy {
   id: string;
   x: number;
   y: number;
+  vx: number;         // Standardized momentum
+  vy: number;         // Standardized momentum
   radius: number;
+  mass: number;
   color: string;
   health: number;
   maxHealth: number;
+  bodyDamage: number; // Damage dealt on physical contact
   scoreValue: number;
   isBoss: boolean; 
   type: EnemyType; 
@@ -52,8 +68,6 @@ export interface Enemy {
   targetY?: number; 
   spawnTime?: number;   
   lifespan?: number;     
-  vx?: number;
-  vy?: number;
   rotation?: number;
   rotationAngle?: number;
   rotationSpeed?: number;
@@ -69,6 +83,7 @@ export interface Enemy {
   blastTimer?: number;     
   maxBlastTimer?: number; 
   blastRadius?: number;    
+  onHit?: (enemies: Enemy[], spawner: any, bullet: Bullet) => void;
   onDeath?: (enemies: Enemy[], spawner: any, deadEnemy: Enemy, player: Player) => void;
   onUpdate?: (enemy: Enemy, player: Player, deltaTime: number) => void;
   onSpawn?: (enemy: Enemy, canvasWidth: number, canvasHeight: number) => void;

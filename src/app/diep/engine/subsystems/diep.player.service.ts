@@ -3,9 +3,27 @@ import { Player } from '../../core/diep.interfaces';
 
 @Injectable({ providedIn: 'root' })
 export class DiepPlayerService {
+
     /**
-     * Handles movement logic, rotation, and health regeneration.
+     * Centralized source for starting player stats.
      */
+    public getDefaultPlayer(): Player {
+        return { 
+            x: 400, y: 300, vx: 0, vy: 0, 
+            radius: 20, 
+            mass: 25,
+            angle: 0, 
+            maxSpeed: 3, 
+            color: '#3498db', 
+            health: 100, maxHealth: 100, 
+            fireRate: 200, 
+            bodyDamage: 20,
+            bulletDamage: 10,
+            bulletHealth: 10,
+            bulletSpeed: 7.5
+        }
+    }
+
     public update(
         player: Player,
         keys: { [key: string]: boolean },
@@ -16,38 +34,38 @@ export class DiepPlayerService {
         F: number,
         deltaTime: number
     ): { lastAngle: number } {
-        let moved = false, dx = 0, dy = 0, lastAngle = player.angle;
+        let lastAngle = player.angle;
+        const FRICTION = Math.pow(0.9, F); 
+        const ACCELERATION = 0.5 * F;
 
-        // 1. Movement Calculation
-        if (keys['w']) { dy -= 1; moved = true; }
-        if (keys['s']) { dy += 1; moved = true; }
-        if (keys['a']) { dx -= 1; moved = true; }
-        if (keys['d']) { dx += 1; moved = true; }
+        if (keys['w']) player.vy -= ACCELERATION;
+        if (keys['s']) player.vy += ACCELERATION;
+        if (keys['a']) player.vx -= ACCELERATION;
+        if (keys['d']) player.vx += ACCELERATION;
 
-        if (moved) {
-            const len = Math.sqrt(dx * dx + dy * dy);
-            if (len > 0) {
-                player.x += (dx / len) * player.maxSpeed * F;
-                player.y += (dy / len) * player.maxSpeed * F;
-                
-                if (!mouseAiming) {
-                    const newAngle = Math.atan2(dy, dx);
-                    if (!isNaN(newAngle)) {
-                        player.angle = newAngle;
-                        lastAngle = newAngle;
-                    }
-                }
-            }
+        player.x += player.vx * F;
+        player.y += player.vy * F;
+
+        player.vx *= FRICTION;
+        player.vy *= FRICTION;
+
+        const currentSpeed = Math.sqrt(player.vx * player.vx + player.vy * player.vy);
+        if (currentSpeed > player.maxSpeed) {
+            const ratio = player.maxSpeed / currentSpeed;
+            player.vx *= ratio;
+            player.vy *= ratio;
         }
 
-        // 2. Rotation
         if (mouseAiming) {
             player.angle = Math.atan2(mousePos.y - player.y, mousePos.x - player.x);
+        } else if (Math.abs(player.vx) > 0.1 || Math.abs(player.vy) > 0.1) {
+            player.angle = Math.atan2(player.vy, player.vx);
         }
+        lastAngle = player.angle;
 
-        // 3. Boundary Clamping & Health Regen
         player.x = Math.max(player.radius, Math.min(width - player.radius, player.x));
         player.y = Math.max(player.radius, Math.min(height - player.radius, player.y));
+        
         player.health = Math.min(player.maxHealth, player.health + (0.5 * deltaTime / 1000));
 
         return { lastAngle };

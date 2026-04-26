@@ -14,13 +14,14 @@ import { AchievementService } from '../core/diep.achievement.service';
 export class DiepGameEngineService {
     public width = 800;
     public height = 600;
-    public player: Player = this.getDefaultPlayer();
+    // FIXED: Now properly using the service as the source of truth
+    public player: Player;
     public bullets: Bullet[] = [];
     public enemies: Enemy[] = [];
     public toxicTrails: TrailSegment[] = [];
     public keys: { [key: string]: boolean } = {};
     public score = 0;
-    public sessionKills = 0; // NEW: Tracks kills for single-session achievements
+    public sessionKills = 0; 
     public gameOver = false;
     public isPaused = false;
     public isDarkMode = true;
@@ -53,12 +54,10 @@ export class DiepGameEngineService {
         public waveManager: DiepWaveManagerService,
         public achievementService: AchievementService
     ) {
+        // Initialize player from service immediately
+        this.player = this.playerService.getDefaultPlayer();
         this.topScores = this.highScoresService.getHighScores();
         this.transition.fadeIn();
-    }
-
-    private getDefaultPlayer(): Player {
-        return { x: 400, y: 300, radius: 20, angle: 0, maxSpeed: 3, color: '#3498db', health: 100, maxHealth: 100, fireRate: 150 };
     }
 
     public startTicker(renderFn: () => void) {
@@ -161,12 +160,13 @@ export class DiepGameEngineService {
     }
 
     public resetState(startGameImmediately: boolean) {
-        this.player = this.getDefaultPlayer();
+        // FIXED: Resetting using service defaults
+        this.player = this.playerService.getDefaultPlayer();
         this.bullets = []; 
         this.enemies = []; 
         this.toxicTrails = [];
         this.score = 0; 
-        this.sessionKills = 0; // Reset session kills
+        this.sessionKills = 0; 
         this.gameOver = false; 
         this.isPaused = false;
         this.lastAngle = 0; 
@@ -184,28 +184,41 @@ export class DiepGameEngineService {
         const now = Date.now();
         if (now - this.lastShotTime < this.player.fireRate) return;
         this.lastShotTime = now;
+
         const angle = this.mouseAiming ? Math.atan2(this.mousePos.y - this.player.y, this.mousePos.x - this.player.x) : this.lastAngle;
         const barrelLength = this.player.radius * 2.0;
+
+        const radius = 6;
+        const bulletMass = (Math.pow(radius, 2) * Math.PI) * (this.player.bulletHealth * 0.001);
+
+        const recoilForce = (bulletMass * this.player.bulletSpeed) / this.player.mass;
+        this.player.vx -= Math.cos(angle) * recoilForce;
+        this.player.vy -= Math.sin(angle) * recoilForce;
+
         this.bullets.push({
+            id: Math.random().toString(36).substr(2, 9),
             x: this.player.x + Math.cos(angle) * barrelLength,
             y: this.player.y + Math.sin(angle) * barrelLength,
-            dx: Math.cos(angle) * 8, 
-            dy: Math.sin(angle) * 8,
-            radius: 6, color: '#f39c12', ownerType: 'PLAYER'
+            dx: Math.cos(angle) * this.player.bulletSpeed, 
+            dy: Math.sin(angle) * this.player.bulletSpeed,
+            radius: radius, 
+            mass: bulletMass,
+            color: this.player.color, 
+            ownerType: 'PLAYER',
+            health: this.player.bulletHealth,
+            maxHealth: this.player.bulletHealth,
+            damage: this.player.bulletDamage
         });
     }
 
     public killEnemy(enemy: Enemy) {
         this.score += enemy.scoreValue;
-        this.sessionKills++; // Increment session-specific kill count
+        this.sessionKills++; 
 
         enemy.onDeath?.(this.enemies, this.spawner, enemy, this.player);
         enemy.health = 0;
 
-        // FIXED: Extract metadata attached by the Spawner
         const meta = (enemy as any).metadata || {};
-        
-        // Pass Type, Faction, and Session Total to the service
         this.achievementService.incrementKills(
             enemy.type, 
             meta.faction, 
