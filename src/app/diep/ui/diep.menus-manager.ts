@@ -4,6 +4,7 @@ import { DiepAchievementMenu } from './achievements/diep.achievement-menu';
 import { DiepMainMenu } from './main-menu/diep.main-menu';
 import { DiepPauseOverlay } from './overlays/pause-overlay';
 import { DiepGameOverOverlay } from './overlays/game-over-overlay';
+import { DiepHudRenderer } from './diep.hud-renderer';
 
 export class DiepMenus {
   public static renderGame(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {
@@ -17,7 +18,7 @@ export class DiepMenus {
     }
 
     if (g.isGameStarted || g.gameOver || g.isPaused) {
-      DiepEntities.drawUIOverlay(ctx, g, width);
+      DiepHudRenderer.draw(ctx, g, width);
     }
 
     // Router - Delegating to modular files
