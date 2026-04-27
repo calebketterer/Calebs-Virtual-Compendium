@@ -12,8 +12,8 @@ export class EchoEnemy {
         return {
             x, y,
             radius: 10,
-            health: 15,
-            maxHealth: 15,
+            health: 10,
+            maxHealth: 10,
             scoreValue: 10,
             type: 'ECHO',
             isGhost: true,

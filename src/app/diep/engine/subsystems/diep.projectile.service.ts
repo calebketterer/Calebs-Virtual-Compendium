@@ -5,6 +5,58 @@ import { Bullet, TrailSegment, Player } from '../../core/diep.interfaces';
     providedIn: 'root'
 })
 export class DiepProjectileService {
+    private lastShotTime = 0;
+
+    /**
+     * Handles the logic for creating a bullet, calculating recoil, 
+     * and managing the player's fire rate cooldown.
+     */
+    public shootBullet(
+        player: Player, 
+        mousePos: { x: number; y: number }, 
+        mouseAiming: boolean, 
+        lastAngle: number, 
+        bullets: Bullet[]
+    ): void {
+        const now = Date.now();
+        if (now - this.lastShotTime < player.fireRate) return;
+        this.lastShotTime = now;
+
+        const angle = mouseAiming 
+            ? Math.atan2(mousePos.y - player.y, mousePos.x - player.x) 
+            : lastAngle;
+            
+        const barrelLength = player.radius * 2.0;
+        const radius = 6;
+        
+        // Calculate mass and recoil
+        const bulletMass = (Math.pow(radius, 2) * Math.PI) * (player.bulletHealth * 0.001);
+        const recoilForce = (bulletMass * player.bulletSpeed) / player.mass;
+
+        // Apply recoil to player velocity
+        player.vx -= Math.cos(angle) * recoilForce;
+        player.vy -= Math.sin(angle) * recoilForce;
+
+        bullets.push({
+            id: Math.random().toString(36).substr(2, 9),
+            x: player.x + Math.cos(angle) * barrelLength,
+            y: player.y + Math.sin(angle) * barrelLength,
+            dx: Math.cos(angle) * player.bulletSpeed,
+            dy: Math.sin(angle) * player.bulletSpeed,
+            radius: radius,
+            mass: bulletMass,
+            color: player.color,
+            ownerType: 'PLAYER',
+            health: player.bulletHealth,
+            maxHealth: player.bulletHealth,
+            damage: player.bulletDamage
+        });
+    }
+
+    public resetCooldown(): void {
+        this.lastShotTime = 0;
+    }
+
     public updateBullets(
         bullets: Bullet[], 
         F: number, 
@@ -13,7 +65,6 @@ export class DiepProjectileService {
         player: Player, 
         deltaTime: number
     ): Bullet[] {
-        // PAUSE CHECK: If deltaTime is 0, do absolutely nothing.
         if (deltaTime <= 0) return bullets;
 
         return bullets.map(b => {

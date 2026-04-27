@@ -14,7 +14,6 @@ import { AchievementService } from '../core/diep.achievement.service';
 export class DiepGameEngineService {
     public width = 800;
     public height = 600;
-    // FIXED: Now properly using the service as the source of truth
     public player: Player;
     public bullets: Bullet[] = [];
     public enemies: Enemy[] = [];
@@ -30,7 +29,6 @@ export class DiepGameEngineService {
     public mouseAiming = true;
     public mousePos = { x: 0, y: 0 };
     public mouseDown = false;
-    private lastShotTime = 0;
     public isGameStarted = false;
     public deathAnimationTimeStart: number | null = null;
     public enemiesRemainingForAnimation: Enemy[] = [];
@@ -54,7 +52,6 @@ export class DiepGameEngineService {
         public waveManager: DiepWaveManagerService,
         public achievementService: AchievementService
     ) {
-        // Initialize player from service immediately
         this.player = this.playerService.getDefaultPlayer();
         this.topScores = this.highScoresService.getHighScores();
         this.transition.fadeIn();
@@ -159,8 +156,12 @@ export class DiepGameEngineService {
         this.achievementService.updateProgress('WAVE', this.waveManager.waveCount);
     }
 
+    public shootBullet() {
+        if (this.gameOver || this.isPaused || !this.isGameStarted) return;
+        this.projectileService.shootBullet(this.player, this.mousePos, this.mouseAiming, this.lastAngle, this.bullets);
+    }
+
     public resetState(startGameImmediately: boolean) {
-        // FIXED: Resetting using service defaults
         this.player = this.playerService.getDefaultPlayer();
         this.bullets = []; 
         this.enemies = []; 
@@ -170,45 +171,13 @@ export class DiepGameEngineService {
         this.gameOver = false; 
         this.isPaused = false;
         this.lastAngle = 0; 
-        this.lastShotTime = 0;
         this.isGameStarted = startGameImmediately;
         this.isStartingNewGame = startGameImmediately;
         this.waveManager.reset();
+        this.projectileService.resetCooldown();
         this.topScores = this.highScoresService.getHighScores();
         this.showingQuadrivium = false;
         this.showingAchievements = false;
-    }
-
-    public shootBullet() {
-        if (this.gameOver || this.isPaused || !this.isGameStarted) return;
-        const now = Date.now();
-        if (now - this.lastShotTime < this.player.fireRate) return;
-        this.lastShotTime = now;
-
-        const angle = this.mouseAiming ? Math.atan2(this.mousePos.y - this.player.y, this.mousePos.x - this.player.x) : this.lastAngle;
-        const barrelLength = this.player.radius * 2.0;
-
-        const radius = 6;
-        const bulletMass = (Math.pow(radius, 2) * Math.PI) * (this.player.bulletHealth * 0.001);
-
-        const recoilForce = (bulletMass * this.player.bulletSpeed) / this.player.mass;
-        this.player.vx -= Math.cos(angle) * recoilForce;
-        this.player.vy -= Math.sin(angle) * recoilForce;
-
-        this.bullets.push({
-            id: Math.random().toString(36).substr(2, 9),
-            x: this.player.x + Math.cos(angle) * barrelLength,
-            y: this.player.y + Math.sin(angle) * barrelLength,
-            dx: Math.cos(angle) * this.player.bulletSpeed, 
-            dy: Math.sin(angle) * this.player.bulletSpeed,
-            radius: radius, 
-            mass: bulletMass,
-            color: this.player.color, 
-            ownerType: 'PLAYER',
-            health: this.player.bulletHealth,
-            maxHealth: this.player.bulletHealth,
-            damage: this.player.bulletDamage
-        });
     }
 
     public killEnemy(enemy: Enemy) {
