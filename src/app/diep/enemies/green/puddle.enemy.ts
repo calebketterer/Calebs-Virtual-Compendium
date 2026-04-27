@@ -9,7 +9,6 @@ export const PuddleEnemy = {
             health: 1,
             maxHealth: 1,
             scoreValue: 0,
-            isBoss: false,
             type: 'PUDDLE',
             isPassive: true, 
             isGhost: true, 

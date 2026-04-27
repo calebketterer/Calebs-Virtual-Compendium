@@ -45,7 +45,7 @@ export interface Bullet {
   ownerId?: string;
 }
 
-export type EnemyType = 'ROLLER' | 'BOSS' | 'MINION' | 'CRASHER' | 'SNIPER' | 'BLOATER' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER' | 'PUDDLE'| 'HAUNTER' |'BOMBER'| 'BLASTER'| 'CASTER'|'ECHO';
+export type EnemyType = 'ROLLER' | 'MINION' | 'CRASHER' | 'SNIPER' | 'BLOATER' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER' | 'PUDDLE'| 'HAUNTER' |'BOMBER'| 'BLASTER'| 'CASTER'|'ECHO';
 
 export interface Enemy {
   id: string;
@@ -60,7 +60,7 @@ export interface Enemy {
   maxHealth: number;
   bodyDamage: number; // Damage dealt on physical contact
   scoreValue: number;
-  isBoss: boolean; 
+  isBoss?: boolean; 
   type: EnemyType; 
   speedMultiplier?: number;
   lastShotTime?: number;

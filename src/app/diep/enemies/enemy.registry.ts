@@ -2,7 +2,6 @@ import { Enemy, Player, Bullet, EnemyType } from '../core/diep.interfaces';
 import { SmasherEnemy } from './red/smasher.enemy';
 import { CrasherEnemy } from './purple/crasher.enemy';
 import { SniperEnemy } from './red/sniper.enemy';
-import { BossEnemy } from './boss.enemy';
 import { BloaterEnemy } from './green/bloater.enemy';
 import { RollerEnemy } from './red/roller.enemy';
 import { GunnerEnemy } from './green/gunner.enemy';
@@ -29,7 +28,6 @@ export class EnemyRegistry {
     'SMASHER': SmasherEnemy,
     'CRASHER': CrasherEnemy,
     'SNIPER': SniperEnemy,
-    'BOSS': BossEnemy,
     'BLOATER': BloaterEnemy,
     'ROLLER': RollerEnemy,
     'GUNNER': GunnerEnemy,
@@ -83,7 +81,6 @@ export class EnemyRegistry {
     // Merge base stats with required properties
     return {
       type,
-      isBoss: type === 'BOSS',
       ...baseStats
     } as Enemy;
   }

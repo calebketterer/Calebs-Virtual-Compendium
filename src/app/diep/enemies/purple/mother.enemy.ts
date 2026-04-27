@@ -22,7 +22,6 @@ export class MotherEnemy {
             maxHealth: 300, 
             bodyDamage: 30, 
             scoreValue: 500,
-            isBoss: false,
             
             onHit: (enemies: Enemy[], _spawner: any, bullet: Bullet) => {
                 if (Math.random() < 0.5) {

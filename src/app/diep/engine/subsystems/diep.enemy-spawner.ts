@@ -75,7 +75,6 @@ export class EnemySpawnerService {
     public spawnEnemies(
         enemies: Enemy[],
         count: number,
-        _preventBossSpawn: boolean,
         _currentWave: number,
         canvasWidth: number,
         canvasHeight: number
