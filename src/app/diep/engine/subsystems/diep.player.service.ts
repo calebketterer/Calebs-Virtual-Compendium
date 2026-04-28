@@ -1,13 +1,16 @@
 import { Injectable } from '@angular/core';
-import { Player } from '../../core/diep.interfaces';
+import { Player, DifficultyMode } from '../../core/diep.interfaces';
+import { DiepPlayerUpgradesService } from './diep.player-upgrades.service';
 
 @Injectable({ providedIn: 'root' })
 export class DiepPlayerService {
 
+    constructor(private upgradeService: DiepPlayerUpgradesService) {}
+
     /**
      * Centralized source for starting player stats.
      */
-    public getDefaultPlayer(): Player {
+    public getDefaultPlayer(difficulty: DifficultyMode = 'MEDIUM', carryOverXp: number = 0): Player {
         return { 
             x: 400, y: 300, vx: 0, vy: 0, 
             radius: 20, 
@@ -20,7 +23,8 @@ export class DiepPlayerService {
             bodyDamage: 20,
             bulletDamage: 10,
             bulletHealth: 10,
-            bulletSpeed: 7.5
+            bulletSpeed: 7.5,
+            progression: this.upgradeService.getDefaultProgression(difficulty, carryOverXp)
         }
     }
 

@@ -27,7 +27,7 @@ export class DiepProjectileService {
             : lastAngle;
             
         const barrelLength = player.radius * 2.0;
-        const radius = 6;
+        const radius = 7.5;
         
         // Calculate mass and recoil
         const bulletMass = (Math.pow(radius, 2) * Math.PI) * (player.bulletHealth * 0.001);

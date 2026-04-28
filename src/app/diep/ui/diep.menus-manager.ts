@@ -18,7 +18,7 @@ export class DiepMenus {
     }
 
     if (g.isGameStarted || g.gameOver || g.isPaused) {
-      DiepHudRenderer.draw(ctx, g, width);
+      DiepHudRenderer.draw(ctx, g, width, height);
     }
 
     // Router - Delegating to modular files

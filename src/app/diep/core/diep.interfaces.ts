@@ -1,10 +1,20 @@
 export type OwnerType = 'PLAYER' | 'ENEMY'; 
+export type DifficultyMode = 'EASY' | 'MEDIUM' | 'HARD';
+
+export interface PlayerProgression {
+  level: number;
+  currentXp: number;
+  nextLevelXp: number;
+  totalXpEarned: number;
+  upgradePoints: number;
+  difficulty: DifficultyMode;
+}
 
 export interface Player {
   x: number;
   y: number;
-  vx: number;         // Velocity X for recoil/momentum
-  vy: number;         // Velocity Y for recoil/momentum
+  vx: number;
+  vy: number;
   radius: number;
   mass: number;
   angle: number; 
@@ -13,14 +23,15 @@ export interface Player {
   health: number;
   maxHealth: number;
   fireRate: number;
-  bodyDamage: number; // Damage dealt by touching the player
-  bulletDamage: number; // MUST BE HERE
-  bulletHealth: number; // MUST BE HERE
-  bulletSpeed: number;  // MUST BE HERE
+  bodyDamage: number;
+  bulletDamage: number;
+  bulletHealth: number;
+  bulletSpeed: number;
+  progression: PlayerProgression;
 }
 
 export interface Bullet {
-  id: string;         // Unique ID for tracking
+  id: string;
   x: number;
   y: number;
   dx: number;
@@ -29,9 +40,9 @@ export interface Bullet {
   mass: number;
   color: string;
   ownerType: OwnerType;
-  health: number;     // Current HP of the bullet
+  health: number;
   maxHealth: number;
-  damage: number;     // How much HP this bullet removes from targets
+  damage: number;
   hasTrail?: boolean;
   isBomb?: boolean;
   timer?: number;      
@@ -45,20 +56,20 @@ export interface Bullet {
   ownerId?: string;
 }
 
-export type EnemyType = 'ROLLER' | 'MINION' | 'CRASHER' | 'SNIPER' | 'BLOATER' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER' | 'PUDDLE'| 'HAUNTER' |'BOMBER'| 'BLASTER'| 'CASTER'|'ECHO';
+export type EnemyType = 'ROLLER' | 'MINION' | 'CRASHER' | 'SNIPER' | 'BLOATER' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER' | 'PUDDLE'| 'HAUNTER' |'BOMBER'| 'BLASTER'| 'CASTER'| 'ECHO';
 
 export interface Enemy {
   id: string;
   x: number;
   y: number;
-  vx: number;         // Standardized momentum
-  vy: number;         // Standardized momentum
+  vx: number;
+  vy: number;
   radius: number;
   mass: number;
   color: string;
   health: number;
   maxHealth: number;
-  bodyDamage: number; // Damage dealt on physical contact
+  bodyDamage: number;
   scoreValue: number;
   isBoss?: boolean; 
   type: EnemyType; 
@@ -73,9 +84,9 @@ export interface Enemy {
   rotationSpeed?: number;
   speedPhase?: number;
   state?: Record<string, any>;
-  isPassive?: boolean;        
+  isPassive?: boolean;         
   canDespawn?: boolean;      
-  opacity?: number;        
+  opacity?: number;         
   needsSpawn?: boolean;  
   isGhost?: boolean; 
   isInvulnerable?: boolean;  

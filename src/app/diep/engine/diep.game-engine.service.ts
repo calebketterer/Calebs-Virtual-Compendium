@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Player, Bullet, Enemy, HighScore, TrailSegment } from '../core/diep.interfaces';
+import { Player, Bullet, Enemy, HighScore, TrailSegment, DifficultyMode } from '../core/diep.interfaces';
 import { EnemySpawnerService } from './subsystems/diep.enemy-spawner';
 import { HighScoresService } from '../core/diep.high-scores.service';
 import { DiepCollisionService } from './subsystems/diep.collision.service';
@@ -9,6 +9,7 @@ import { DiepPlayerService } from './subsystems/diep.player.service';
 import { DiepEnemyService } from './subsystems/diep.enemy.service';
 import { TransitionManager } from '../ui/diep.transition-manager';
 import { AchievementService } from '../core/diep.achievement.service';
+import { DiepPlayerUpgradesService } from './subsystems/diep.player-upgrades.service';
 
 @Injectable({ providedIn: 'root' })
 export class DiepGameEngineService {
@@ -36,6 +37,9 @@ export class DiepGameEngineService {
     public showingQuadrivium = false;
     public showingAchievements = false;
 
+    public currentDifficulty: DifficultyMode = 'MEDIUM';
+    public persistentXp = 0;
+
     public transition = new TransitionManager();
 
     private animationFrameId: number | null = null;
@@ -50,9 +54,10 @@ export class DiepGameEngineService {
         private playerService: DiepPlayerService,
         private enemyService: DiepEnemyService,
         public waveManager: DiepWaveManagerService,
-        public achievementService: AchievementService
+        public achievementService: AchievementService,
+        private upgradeService: DiepPlayerUpgradesService
     ) {
-        this.player = this.playerService.getDefaultPlayer();
+        this.player = this.playerService.getDefaultPlayer(this.currentDifficulty, this.persistentXp);
         this.topScores = this.highScoresService.getHighScores();
         this.transition.fadeIn();
     }
@@ -162,7 +167,8 @@ export class DiepGameEngineService {
     }
 
     public resetState(startGameImmediately: boolean) {
-        this.player = this.playerService.getDefaultPlayer();
+        if (this.player) { this.persistentXp = this.player.progression.totalXpEarned; }
+        this.player = this.playerService.getDefaultPlayer(this.currentDifficulty, this.persistentXp);
         this.bullets = []; 
         this.enemies = []; 
         this.toxicTrails = [];
@@ -183,6 +189,8 @@ export class DiepGameEngineService {
     public killEnemy(enemy: Enemy) {
         this.score += enemy.scoreValue;
         this.sessionKills++; 
+
+        this.upgradeService.addXp(this.player.progression, enemy.scoreValue);
 
         enemy.onDeath?.(this.enemies, this.spawner, enemy, this.player);
         enemy.health = 0;
