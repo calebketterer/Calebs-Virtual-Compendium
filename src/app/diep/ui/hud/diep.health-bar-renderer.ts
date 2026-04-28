@@ -1,9 +1,12 @@
-import { Player } from '../../core/diep.interfaces';
+import { Player, DiepButton } from '../../core/diep.interfaces';
 
 /**
- * Handles the rendering logic for the Player's health bar.
+ * Handles the rendering and internal toggle logic for the Player's health bar.
  */
 export class DiepHealthBarRenderer {
+  // Private state to avoid bloating the Player interface
+  private static showPercent: boolean = true;
+
   public static draw(ctx: CanvasRenderingContext2D, player: Player): void {
     const healthX = 20;
     const healthY = 20;
@@ -11,20 +14,45 @@ export class DiepHealthBarRenderer {
     const healthBarHeight = 20;
     const healthRatio = player.health / player.maxHealth;
 
-    // Background/Border
+    // 1. Background/Border
     ctx.fillStyle = '#34495e';
     ctx.fillRect(healthX - 2, healthY - 2, healthBarWidth + 4, healthBarHeight + 4); 
 
-    // Health Fill
+    // 2. Health Fill
     ctx.fillStyle = healthRatio > 0.75 ? '#27ae60' : 
                     healthRatio > 0.50 ? '#f1c40f' : 
                     healthRatio > 0.25 ? '#e67e22' : '#e74c3c';
     ctx.fillRect(healthX, healthY, healthBarWidth * healthRatio, healthBarHeight);
     
-    // Label
+    // 3. Label Logic
     ctx.font = 'bold 12px Inter, sans-serif';
     ctx.fillStyle = '#fff';
     ctx.textAlign = 'left';
-    ctx.fillText(`PLAYER HEALTH: ${Math.ceil(player.health)}%`, healthX + 5, healthY + 14);
+
+    const healthText = this.showPercent 
+      ? `PLAYER HEALTH: ${Math.ceil(healthRatio * 100)}%`
+      : `PLAYER HEALTH: ${Math.ceil(player.health)} / ${player.maxHealth}`;
+
+    ctx.fillText(healthText, healthX + 5, healthY + 14);
+  }
+
+  /**
+   * Returns a button object that maps to the health bar's visual area.
+   * Satisfies the DiepButton interface requirements.
+   */
+  public static getButton(): DiepButton {
+    return {
+      id: 'health-toggle-btn', // Added required ID
+      x: 20,
+      y: 20,
+      w: 200,
+      h: 20,
+      label: 'HealthToggle',
+      color: 'transparent',       // Added required color
+      borderColor: 'transparent', // Added required borderColor
+      action: () => {
+        this.showPercent = !this.showPercent;
+      }
+    };
   }
 }
