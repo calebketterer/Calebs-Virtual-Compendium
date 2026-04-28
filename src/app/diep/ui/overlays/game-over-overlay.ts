@@ -1,6 +1,6 @@
 import { DiepButton } from '../../core/diep.interfaces';
 import { DiepMainMenu } from '../main-menu/diep.main-menu';
-import { DiepHighScoreRenderer } from '../diep.high-score-renderer';
+import { DiepHighScoreRenderer } from '../hud/diep.high-score-renderer';
 
 export class DiepGameOverOverlay {
   public static draw(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {

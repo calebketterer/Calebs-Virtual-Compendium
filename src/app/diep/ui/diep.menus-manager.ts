@@ -4,7 +4,7 @@ import { DiepAchievementMenu } from './achievements/diep.achievement-menu';
 import { DiepMainMenu } from './main-menu/diep.main-menu';
 import { DiepPauseOverlay } from './overlays/pause-overlay';
 import { DiepGameOverOverlay } from './overlays/game-over-overlay';
-import { DiepHudRenderer } from './diep.hud-renderer';
+import { DiepHudRenderer } from './hud/diep.hud-renderer';
 
 export class DiepMenus {
   public static renderGame(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {

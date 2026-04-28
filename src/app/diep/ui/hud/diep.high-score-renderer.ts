@@ -1,4 +1,4 @@
-import { HighScore } from '../core/diep.interfaces';
+import { HighScore } from '../../core/diep.interfaces';
 
 export class DiepHighScoreRenderer {
   public static drawList(
