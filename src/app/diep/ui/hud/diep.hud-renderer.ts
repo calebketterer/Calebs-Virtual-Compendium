@@ -1,7 +1,6 @@
 import { DiepXpBarRenderer } from './diep.xp-bar-renderer';
 import { DiepHealthBarRenderer } from './diep.health-bar-renderer';
-import { DiepUpgradeMenuRenderer } from './diep.upgrade-menu-renderer';
-
+import { DiepUpgradeMenuRenderer } from './upgrade-menu/diep.upgrade-menu-renderer';
 /**
  * DiepHudRenderer handles all fixed-position UI elements.
  * This separates the "Game World" (tanks/bullets) from the "Interface" (bars/text).

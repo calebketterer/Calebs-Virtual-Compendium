@@ -7,7 +7,7 @@ import { DiepMainMenu } from './main-menu/diep.main-menu';
 import { DiepPauseOverlay } from './overlays/pause-overlay';
 import { DiepGameOverOverlay } from './overlays/game-over-overlay';
 import { DiepHealthBarRenderer } from './hud/diep.health-bar-renderer';
-import { DiepUpgradeMenuRenderer } from './hud/diep.upgrade-menu-renderer';
+import { DiepUpgradeMenuRenderer } from './hud/upgrade-menu/diep.upgrade-menu-renderer';
 
 @Injectable({ providedIn: 'root' })
 export class DiepInteractionService {
