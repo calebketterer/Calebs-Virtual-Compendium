@@ -7,6 +7,7 @@ import { DiepMainMenu } from './main-menu/diep.main-menu';
 import { DiepPauseOverlay } from './overlays/pause-overlay';
 import { DiepGameOverOverlay } from './overlays/game-over-overlay';
 import { DiepHealthBarRenderer } from './hud/diep.health-bar-renderer';
+import { DiepUpgradeMenuRenderer } from './hud/diep.upgrade-menu-renderer';
 
 @Injectable({ providedIn: 'root' })
 export class DiepInteractionService {
@@ -48,8 +49,14 @@ export class DiepInteractionService {
     } else if (g.gameOver && g.deathAnimationTimeStart === null) {
       activeButtons = DiepGameOverOverlay.getButtons(g, width, height);
     }
+
+    // INJECT HUD INTERACTION: Health bar and Upgrade menu
     if (g.isGameStarted && !g.isPaused && !g.gameOver && !g.showingQuadrivium && !g.showingAchievements) {
       activeButtons.push(DiepHealthBarRenderer.getButton());
+      
+      // Inject upgrade buttons
+      const upgradeButtons = DiepUpgradeMenuRenderer.getButtons(g, height);
+      activeButtons.push(...upgradeButtons);
     }
 
     // 3. Collision detection for buttons

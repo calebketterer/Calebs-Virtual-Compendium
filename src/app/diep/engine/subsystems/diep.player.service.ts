@@ -24,6 +24,7 @@ export class DiepPlayerService {
             bulletDamage: 10,
             bulletHealth: 10,
             bulletSpeed: 7.5,
+            upgrades: {},
             progression: this.upgradeService.getDefaultProgression(difficulty, carryOverXp)
         }
     }

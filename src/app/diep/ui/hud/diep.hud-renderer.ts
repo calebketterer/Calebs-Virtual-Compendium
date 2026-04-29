@@ -1,5 +1,6 @@
 import { DiepXpBarRenderer } from './diep.xp-bar-renderer';
 import { DiepHealthBarRenderer } from './diep.health-bar-renderer';
+import { DiepUpgradeMenuRenderer } from './diep.upgrade-menu-renderer';
 
 /**
  * DiepHudRenderer handles all fixed-position UI elements.
@@ -14,6 +15,7 @@ export class DiepHudRenderer {
     // Draw Sub-modules
     DiepHealthBarRenderer.draw(ctx, g.player);
     DiepXpBarRenderer.draw(ctx, g.player, width, height);
+    DiepUpgradeMenuRenderer.draw(ctx, g, height);
     
     // Draw remaining global HUD elements
     this.drawSessionStats(ctx, g, width, uiTextColor);

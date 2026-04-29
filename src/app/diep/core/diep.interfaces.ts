@@ -27,6 +27,7 @@ export interface Player {
   bulletDamage: number;
   bulletHealth: number;
   bulletSpeed: number;
+  upgrades: Record<string, number>;
   progression: PlayerProgression;
 }
 
