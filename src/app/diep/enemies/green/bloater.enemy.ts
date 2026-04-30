@@ -20,7 +20,6 @@ export class BloaterEnemy {
             health: (randomBodySize * 4),
             maxHealth: (randomBodySize * 4),
             scoreValue: (randomBodySize * 2),
-            isBoss: false,
             type: 'BLOATER',
 
             onSpawn: (enemy: any, canvasWidth: number, canvasHeight: number) => {

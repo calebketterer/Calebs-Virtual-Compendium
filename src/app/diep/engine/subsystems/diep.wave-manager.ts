@@ -26,16 +26,15 @@ export class DiepWaveManagerService {
      */
     public updateWaves(enemies: Enemy[], width: number, height: number) {
         const hasRegularEnemies = enemies.some(e => e.color === '#e74c3c');
-        const hasBossOrMinions = enemies.some(e => e.isBoss || e.color === '#d2b4de');
         const combatEnemies = enemies.filter(e => !e.isPassive);
 
         // Logic for triggering the next wave
         if (combatEnemies.length === 0) {
             this.prepareNextWave();
-            this.spawner.spawnEnemies(enemies, this.enemySpawnCount, false, this.waveCount, width, height);
+            this.spawner.spawnEnemies(enemies, this.enemySpawnCount, this.waveCount, width, height);
         } else if (this.isRegularWaveActive && !hasRegularEnemies) {
             this.prepareNextWave();
-            this.spawner.spawnEnemies(enemies, this.enemySpawnCount, hasBossOrMinions, this.waveCount, width, height);
+            this.spawner.spawnEnemies(enemies, this.enemySpawnCount, this.waveCount, width, height);
         }
     }
 
@@ -50,6 +49,6 @@ export class DiepWaveManagerService {
      */
     public startFirstWave(enemies: Enemy[], width: number, height: number) {
         this.isRegularWaveActive = false;
-        this.spawner.spawnEnemies(enemies, this.enemySpawnCount, false, this.waveCount, width, height);
+        this.spawner.spawnEnemies(enemies, this.enemySpawnCount, this.waveCount, width, height);
     }
 }

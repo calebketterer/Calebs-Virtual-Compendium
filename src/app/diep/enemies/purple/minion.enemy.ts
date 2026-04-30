@@ -14,8 +14,8 @@ export class MinionEnemy {
             x, y, 
             radius: 10, 
             color: '#BE7FF5',
-            health: 20, 
-            maxHealth: 20, 
+            health: 10, 
+            maxHealth: 10, 
             scoreValue: 5,
             speedMultiplier: 1.2,
             onUpdate: (enemy: Enemy, player: Player, deltaTime: number) => {

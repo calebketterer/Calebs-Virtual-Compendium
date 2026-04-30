@@ -26,24 +26,19 @@ export class EnemySpawnerService {
         enemies: Enemy[],
         canvasWidth: number,
         canvasHeight: number,
-        spawnPadding: number,
-        isBoss: boolean
+        spawnPadding: number
     ): void {
         let type: EnemyType = 'ROLLER';
 
-        if (isBoss) {
-            type = 'BOSS';
-        } else {
-            const totalWeight = ENEMY_SPAWN_WEIGHTS.reduce((sum, item) => sum + item.weight, 0);
-            let randomRoll = Math.random() * totalWeight;
+        const totalWeight = ENEMY_SPAWN_WEIGHTS.reduce((sum, item) => sum + item.weight, 0);
+        let randomRoll = Math.random() * totalWeight;
 
-            for (const item of ENEMY_SPAWN_WEIGHTS) {
-                if (randomRoll < item.weight) {
-                    type = item.type;
-                    break;
-                }
-                randomRoll -= item.weight;
+        for (const item of ENEMY_SPAWN_WEIGHTS) {
+            if (randomRoll < item.weight) {
+                type = item.type;
+                break;
             }
+            randomRoll -= item.weight;
         }
 
         const { x, y } = this.calculateSpawnPosition(canvasWidth, canvasHeight, spawnPadding);
@@ -53,28 +48,18 @@ export class EnemySpawnerService {
             for (let i = 0; i < swarmSize; i++) {
                 const jitterX = (Math.random() - 0.5) * 40;
                 const jitterY = (Math.random() - 0.5) * 40;
-                
-                const crasher = EnemyRegistry.createEnemy('CRASHER', x + jitterX, y + jitterY);
-                
-                // Attach Metadata so Achievements can track Faction/Type
-                (crasher as any).metadata = EnemyRegistry.getMetadata('CRASHER');
-
-                if (crasher.onSpawn) {
-                    crasher.onSpawn(crasher, canvasWidth, canvasHeight);
-                }
-                enemies.push(crasher as Enemy);
+                this.finalizeEnemySpawn('CRASHER', x + jitterX, y + jitterY, enemies, canvasWidth, canvasHeight);
             }
         } else {
-            const newEnemy = EnemyRegistry.createEnemy(type, x, y);
-
-            // Attach Metadata so Achievements can track Faction/Type
-            (newEnemy as any).metadata = EnemyRegistry.getMetadata(type);
-
-            if (newEnemy.onSpawn) {
-                newEnemy.onSpawn(newEnemy, canvasWidth, canvasHeight);
-            }
-            enemies.push(newEnemy as Enemy);
+            this.finalizeEnemySpawn(type, x, y, enemies, canvasWidth, canvasHeight);
         }
+    }
+
+    private finalizeEnemySpawn(type: EnemyType, x: number, y: number, enemies: Enemy[], w: number, h: number): void {
+        const enemy = EnemyRegistry.createEnemy(type, x, y);
+        (enemy as any).metadata = EnemyRegistry.getMetadata(type);
+        if (enemy.onSpawn) enemy.onSpawn(enemy, w, h);
+        enemies.push(enemy as Enemy);
     }
 
     private calculateSpawnPosition(width: number, height: number, padding: number): { x: number, y: number } {
@@ -87,36 +72,16 @@ export class EnemySpawnerService {
         }
     }
 
-    public spawnBossMinion(enemies: Enemy[], x: number, y: number): void {
-        const minion = EnemyRegistry.createEnemy('MINION', x, y);
-        (minion as any).metadata = EnemyRegistry.getMetadata('MINION');
-        
-        if (minion.onSpawn) {
-            minion.onSpawn(minion, 0, 0); 
-        }
-        enemies.push(minion as Enemy);
-    }
-
     public spawnEnemies(
         enemies: Enemy[],
         count: number,
-        preventBossSpawn: boolean,
-        currentWave: number,
+        _currentWave: number,
         canvasWidth: number,
         canvasHeight: number
     ): void {
         const spawnPadding = 50;
-        const bossAttempt = !preventBossSpawn && currentWave > 0 && Math.random() < 0.2;
-        let regularEnemyCount = count;
-        const spawnMiniboss = bossAttempt && currentWave > 5;
-
-        if (spawnMiniboss) {
-            this.spawnSingleEnemy(enemies, canvasWidth, canvasHeight, spawnPadding, true);
-            regularEnemyCount = Math.max(0, count - 1); 
-        }
-
-        for (let i = 0; i < regularEnemyCount; i++) {
-            this.spawnSingleEnemy(enemies, canvasWidth, canvasHeight, spawnPadding, false);
+        for (let i = 0; i < count; i++) {
+            this.spawnSingleEnemy(enemies, canvasWidth, canvasHeight, spawnPadding);
         }
     }
 }

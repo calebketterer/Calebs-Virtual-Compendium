@@ -14,10 +14,8 @@ export class DiepCollisionService {
         enemies: Enemy[],
         onKillEnemy: (enemy: Enemy) => void
     ) {
-        // 1. Bullet vs. Bullet
         this.handleBulletVsBullet(bullets);
 
-        // 2. Bullet vs. Enemy
         bullets.forEach(bullet => {
             if (bullet.ownerType !== 'PLAYER' || bullet.health <= 0) return;
             enemies.forEach(enemy => {
@@ -29,53 +27,54 @@ export class DiepCollisionService {
                 if (dist < combinedRadius) {
                     this.resolveHealthTrade(bullet, enemy);
                     
-                    if (enemy.type === 'MOTHER' && Math.random() < 0.5) {
-                        const angle = Math.random() * Math.PI * 2;
-                        this.spawner.spawnBossMinion(enemies, enemy.x + Math.cos(angle) * 55, enemy.y + Math.sin(angle) * 55);
+                    // --- NEW ENCAPSULATED HOOK ---
+                    // Instead of checking for 'MOTHER' here, we let the enemy handle its own hit
+                    if (enemy.onHit) {
+                        enemy.onHit(enemies, this.spawner, bullet);
                     }
-                    if (enemy.health <= 0) onKillEnemy(enemy);
 
-                    // --- SNAPPY RICOCHET ---
+                    if (enemy.health <= 0) {
+                        // Trigger onDeath hook if it exists before removing from array
+                        if (enemy.onDeath) {
+                            enemy.onDeath(enemies, this.spawner, enemy, player);
+                        }
+                        onKillEnemy(enemy);
+                    }
+
                     const angle = Math.atan2(bullet.y - enemy.y, bullet.x - enemy.x);
                     const overlap = combinedRadius - dist;
-                    
-                    // High bounce for bullets, low knockback for enemies (feels "heavy")
                     bullet.dx += Math.cos(angle) * overlap * 0.3; 
                     bullet.dy += Math.sin(angle) * overlap * 0.3;
-                    
                     enemy.vx -= Math.cos(angle) * overlap * 0.05; 
                     enemy.vy -= Math.sin(angle) * overlap * 0.05;
                 }
             });
         });
 
-        // 3. Bullet vs. Player
         bullets.forEach(bullet => {
             if (bullet.ownerType !== 'ENEMY' || bullet.health <= 0) return;
             const dist = this.getDist(bullet, player);
             if (dist < bullet.radius + player.radius) {
                 this.resolveHealthTrade(bullet, player);
-                // Lower impact recoil so you don't lose control of your tank
                 player.vx += bullet.dx * 0.01;
                 player.vy += bullet.dy * 0.01;
             }
         });
 
-        // 4. Enemy vs. Player (The "Grind")
         enemies.forEach(enemy => {
             if (enemy.isGhost || enemy.health <= 0) return;
             const dist = this.getDist(player, enemy);
             const combinedRadius = enemy.radius + player.radius;
             if (dist < combinedRadius) {
                 this.resolveHealthTrade(player, enemy);
-                if (enemy.health <= 0 && !enemy.isInvulnerable) onKillEnemy(enemy);
-                
-                // Snappy push: Higher strength, but we don't let it stack infinitely
+                if (enemy.health <= 0 && !enemy.isInvulnerable) {
+                    if (enemy.onDeath) enemy.onDeath(enemies, this.spawner, enemy, player);
+                    onKillEnemy(enemy);
+                }
                 this.applyOverlapPush(player, enemy, dist, combinedRadius, 0.4);
             }
         });
 
-        // 5. Enemy vs. Enemy
         for (let i = 0; i < enemies.length; i++) {
             for (let j = i + 1; j < enemies.length; j++) {
                 const e1 = enemies[i]; const e2 = enemies[j];
@@ -97,11 +96,8 @@ export class DiepCollisionService {
     private applyOverlapPush(a: any, b: any, dist: number, combinedRadius: number, strength: number) {
         const angle = Math.atan2(b.y - a.y, b.x - a.x);
         const overlap = combinedRadius - dist;
-        
-        // Mass weighting: If an object is "heavier" (larger radius), it moves less
         const weightA = b.radius / (a.radius + b.radius);
         const weightB = a.radius / (a.radius + b.radius);
-
         a.vx -= Math.cos(angle) * overlap * strength * weightA;
         a.vy -= Math.sin(angle) * overlap * strength * weightA;
         b.vx += Math.cos(angle) * overlap * strength * weightB;
@@ -109,10 +105,8 @@ export class DiepCollisionService {
     }
 
     private resolveHealthTrade(a: any, b: any) {
-        // Diep bullets trade health fast to prevent sticking
         const dmgToA = (b.damage || b.bodyDamage || 15);
         const dmgToB = (a.damage || a.bodyDamage || 15);
-        
         a.health -= dmgToA;
         if (!b.isInvulnerable) b.health -= dmgToB;
     }

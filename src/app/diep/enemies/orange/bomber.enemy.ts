@@ -10,12 +10,14 @@ export class BomberEnemy {
 
     public static create(x: number, y: number): Partial<Enemy> {
         const radius = 25;
-        const maxHealth = 250;
+        const maxHealth = 200;
         return {
             type: 'BOMBER',
             x, y, vx: 0, vy: 0,
             radius, color: '#e67e22',
-            health: maxHealth, maxHealth: maxHealth, bodyDamage: 40,
+            health: maxHealth, 
+            maxHealth: maxHealth, 
+            bodyDamage: 40,
             scoreValue: 200,
             rotationAngle: 0,
             targetX: x, 

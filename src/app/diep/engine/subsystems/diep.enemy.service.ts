@@ -15,7 +15,6 @@ export class DiepEnemyService {
             id: Math.random().toString(36).substr(2, 9),
             vx: 0, vy: 0,
             mass: 10,
-            isBoss: false,
             canDespawn: true,
             isGhost: false,
             isInvulnerable: false

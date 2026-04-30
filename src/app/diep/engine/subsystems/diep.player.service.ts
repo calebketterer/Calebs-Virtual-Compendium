@@ -1,13 +1,16 @@
 import { Injectable } from '@angular/core';
-import { Player } from '../../core/diep.interfaces';
+import { Player, DifficultyMode } from '../../core/diep.interfaces';
+import { DiepPlayerUpgradesService } from './player-upgrades/diep.player-upgrades.service';
 
 @Injectable({ providedIn: 'root' })
 export class DiepPlayerService {
 
+    constructor(private upgradeService: DiepPlayerUpgradesService) {}
+
     /**
      * Centralized source for starting player stats.
      */
-    public getDefaultPlayer(): Player {
+    public getDefaultPlayer(difficulty: DifficultyMode = 'MEDIUM', carryOverXp: number = 0): Player {
         return { 
             x: 400, y: 300, vx: 0, vy: 0, 
             radius: 20, 
@@ -15,12 +18,15 @@ export class DiepPlayerService {
             angle: 0, 
             maxSpeed: 3, 
             color: '#3498db', 
-            health: 100, maxHealth: 100, 
-            fireRate: 200, 
+            health: 100, maxHealth: 100,
+            healthRegen: .5, 
+            fireRate: 5, 
             bodyDamage: 20,
             bulletDamage: 10,
             bulletHealth: 10,
-            bulletSpeed: 7.5
+            bulletSpeed: 7.5,
+            upgrades: {},
+            progression: this.upgradeService.getDefaultProgression(difficulty, carryOverXp)
         }
     }
 
@@ -66,7 +72,7 @@ export class DiepPlayerService {
         player.x = Math.max(player.radius, Math.min(width - player.radius, player.x));
         player.y = Math.max(player.radius, Math.min(height - player.radius, player.y));
         
-        player.health = Math.min(player.maxHealth, player.health + (0.5 * deltaTime / 1000));
+        player.health = Math.min(player.maxHealth, player.health + (player.healthRegen * deltaTime / 1000));
 
         return { lastAngle };
     }

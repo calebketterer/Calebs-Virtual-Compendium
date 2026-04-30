@@ -25,7 +25,6 @@ export class SmasherEnemy {
             maxHealth: this.BASE_HEALTH * Math.pow(scale, 1.4),
             scoreValue: Math.floor(300 * scale),
             color: '#000000',
-            isBoss: false,
             type: 'SMASHER',
             rotationAngle: Math.random() * 2 * Math.PI,
             speedMultiplier: 1.1 / scale,
