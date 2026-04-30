@@ -9,7 +9,7 @@ export class DiepProjectileService {
 
     /**
      * Handles the logic for creating a bullet, calculating recoil, 
-     * and managing the player's fire rate cooldown.
+     * and managing the player's fire rate cooldown based on frequency.
      */
     public shootBullet(
         player: Player, 
@@ -19,7 +19,11 @@ export class DiepProjectileService {
         bullets: Bullet[]
     ): void {
         const now = Date.now();
-        if (now - this.lastShotTime < player.fireRate) return;
+        
+        // frequency (shots/sec) to delay (ms) conversion
+        const fireDelay = 1000 / player.fireRate;
+
+        if (now - this.lastShotTime < fireDelay) return;
         this.lastShotTime = now;
 
         const angle = mouseAiming 

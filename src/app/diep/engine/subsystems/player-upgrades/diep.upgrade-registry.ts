@@ -9,19 +9,25 @@ export const UPGRADE_REGISTRY: UpgradePath[] = [
   {
     id: 'maxHealth',
     name: 'Max Health',
-    color: '#eb4d4b',
+    color: '#F177DD',
     increments: 20
   },
   {
     id: 'bulletDamage',
     name: 'Bullet Damage',
-    color: '#f0932b',
+    color: '#E91E63',
     increments: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+  },
+  { 
+    id: 'reloadSpeed', 
+    name: 'Reload', 
+    color: '#9EE573', 
+    increments: 1 
   },
   {
     id: 'maxSpeed',
     name: 'Movement Speed',
-    color: '#badc58',
+    color: '#76EEFE',
     increments: [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
-  }
+  },
 ];

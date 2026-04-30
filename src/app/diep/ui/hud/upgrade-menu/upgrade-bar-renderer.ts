@@ -13,6 +13,7 @@ export class UpgradeBarRenderer {
     weights: { master: number, circle: number }
   ): void {
     const r = h / 2;
+    const buttonAlpha = Math.max(0, Math.min(1, 10 - visualSpent));
 
     // 1. Background
     this.drawCapsule(ctx, x, y, w, h, r, colors.bg, colors.stroke, weights.master);
@@ -48,31 +49,33 @@ export class UpgradeBarRenderer {
     ctx.fillText(path.name.toUpperCase(), x + (w / 2), textY, w * 0.85);
     ctx.restore();
 
-    // 4. Plus Button
-    const circleX = x + w + 25;
-    const circleY = y + r;
-    const radius = 9;
+    // 4. Plus Button (Fades out as the final segment fills)
+    if (buttonAlpha > 0) {
+      const circleX = x + w + 25;
+      const circleY = y + r;
+      const radius = 9;
 
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(circleX, circleY, radius, 0, Math.PI * 2);
-    ctx.fillStyle = colors.theme;
-    ctx.fill();
-    ctx.strokeStyle = '#555555';
-    ctx.lineWidth = weights.circle;
-    ctx.stroke();
+      ctx.save();
+      ctx.globalAlpha = buttonAlpha;
+      ctx.beginPath();
+      ctx.arc(circleX, circleY, radius, 0, Math.PI * 2);
+      ctx.fillStyle = colors.theme;
+      ctx.fill();
+      ctx.strokeStyle = '#555555';
+      ctx.lineWidth = weights.circle;
+      ctx.stroke();
 
-    ctx.strokeStyle = colors.stroke;
-    ctx.lineWidth = 3;
-    ctx.lineCap = 'butt';
-    ctx.beginPath();
-    ctx.moveTo(circleX - 4, circleY); ctx.lineTo(circleX + 4, circleY);
-    ctx.moveTo(circleX, circleY - 4); ctx.lineTo(circleX, circleY + 4);
-    ctx.stroke();
-    ctx.restore();
+      ctx.strokeStyle = colors.stroke;
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'butt';
+      ctx.beginPath();
+      ctx.moveTo(circleX - 4, circleY); ctx.lineTo(circleX + 4, circleY);
+      ctx.moveTo(circleX, circleY - 4); ctx.lineTo(circleX, circleY + 4);
+      ctx.stroke();
+      ctx.restore();
+    }
   }
 
-  // Moved here as a private helper
   private static drawCapsule(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number, fill: string, stroke: string, weight: number): void {
     ctx.beginPath();
     ctx.moveTo(x + r, y);

@@ -66,25 +66,26 @@ export class DiepUpgradeMenuRenderer {
 
     const startY = UpgradeMenuManager.getMenuStartY(height, this.ROW_HEIGHT, this.ROW_SPACING);
 
-    return UPGRADE_REGISTRY.filter(path => (player.upgrades[path.id] || 0) < 10).map((path, i) => ({
-      id: `upgrade-${path.id}`,
-      label: '',
-      x: UpgradeMenuManager.slideX,
-      y: startY + (i * (this.ROW_HEIGHT + this.ROW_SPACING)),
-      w: this.MENU_WIDTH + 50,
-      h: this.ROW_HEIGHT,
-      color: 'transparent',
-      borderColor: 'transparent',
-      action: () => {
-        const spent = player.upgrades[path.id] || 0;
-        const bonus = Array.isArray(path.increments) ? path.increments[spent] : path.increments;
-        player.progression.upgradePoints--;
-        player.upgrades[path.id] = spent + 1;
+    // map() first to keep indices consistent with draw(), then filter out the nulls
+    return UPGRADE_REGISTRY.map((path, i) => {
+      const spent = player.upgrades[path.id] || 0;
 
-        if (path.id === 'maxHealth') { player.maxHealth += bonus; player.health += bonus; }
-        else if (path.id === 'maxSpeed') player.maxSpeed += bonus;
-        else if (path.id === 'bulletDamage') player.bulletDamage += bonus;
-      }
-    }));
+      // If already at max level (10), don't create a button for this row
+      if (spent >= 10) return null;
+
+      return {
+        id: `upgrade-${path.id}`,
+        label: '',
+        x: UpgradeMenuManager.slideX,
+        y: startY + (i * (this.ROW_HEIGHT + this.ROW_SPACING)),
+        w: this.MENU_WIDTH + 50,
+        h: this.ROW_HEIGHT,
+        color: 'transparent',
+        borderColor: 'transparent',
+        action: () => {
+          g.upgradeService.applyUpgrade(player, path.id);
+        }
+      } as DiepButton;
+    }).filter(btn => btn !== null) as DiepButton[];
   }
 }

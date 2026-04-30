@@ -19,7 +19,7 @@ export class DiepPlayerService {
             maxSpeed: 3, 
             color: '#3498db', 
             health: 100, maxHealth: 100, 
-            fireRate: 200, 
+            fireRate: 5, 
             bodyDamage: 20,
             bulletDamage: 10,
             bulletHealth: 10,
