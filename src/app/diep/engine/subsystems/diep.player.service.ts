@@ -18,7 +18,8 @@ export class DiepPlayerService {
             angle: 0, 
             maxSpeed: 3, 
             color: '#3498db', 
-            health: 100, maxHealth: 100, 
+            health: 100, maxHealth: 100,
+            healthRegen: .5, 
             fireRate: 5, 
             bodyDamage: 20,
             bulletDamage: 10,
@@ -71,7 +72,7 @@ export class DiepPlayerService {
         player.x = Math.max(player.radius, Math.min(width - player.radius, player.x));
         player.y = Math.max(player.radius, Math.min(height - player.radius, player.y));
         
-        player.health = Math.min(player.maxHealth, player.health + (0.5 * deltaTime / 1000));
+        player.health = Math.min(player.maxHealth, player.health + (player.healthRegen * deltaTime / 1000));
 
         return { lastAngle };
     }

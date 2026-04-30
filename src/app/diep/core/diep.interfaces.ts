@@ -22,6 +22,7 @@ export interface Player {
   color: string;
   health: number;
   maxHealth: number;
+  healthRegen: number;
   fireRate: number;
   bodyDamage: number;
   bulletDamage: number;

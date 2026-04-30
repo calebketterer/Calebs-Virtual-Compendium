@@ -7,6 +7,12 @@ export interface UpgradePath {
 
 export const UPGRADE_REGISTRY: UpgradePath[] = [
   {
+    id: 'healthRegen',
+    name: 'HEALTH REGEN',
+    color: '#FFD180', 
+    increments: .25
+  },
+  {
     id: 'maxHealth',
     name: 'Max Health',
     color: '#F177DD',
@@ -16,7 +22,7 @@ export const UPGRADE_REGISTRY: UpgradePath[] = [
     id: 'bulletDamage',
     name: 'Bullet Damage',
     color: '#E91E63',
-    increments: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+    increments: 5
   },
   { 
     id: 'reloadSpeed', 

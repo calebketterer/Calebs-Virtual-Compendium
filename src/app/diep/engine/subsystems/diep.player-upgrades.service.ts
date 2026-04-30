@@ -34,6 +34,9 @@ export class DiepPlayerUpgradesService {
       case 'reloadSpeed':
         player.fireRate += increment;
         break;
+      case 'healthRegen':
+        player.healthRegen += increment;
+        break;
     }
   }
 
