@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Player, PlayerProgression, DifficultyMode } from '../../core/diep.interfaces';
-import { UPGRADE_REGISTRY } from './player-upgrades/diep.upgrade-registry';
+import { Player, PlayerProgression, DifficultyMode } from '../../../core/diep.interfaces';
+import { UPGRADE_REGISTRY } from './diep.upgrade-registry';
 
 @Injectable({ providedIn: 'root' })
 export class DiepPlayerUpgradesService {
@@ -75,7 +75,9 @@ export class DiepPlayerUpgradesService {
   private levelUp(progression: PlayerProgression): void {
     progression.currentXp -= progression.nextLevelXp;
     progression.level++;
-    progression.upgradePoints++;
+    if (progression.level % 2 === 0) {
+      progression.upgradePoints++;
+    }
     progression.nextLevelXp = this.getXpForLevel(progression.level);
   }
 

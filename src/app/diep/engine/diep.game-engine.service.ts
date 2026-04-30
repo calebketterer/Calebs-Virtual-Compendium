@@ -9,7 +9,7 @@ import { DiepPlayerService } from './subsystems/diep.player.service';
 import { DiepEnemyService } from './subsystems/diep.enemy.service';
 import { TransitionManager } from '../ui/diep.transition-manager';
 import { AchievementService } from '../core/diep.achievement.service';
-import { DiepPlayerUpgradesService } from './subsystems/diep.player-upgrades.service';
+import { DiepPlayerUpgradesService } from './subsystems/player-upgrades/diep.player-upgrades.service';
 
 @Injectable({ providedIn: 'root' })
 export class DiepGameEngineService {

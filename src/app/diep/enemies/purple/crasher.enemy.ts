@@ -14,7 +14,7 @@ export class CrasherEnemy {
         return {
             id: Math.random().toString(36).substr(2, 9),
             x, y, 
-            radius: 15 + sizeVariation, 
+            radius: 10 + sizeVariation, 
             color: '#BE7FF5',
             health: 40, 
             maxHealth: 40, 
@@ -60,7 +60,7 @@ export class CrasherEnemy {
         ctx.fillStyle = enemy.color;
         ctx.fill();
         ctx.strokeStyle = '#8e44ad';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1.5;
         ctx.stroke();
         ctx.restore();
     }

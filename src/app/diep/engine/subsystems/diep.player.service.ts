@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Player, DifficultyMode } from '../../core/diep.interfaces';
-import { DiepPlayerUpgradesService } from './diep.player-upgrades.service';
+import { DiepPlayerUpgradesService } from './player-upgrades/diep.player-upgrades.service';
 
 @Injectable({ providedIn: 'root' })
 export class DiepPlayerService {
