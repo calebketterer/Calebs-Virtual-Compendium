@@ -16,9 +16,9 @@ export class CrasherEnemy {
             x, y, 
             radius: 10 + sizeVariation, 
             color: '#BE7FF5',
-            health: 40, 
-            maxHealth: 40, 
-            scoreValue: 50,
+            health: 20, 
+            maxHealth: 20, 
+            scoreValue: 20,
             type: 'CRASHER',
             speedMultiplier: 1.8 + speedVariation,
             onUpdate: (enemy: Enemy, player: Player, deltaTime: number) => {
