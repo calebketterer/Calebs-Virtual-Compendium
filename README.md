@@ -1,36 +1,26 @@
 # Caleb's Virtual Compendium
 
-![Capture](https://github.com/user-attachments/assets/e2d56756-f9f7-4afd-980e-20d0f283d82f)
+<a href="https://YOUR-LINK-HERE.com">
+  <img width="510" height="300" alt="Screenshot 2026-05-03 231029" src="https://github.com/user-attachments/assets/c784d64d-eecc-4ad1-a948-a7f3ab37d0da" />
+</a>
+
+---
 
 <strong>Welcome!</strong> This project contains multiple interactive links, visualizations, and games- all created by me.  
-Visit the most recent deployment via Github Pages at [https://calebketterer.github.io/Calebs-Virtual-Compendium/](https://calebketterer.github.io/Calebs-Virtual-Compendium/).  
+Visit the most recent deployment via Github Pages at [https://calebketterer.github.io/Calebs-Compendium/](https://calebketterer.github.io/Calebs-Compendium/).  
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.4.
 
 ## Features
-
-<details>
-  <summary><strong>Conway's Game of Life Simulator</strong></summary>
-  
-## Conway's Game of Life
-  
-![Capture](https://github.com/user-attachments/assets/7e74d71d-86f0-4bb9-b631-e462ffae05fd)
-Based off Cambridge mathematician John Conway's [Game of Life]([url](https://playgameoflife.com/)), this cellular automaton became widely known when it was mentioned in an article published by Scientific American in 1970. It consists of a grid of cells which, based on a few mathematical rules, can live, die or multiply. Depending on the initial conditions, the cells form various patterns throughout the course of the game.
-
-The rules for each space: 
-1. Each populated cell with one or no neighbors dies, as if by solitude.
-2. Each populated cell with four or more neighbors dies, as if by overpopulation.
-3. Each populated cell with two or three neighbors survives.
-4. Each unpopulated cell with three neighbors becomes populated.
-</details>
 
 <details>
   <summary><strong>Diep</strong></summary>
 
 ## Diep
 
-<img width="803" height="788" alt="Capture" src="https://github.com/user-attachments/assets/7c7a30b1-ca66-4c9c-b378-162700abde0b" />
+<img width="519" height="398" alt="image" src="https://github.com/user-attachments/assets/ddf6dbef-31c8-49ac-9416-549788aa0bc2" />
 
-Based off the online game, Diep.io, I'm playing around with the idea of a single player version. Most people would likely compare this to asteroids.
+Based off the online game, Diep.io, I'm playing around with the idea of a single player version. The current version contains many enemies, an upgrade system, and achievement system. Not to mention a fun title screen with randomized effects and animations that I have guiltlessly admired for longer than I care to admit. 
+
 </details>
 
 <details>
@@ -87,7 +77,7 @@ A classic game of Tetris, featuring the following:
 
 ## Development Server in Browser
 
-Visit https://vscode.dev/. Log in to GitHub, then fork the repository. Under the explorer, select "Open Remote Repository" and select Calebs Virtual Compendium. Open Terminal and click "Continue Working in GitHub Codespaces." Install ng with the command line `npm install -g @angular/cli` in the codespace Terminal. Run `ng serve` for a dev server. Type `o + enter` into Terminal to directly open this project in your browser.
+Visit https://vscode.dev/. Log in to GitHub, then fork the repository. Under the explorer, select "Open Remote Repository" and select Calebs Compendium. Open Terminal and click "Continue Working in GitHub Codespaces." Install ng with the command line `npm install -g @angular/cli` in the codespace Terminal. Run `ng serve` for a dev server. Type `o + enter` into Terminal to directly open this project in your browser.
 
 <details>
   <summary><strong>Old Server Setup Instructions</strong></summary>
@@ -119,7 +109,7 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 
 ## Deploying as a Github Page
 
-If not already done, type `npm install -g angular-cli-ghpages` in terminal. Then, run `ng build --configuration production --base-href /Calebs-Virtual-Compendium/` and  `npx angular-cli-ghpages --dir=dist/example-website/browser/`. After that, the site should be updated at `https://calebketterer.github.io/Calebs-Virtual-Compendium/`
+If not already done, type `npm install -g angular-cli-ghpages` in terminal. Then, run `ng build --configuration production --base-href /Calebs-Compendium/` and  `npx angular-cli-ghpages --dir=dist/example-website/browser/`. After that, the site should be updated at `https://calebketterer.github.io/Calebs-Compendium/`
 
 <details>
   <summary><strong>Misc Notes</strong></summary>
@@ -128,8 +118,6 @@ If not already done, type `npm install -g angular-cli-ghpages` in terminal. Then
 
 When using a secondary account, commit under other creds by running `git config --global user.email "your-main-account-email@example.com"`
 and `git config --global user.name "Your Main Account Name"`
-
-If not already done, type `npm install -g angular-cli-ghpages` in terminal. Then, run `ng build --configuration production --base-href /Calebs-Compendium/` and  `npx angular-cli-ghpages --dir=dist/example-website/browser/`. After that, the site should be updated at `https://calebrobertketterer.github.io/Calebs-Compendium/`
 
 ## Command for Returning Tree (VSCODE Codespace/Linux)
 
