@@ -9,7 +9,7 @@
         <ng-container *ngTemplateOutlet="eyeToggle"></ng-container>
     </div>
 
-    <div [hidden]="selectedView !== 'main-site' && isOriginalContentHidden">
+    <div [hidden]="state.selectedView !== 'main-site' && state.isOriginalContentHidden">
         <div class="content original-content-container mb-8">
             
             <!-- Left Side: Logo and Intro -->
@@ -34,12 +34,12 @@
                     </select>
                 </div>
                 <div class="tips-container">
-                    <p #Tips (click)="shakeTips()" id="Tips">{{ currentTipText }}</p>
+                    <p #Tips (click)="shakeTips()" id="Tips">{{ state.currentTipText }}</p>
                 </div>
             </div>
 
             <!-- Interactive Divider -->
-            <div class="divider" [class.reverse]="reverse" (click)="toggleDirection()" role="separator"></div>
+            <div class="divider" [class.reverse]="state.reverse" (click)="toggleDirection()" role="separator"></div>
 
             <!-- Right Side: Links and Socials -->
             <div class="right-side">
@@ -53,26 +53,26 @@
     </div>
 
     <!-- View Switcher Logic Wrapped for Spacing -->
-    <div class="view-content-wrapper" *ngIf="selectedView !== 'main-site'">
-        <app-conway *ngIf="selectedView === 'conways-game-of-life'"></app-conway>
-        <app-diep *ngIf="selectedView === 'diep'"></app-diep>
-        <app-gwent *ngIf="selectedView === 'gwent'"></app-gwent>
-        <app-sudoku *ngIf="selectedView === 'sudoku'"></app-sudoku>
-        <app-snake *ngIf="selectedView === 'snake'"></app-snake>
-        <app-tetris *ngIf="selectedView === 'tetris'"></app-tetris>
+    <div class="view-content-wrapper" *ngIf="state.selectedView !== 'main-site'">
+        <app-conway *ngIf="state.selectedView === 'conways-game-of-life'"></app-conway>
+        <app-diep *ngIf="state.selectedView === 'diep'"></app-diep>
+        <app-gwent *ngIf="state.selectedView === 'gwent'"></app-gwent>
+        <app-sudoku *ngIf="state.selectedView === 'sudoku'"></app-sudoku>
+        <app-snake *ngIf="state.selectedView === 'snake'"></app-snake>
+        <app-tetris *ngIf="state.selectedView === 'tetris'"></app-tetris>
         
-        <div class="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg max-w-xl w-full mt-8" *ngIf="selectedView === 'another-view'">
+        <div class="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg max-w-xl w-full mt-8" *ngIf="state.selectedView === 'another-view'">
             <h1 class="text-3xl font-bold text-gray-800 mb-6">Another View Coming Soon!</h1>
             <p class="text-gray-700 text-center">This is a placeholder for future content.</p>
         </div>
     </div>
 </main>
 
-<app-clicker-overlay 
+<!-- <app-clicker-overlay 
     *ngIf="selectedView === 'main-site' && showClickerGame"
     [displayCount]="globalClickCount"
     (targetClicked)="handleGlobalClick()">
-</app-clicker-overlay>
+</app-clicker-overlay> -->
 
 <router-outlet />
 
@@ -81,11 +81,11 @@
 <!-- ========================================== -->
 
 <ng-template #eyeToggle>
-    <svg *ngIf="selectedView !== 'main-site'"
-        [ngClass]="{'eye-open': !isOriginalContentHidden, 'eye-closed': isOriginalContentHidden}"
+    <svg *ngIf="state.selectedView !== 'main-site'"
+        [ngClass]="{'eye-open': !state.isOriginalContentHidden, 'eye-closed': state.isOriginalContentHidden}"
         (click)="toggleOriginalContent($event)" xmlns="http://www.w3.org/2000/svg" height="30" viewBox="0 0 24 24" width="30" fill="currentColor">
-        <path *ngIf="!isOriginalContentHidden" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-        <g *ngIf="isOriginalContentHidden" fill="currentColor">
+        <path *ngIf="!state.isOriginalContentHidden" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+        <g *ngIf="state.isOriginalContentHidden" fill="currentColor">
             <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
             <path d="M3 3 L21 21" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
         </g>
