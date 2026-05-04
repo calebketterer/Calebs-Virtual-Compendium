@@ -17,7 +17,8 @@ export class DiepEnemyService {
             mass: 10,
             canDespawn: true,
             isGhost: false,
-            isInvulnerable: false
+            isInvulnerable: false,
+            isFlying: false,
         };
 
         const enemy = { ...defaults, ...config } as Enemy;

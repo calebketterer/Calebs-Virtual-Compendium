@@ -53,7 +53,9 @@ export class DiepProjectileService {
             ownerType: 'PLAYER',
             health: player.bulletHealth,
             maxHealth: player.bulletHealth,
-            damage: player.bulletDamage
+            damage: player.bulletDamage,
+            isFlying: true,
+            isGhost: false,
         });
     }
 
@@ -93,7 +95,8 @@ export class DiepProjectileService {
             if (b.isBomb) {
                 return b.timer !== undefined && b.timer > 0;
             }
-            return b.x > -50 && b.x < width + 50 && b.y > -50 && b.y < height + 50;
+            // Filter out dead bullets or those off-screen
+            return b.health > 0 && b.x > -100 && b.x < width + 100 && b.y > -100 && b.y < height + 100;
         });
     }
 

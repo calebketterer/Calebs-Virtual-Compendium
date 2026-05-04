@@ -5,31 +5,65 @@ import { DiepMainMenu } from './main-menu/diep.main-menu';
 import { DiepPauseOverlay } from './overlays/pause-overlay';
 import { DiepGameOverOverlay } from './overlays/game-over-overlay';
 import { DiepHudRenderer } from './hud/diep.hud-renderer';
+import { DiepBackgroundRenderer } from './diep.background-renderer';
 
 export class DiepMenus {
   public static renderGame(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {
-    DiepEntities.drawBackground(ctx, g.isDarkMode, width, height);
+    const tiles = g.arenaManager?.getAllTiles() || [];
+    const tileSize = g.arenaManager?.tileSize || 50;
 
-    if (g.isGameStarted || g.gameOver) {
-      DiepEntities.drawToxicTrails(ctx, g.toxicTrails);
-      DiepEntities.drawPlayer(ctx, g.player, g.gameOver);
-      DiepEntities.drawBullets(ctx, g.bullets);
-      DiepEntities.drawEnemiesWithBars(ctx, g.getVisibleEnemies(), g.player, g.bullets);
+    // 1. PASS 1: Draw Ground (Grid and Holes)
+    if (g.arenaManager) {
+      DiepBackgroundRenderer.drawGround(ctx, width, height, tileSize, tiles);
+    } else {
+      DiepEntities.drawBackground(ctx, g.isDarkMode, width, height);
     }
 
+    // 2. Draw World Objects (Ground Layer)
+    if (g.isGameStarted || g.gameOver) {
+      DiepEntities.drawToxicTrails(ctx, g.toxicTrails);
+      
+      // Draw non-flying enemies behind walls
+      const visibleEnemies = g.getVisibleEnemies();
+      const groundEnemies = visibleEnemies.filter((e: any) => !e.isFlying);
+      DiepEntities.drawEnemiesWithBars(ctx, groundEnemies, g.player, g.bullets);
+      
+      DiepEntities.drawPlayer(ctx, g.player, g.gameOver);
+      DiepEntities.drawBullets(ctx, g.bullets);
+    }
+
+    // 3. PASS 2: Draw Walls (On top of ground enemies and player)
+    if (g.arenaManager) {
+      DiepBackgroundRenderer.drawWalls(ctx, tileSize, tiles);
+    }
+
+    // 4. Draw Flying Entities (On top of walls)
+    if (g.isGameStarted || g.gameOver) {
+        const visibleEnemies = g.getVisibleEnemies();
+        const flyingEnemies = visibleEnemies.filter((e: any) => e.isFlying);
+        if (flyingEnemies.length > 0) {
+            DiepEntities.drawEnemiesWithBars(ctx, flyingEnemies, g.player, g.bullets);
+        }
+    }
+
+    // 5. Draw HUD
     if (g.isGameStarted || g.gameOver || g.isPaused) {
       DiepHudRenderer.draw(ctx, g, width, height);
     }
 
-    // Router - Delegating to modular files
+    // 6. UI Router
     if (g.showingQuadrivium) {
       DiepQuadriviumMenu.render(ctx, g, width, height);
     } else if (g.showingAchievements) {
       DiepAchievementMenu.render(ctx, g, width, height);
     } else {
-      if (!g.isGameStarted) DiepMainMenu.draw(ctx, g, width, height);
-      else if (g.isPaused) DiepPauseOverlay.draw(ctx, g, width, height);
-      else if (g.gameOver && g.deathAnimationTimeStart === null) DiepGameOverOverlay.draw(ctx, g, width, height);
+      if (!g.isGameStarted) {
+        DiepMainMenu.draw(ctx, g, width, height);
+      } else if (g.isPaused) {
+        DiepPauseOverlay.draw(ctx, g, width, height);
+      } else if (g.gameOver && g.deathAnimationTimeStart === null) {
+        DiepGameOverOverlay.draw(ctx, g, width, height);
+      }
     }
     
     this.drawInGamePauseButton(ctx, g, width, height);

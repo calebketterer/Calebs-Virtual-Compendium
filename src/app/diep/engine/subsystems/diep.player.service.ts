@@ -69,8 +69,8 @@ export class DiepPlayerService {
         }
         lastAngle = player.angle;
 
-        player.x = Math.max(player.radius, Math.min(width - player.radius, player.x));
-        player.y = Math.max(player.radius, Math.min(height - player.radius, player.y));
+        /* player.x = Math.max(player.radius, Math.min(width - player.radius, player.x));
+        player.y = Math.max(player.radius, Math.min(height - player.radius, player.y)); */
         
         player.health = Math.min(player.maxHealth, player.health + (player.healthRegen * deltaTime / 1000));
 
