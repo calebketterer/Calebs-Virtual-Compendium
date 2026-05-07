@@ -116,8 +116,8 @@ If not already done, type `npm install -g angular-cli-ghpages` in terminal. Then
 
 ## Secondary Account Commands
 
-When using a secondary account, commit under other creds by running `git config --global user.email "your-main-account-email@example.com"`
-and `git config --global user.name "Your Main Account Name"`
+When using a secondary account, commit under other creds by running `git config --global user.email calebketterer8@gmail.com`
+and `git config --global user.name calebketterer`
 
 ## Command for Returning Tree (VSCODE Codespace/Linux)
 
