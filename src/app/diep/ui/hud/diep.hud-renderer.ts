@@ -2,6 +2,7 @@ import { DiepXpBarRenderer } from './diep.xp-bar-renderer';
 import { DiepHealthBarRenderer } from './diep.health-bar-renderer';
 import { DiepUpgradeMenuRenderer } from './upgrade-menu/diep.upgrade-menu-renderer';
 import { DiepPauseButtonRenderer } from './diep.pause-button-renderer';
+import { DiepAchievementToastRenderer } from './diep.achievement-toast';
 
 /**
  * DiepHudRenderer handles all fixed-position UI elements.
@@ -21,9 +22,9 @@ export class DiepHudRenderer {
     DiepXpBarRenderer.draw(ctx, g.player, width, height);
     DiepUpgradeMenuRenderer.draw(ctx, g, height);
     
-    // 3. Draw Global Stats (Score/Wave)
+    // 3. Draw Global Stats (Score/Wave/Notifs)
     this.drawSessionStats(ctx, g, width, uiTextColor);
-    this.drawNotifications(ctx, width);
+    this.drawNotifications(ctx, g, width);
 
     // 4. Draw the Pause Button Toggle
     DiepPauseButtonRenderer.draw(ctx, g, width);
@@ -38,10 +39,7 @@ export class DiepHudRenderer {
     ctx.fillText('WAVE: ' + g.waveManager.waveCount, width - 20, 60);
   }
 
-  /**
-   * PLACEHOLDER: For Level Up, Wave Start, or Achievement alerts.
-   */
-  private static drawNotifications(ctx: CanvasRenderingContext2D, width: number): void {
-    // Logic for center-screen announcements or fading alerts goes here.
+  private static drawNotifications(ctx: CanvasRenderingContext2D, g: any, width: number): void {
+    DiepAchievementToastRenderer.draw(ctx, width);
   }
 }

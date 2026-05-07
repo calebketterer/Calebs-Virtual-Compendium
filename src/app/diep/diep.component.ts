@@ -6,6 +6,8 @@ import { DiepHudRenderer } from './ui/hud/diep.hud-renderer';
 import { DiepGameEngineService } from './engine/diep.game-engine.service'; 
 import { DiepInputService } from './engine/diep.input.service';
 import { DiepInteractionService } from './ui/diep.interaction.service';
+import { DiepAchievementToastRenderer } from './ui/hud/diep.achievement-toast';
+import { isDevMode } from '@angular/core';
 
 @Component({
   selector: 'app-diep',
@@ -38,7 +40,23 @@ export class DiepComponent implements AfterViewInit {
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
-    this.inputService.handleKeyDown(event, () => this.draw(), () => this.gameEngine.startTicker(() => this.draw()));
+
+    const isDebug = isDevMode();
+
+    // --- DEBUG TEST TRIGGER ---
+    if (isDebug && event.key.toLowerCase() === 'l') {
+      const achs = this.gameEngine.achievementService.achievements;
+      const randomAch = achs[Math.floor(Math.random() * achs.length)];
+      // Trigger the Toast manually
+      DiepAchievementToastRenderer.add(randomAch);
+      return;
+    }
+
+    this.inputService.handleKeyDown(
+      event, 
+      () => this.draw(), 
+      () => this.gameEngine.startTicker(() => this.draw())
+    );
   }
 
   @HostListener('window:keyup', ['$event'])
@@ -86,8 +104,8 @@ export class DiepComponent implements AfterViewInit {
     // 1. Draw Game World (Ground, Enemies, Players, Walls)
     DiepWorldRenderer.renderWorld(ctx, g, w, h);
 
-    // 2. Draw HUD (Only if game is active/paused/over)
-    DiepHudRenderer.draw(ctx, g, g.width, g.height);
+    // 2. Draw HUD (Now manages its own internal start-check)
+    DiepHudRenderer.draw(ctx, g, w, h);
 
     // 3. Draw UI Layers (Menus, Overlays, Transitions)
     DiepMenus.renderUI(ctx, g, w, h);
