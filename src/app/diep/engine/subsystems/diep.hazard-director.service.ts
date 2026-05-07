@@ -10,6 +10,7 @@ export class DiepHazardDirector {
   private currentPattern: ArenaPattern = 'NONE';
   private lastWaveProcessed = -1;
   private patternInitialized = false;
+  public enabled = false;
 
   constructor(
     private arena: DiepArenaManager,
@@ -17,6 +18,7 @@ export class DiepHazardDirector {
   ) {}
 
   public update(deltaTime: number, width: number, height: number): void {
+    if (!this.enabled) return;
     this.checkWaveTransition();
     this.runActivePattern(deltaTime, width, height);
   }

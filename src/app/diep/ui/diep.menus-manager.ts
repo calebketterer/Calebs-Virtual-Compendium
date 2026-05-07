@@ -11,8 +11,9 @@ export class DiepMenus {
   public static renderGame(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {
     const tiles = g.arenaManager?.getAllTiles() || [];
     const tileSize = g.arenaManager?.tileSize || 50;
+    const isArenaActive = g.arenaEnabled !== false;
 
-    // 1. PASS 1: Draw Ground (Grid and Holes)
+    // 1. Draw Ground (Grid and Holes)
     if (g.arenaManager) {
       DiepBackgroundRenderer.drawGround(ctx, width, height, tileSize, tiles);
     } else {
@@ -23,7 +24,6 @@ export class DiepMenus {
     if (g.isGameStarted || g.gameOver) {
       DiepEntities.drawToxicTrails(ctx, g.toxicTrails);
       
-      // Draw non-flying enemies behind walls
       const visibleEnemies = g.getVisibleEnemies();
       const groundEnemies = visibleEnemies.filter((e: any) => !e.isFlying);
       DiepEntities.drawEnemiesWithBars(ctx, groundEnemies, g.player, g.bullets);
@@ -32,12 +32,13 @@ export class DiepMenus {
       DiepEntities.drawBullets(ctx, g.bullets);
     }
 
-    // 3. PASS 2: Draw Walls (On top of ground enemies and player)
-    if (g.arenaManager) {
+    // 3. PASS 2: Draw Walls
+    // Only draw walls if the dynamic arena feature is toggled on.
+    if (g.arenaManager && isArenaActive) {
       DiepBackgroundRenderer.drawWalls(ctx, tileSize, tiles);
     }
 
-    // 4. Draw Flying Entities (On top of walls)
+    // 4. Draw Flying Entities
     if (g.isGameStarted || g.gameOver) {
         const visibleEnemies = g.getVisibleEnemies();
         const flyingEnemies = visibleEnemies.filter((e: any) => e.isFlying);

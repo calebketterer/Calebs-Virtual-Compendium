@@ -48,6 +48,8 @@ export class DiepGameEngineService {
     private lastTime: number = 0;
     private onRenderCallback: () => void = () => {};
 
+    public arenaEnabled = true;
+
     constructor(
         private spawner: EnemySpawnerService,
         private highScoresService: HighScoresService,
