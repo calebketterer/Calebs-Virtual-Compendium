@@ -19,16 +19,21 @@ export class DiepUpgradeMenuRenderer {
 
   public static draw(ctx: CanvasRenderingContext2D, g: any, height: number): void {
     const player: Player = g.player;
-    const hasPoints = player.progression.upgradePoints > 0;
-
-    UpgradeMenuManager.updateSlide(hasPoints, this.MENU_WIDTH);
-    if (UpgradeMenuManager.slideX < -this.MENU_WIDTH - 70) return;
-
     const startY = UpgradeMenuManager.getMenuStartY(height, this.ROW_HEIGHT, this.ROW_SPACING);
+    const menuHeight = UPGRADE_REGISTRY.length * (this.ROW_HEIGHT + this.ROW_SPACING);
+    
+    const isHovered = g.mousePos.x <= (UpgradeMenuManager.slideX + this.MENU_WIDTH + 40) &&
+                      g.mousePos.y >= (startY - 40) && 
+                      g.mousePos.y <= (startY + menuHeight + 20);
 
-    // Points Label
-    if (hasPoints) {
-      this.drawPointsLabel(ctx, player.progression.upgradePoints, UpgradeMenuManager.slideX, startY - 15);
+    // Pass the whole player object now for the "canStillUpgrade" check
+    UpgradeMenuManager.updateSlide(player, this.MENU_WIDTH, isHovered, g.deltaTime || 16.6);
+
+    if (UpgradeMenuManager.slideX < -this.MENU_WIDTH - 90) return;
+
+    // Draw Points Label with the calculated offset
+    if (player.progression.upgradePoints > 0) {
+      this.drawPointsLabel(ctx, player.progression.upgradePoints, UpgradeMenuManager.slideX + UpgradeMenuManager.labelX, startY - 15);
     }
 
     UPGRADE_REGISTRY.forEach((path: UpgradePath, i: number) => {
@@ -52,6 +57,7 @@ export class DiepUpgradeMenuRenderer {
   private static drawPointsLabel(ctx: CanvasRenderingContext2D, points: number, x: number, y: number): void {
     ctx.save();
     ctx.font = '900 22px Inter, sans-serif';
+    ctx.textAlign = 'center'; // Center alignment for perfect button-sync
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 4;
     ctx.strokeText(`x${points}`, x, y);
@@ -62,15 +68,12 @@ export class DiepUpgradeMenuRenderer {
 
   public static getButtons(g: any, height: number): DiepButton[] {
     const player: Player = g.player;
-    if (player.progression.upgradePoints <= 0 || UpgradeMenuManager.slideX < -100) return [];
+    if (player.progression.upgradePoints <= 0 || UpgradeMenuManager.slideX < -280) return [];
 
     const startY = UpgradeMenuManager.getMenuStartY(height, this.ROW_HEIGHT, this.ROW_SPACING);
 
-    // map() first to keep indices consistent with draw(), then filter out the nulls
     return UPGRADE_REGISTRY.map((path, i) => {
       const spent = player.upgrades[path.id] || 0;
-
-      // If already at max level (10), don't create a button for this row
       if (spent >= 10) return null;
 
       return {

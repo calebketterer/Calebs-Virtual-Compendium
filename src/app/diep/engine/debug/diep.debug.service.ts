@@ -11,13 +11,12 @@ export class DiepDebugService {
 
     const key = event.key.toLowerCase();
 
-    // Logic moved from Engine to here
     switch (key) {
       case 'l':
         this.triggerRandomAchievement();
         return true;
       case 'i':
-        this.applyInvincibility();
+        this.toggleInvincibility(); // Renamed for clarity
         return true;
       case 'u':
         this.applyUpgrades();
@@ -27,15 +26,26 @@ export class DiepDebugService {
     }
   }
 
-  private applyInvincibility() {
+  private toggleInvincibility() {
     const p = this.gameEngine.player;
     if (!p) return;
-    
-    p.maxHealth = 10000;
-    p.health = 10000;
-    p.healthRegen = 100;
 
-    this.notify('DEBUG', 'INVINCIBILITY ACTIVE');
+    // Check if we are currently in god mode
+    const isCurrentlyGod = p.maxHealth >= 10000;
+
+    if (isCurrentlyGod) {
+      // REVERT TO NORMAL
+      p.maxHealth = 100;
+      p.health = 100;
+      p.healthRegen = 1;
+      this.notify('DEBUG', 'MORTAL MODE ACTIVE');
+    } else {
+      // ENABLE GOD MODE
+      p.maxHealth = 10000;
+      p.health = 10000;
+      p.healthRegen = 100;
+      this.notify('DEBUG', 'GOD MODE ACTIVE');
+    }
   }
 
   private applyUpgrades() {
@@ -48,7 +58,7 @@ export class DiepDebugService {
 
   private triggerRandomAchievement() {
     const achs = this.gameEngine.achievementService.achievements;
-    if (achs.length > 0) {
+    if (achs && achs.length > 0) {
       const randomAch = achs[Math.floor(Math.random() * achs.length)];
       DiepAchievementToastRenderer.add(randomAch);
     }
@@ -63,7 +73,7 @@ export class DiepDebugService {
       currentValue: 1,
       isUnlocked: true,
       type: 'SCORE',
-      weight: 0
+      weight: 666
     });
   }
 }
