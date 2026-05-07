@@ -6,8 +6,7 @@ import { DiepHudRenderer } from './ui/hud/diep.hud-renderer';
 import { DiepGameEngineService } from './engine/diep.game-engine.service'; 
 import { DiepInputService } from './engine/diep.input.service';
 import { DiepInteractionService } from './ui/diep.interaction.service';
-import { DiepAchievementToastRenderer } from './ui/hud/diep.achievement-toast';
-import { isDevMode } from '@angular/core';
+import { DiepDebugService} from './engine/debug/diep.debug.service';
 
 @Component({
   selector: 'app-diep',
@@ -24,7 +23,8 @@ export class DiepComponent implements AfterViewInit {
   constructor(
     public gameEngine: DiepGameEngineService, 
     private inputService: DiepInputService,
-    private interactionService: DiepInteractionService
+    private interactionService: DiepInteractionService,
+    private debugService: DiepDebugService
   ) {}
 
   ngAfterViewInit() {
@@ -41,14 +41,7 @@ export class DiepComponent implements AfterViewInit {
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
 
-    const isDebug = isDevMode();
-
-    // --- DEBUG TEST TRIGGER ---
-    if (isDebug && event.key.toLowerCase() === 'l') {
-      const achs = this.gameEngine.achievementService.achievements;
-      const randomAch = achs[Math.floor(Math.random() * achs.length)];
-      // Trigger the Toast manually
-      DiepAchievementToastRenderer.add(randomAch);
+    if (this.debugService.handleDebugInput(event)) {
       return;
     }
 
