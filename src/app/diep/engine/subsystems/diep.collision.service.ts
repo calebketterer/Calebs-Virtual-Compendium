@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Player, Bullet, Enemy } from '../../core/diep.interfaces';
-import { EnemySpawnerService } from './diep.enemy-spawner';
+import { EnemySpawnerService } from '../../enemies/diep.enemy-spawner';
+import { DiepArenaManager, TileType } from './diep.arena-manager';
 
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class DiepCollisionService {
-    constructor(private spawner: EnemySpawnerService) {}
+    constructor(
+        private spawner: EnemySpawnerService,
+        private arenaManager: DiepArenaManager 
+    ) {}
 
     public handleCollisions(
         player: Player,
@@ -14,33 +16,31 @@ export class DiepCollisionService {
         enemies: Enemy[],
         onKillEnemy: (enemy: Enemy) => void
     ) {
+        this.handleEnvironmentCollision(player);
+        enemies.forEach(e => this.handleEnvironmentCollision(e));
+        
+        for (let i = bullets.length - 1; i >= 0; i--) {
+            if (this.handleEnvironmentCollision(bullets[i], true)) {
+                bullets.splice(i, 1);
+            }
+        }
+
         this.handleBulletVsBullet(bullets);
 
         bullets.forEach(bullet => {
             if (bullet.ownerType !== 'PLAYER' || bullet.health <= 0) return;
             enemies.forEach(enemy => {
                 if (enemy.isGhost || enemy.health <= 0 || bullet.health <= 0) return;
-                
                 const dist = this.getDist(bullet, enemy);
                 const combinedRadius = bullet.radius + enemy.radius;
 
                 if (dist < combinedRadius) {
                     this.resolveHealthTrade(bullet, enemy);
-                    
-                    // --- NEW ENCAPSULATED HOOK ---
-                    // Instead of checking for 'MOTHER' here, we let the enemy handle its own hit
-                    if (enemy.onHit) {
-                        enemy.onHit(enemies, this.spawner, bullet);
-                    }
-
+                    if (enemy.onHit) enemy.onHit(enemies, this.spawner, bullet);
                     if (enemy.health <= 0) {
-                        // Trigger onDeath hook if it exists before removing from array
-                        if (enemy.onDeath) {
-                            enemy.onDeath(enemies, this.spawner, enemy, player);
-                        }
+                        if (enemy.onDeath) enemy.onDeath(enemies, this.spawner, enemy, player);
                         onKillEnemy(enemy);
                     }
-
                     const angle = Math.atan2(bullet.y - enemy.y, bullet.x - enemy.x);
                     const overlap = combinedRadius - dist;
                     bullet.dx += Math.cos(angle) * overlap * 0.3; 
@@ -91,6 +91,68 @@ export class DiepCollisionService {
             bullets: bullets.filter(b => b.health > 0),
             enemies: enemies.filter(e => e.health > 0 || e.isInvulnerable)
         };
+    }
+
+    public handleEnvironmentCollision(entity: any, isBullet: boolean = false): boolean {
+        // GHOSTS bypass all environment collisions entirely
+        if (entity.isGhost) return false;
+
+        const tileSize = this.arenaManager.tileSize;
+        const margin = isBullet ? 2 : 0;
+        const left = entity.x - entity.radius - margin;
+        const right = entity.x + entity.radius + margin;
+        const top = entity.y - entity.radius - margin;
+        const bottom = entity.y + entity.radius + margin;
+
+        const gridLeft = Math.floor(left / tileSize);
+        const gridRight = Math.floor(right / tileSize);
+        const gridTop = Math.floor(top / tileSize);
+        const gridBottom = Math.floor(bottom / tileSize);
+
+        for (let gy = gridTop; gy <= gridBottom; gy++) {
+            for (let gx = gridLeft; gx <= gridRight; gx++) {
+                const tile = this.arenaManager.getTileAt(gx * tileSize + 1, gy * tileSize + 1);
+                if (!tile) continue;
+
+                // 1. HOLE LOGIC: isFlying objects ignore holes. Everyone else dies.
+                if (tile.type === TileType.HOLE && tile.transition > 0.8 && !entity.isFlying) {
+                    const centerTile = this.arenaManager.getTileAt(entity.x, entity.y);
+                    if (centerTile === tile) {
+                        entity.health = 0;
+                        return true;
+                    }
+                }
+
+                // 2. WALL LOGIC: Both normal AND isFlying objects hit walls.
+                const wallThreshold = isBullet ? 0.2 : 0.5;
+                if (tile.type === TileType.WALL && tile.transition > wallThreshold) {
+                    if (isBullet) {
+                        entity.health = 0;
+                        entity.dx = 0;
+                        entity.dy = 0;
+                        return true;
+                    }
+
+                    const tileCenterX = (gx * tileSize) + tileSize / 2;
+                    const tileCenterY = (gy * tileSize) + tileSize / 2;
+                    const diffX = entity.x - tileCenterX;
+                    const diffY = entity.y - tileCenterY;
+                    const overlapX = (tileSize / 2 + entity.radius) - Math.abs(diffX);
+                    const overlapY = (tileSize / 2 + entity.radius) - Math.abs(diffY);
+
+                    if (overlapX > 0 && overlapY > 0) {
+                        if (overlapX < overlapY) {
+                            entity.x += diffX > 0 ? overlapX : -overlapX;
+                            entity.vx = 0;
+                        } else {
+                            entity.y += diffY > 0 ? overlapY : -overlapY;
+                            entity.vy = 0;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private applyOverlapPush(a: any, b: any, dist: number, combinedRadius: number, strength: number) {

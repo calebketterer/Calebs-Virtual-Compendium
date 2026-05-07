@@ -30,6 +30,7 @@ export interface Player {
   bulletSpeed: number;
   upgrades: Record<string, number>;
   progression: PlayerProgression;
+  isFlying?: boolean;
 }
 
 export interface Bullet {
@@ -56,6 +57,8 @@ export interface Bullet {
   bounces?: number;
   healOwnerOnHit?: boolean;
   ownerId?: string;
+  isFlying?: boolean;
+  isGhost?: boolean;
 }
 
 export type EnemyType = 'ROLLER' | 'MINION' | 'CRASHER' | 'SNIPER' | 'BLOATER' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER' | 'PUDDLE'| 'HAUNTER' |'BOMBER'| 'BLASTER'| 'CASTER'| 'ECHO';
@@ -96,6 +99,7 @@ export interface Enemy {
   blastTimer?: number;     
   maxBlastTimer?: number; 
   blastRadius?: number;    
+  isFlying?: boolean;
   onHit?: (enemies: Enemy[], spawner: any, bullet: Bullet) => void;
   onDeath?: (enemies: Enemy[], spawner: any, deadEnemy: Enemy, player: Player) => void;
   onUpdate?: (enemy: Enemy, player: Player, deltaTime: number) => void;

@@ -1,9 +1,12 @@
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, HostListener, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DiepMenus } from './ui/diep.menus-manager';
+import { DiepWorldRenderer } from './ui/diep.arena-renderer';
+import { DiepHudRenderer } from './ui/hud/diep.hud-renderer';
 import { DiepGameEngineService } from './engine/diep.game-engine.service'; 
 import { DiepInputService } from './engine/diep.input.service';
 import { DiepInteractionService } from './ui/diep.interaction.service';
+import { DiepDebugService} from './engine/debug/diep.debug.service';
 
 @Component({
   selector: 'app-diep',
@@ -20,7 +23,8 @@ export class DiepComponent implements AfterViewInit {
   constructor(
     public gameEngine: DiepGameEngineService, 
     private inputService: DiepInputService,
-    private interactionService: DiepInteractionService
+    private interactionService: DiepInteractionService,
+    private debugService: DiepDebugService
   ) {}
 
   ngAfterViewInit() {
@@ -36,7 +40,16 @@ export class DiepComponent implements AfterViewInit {
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
-    this.inputService.handleKeyDown(event, () => this.draw(), () => this.gameEngine.startTicker(() => this.draw()));
+
+    if (this.debugService.handleDebugInput(event)) {
+      return;
+    }
+
+    this.inputService.handleKeyDown(
+      event, 
+      () => this.draw(), 
+      () => this.gameEngine.startTicker(() => this.draw())
+    );
   }
 
   @HostListener('window:keyup', ['$event'])
@@ -76,6 +89,18 @@ export class DiepComponent implements AfterViewInit {
   }
 
   draw() {
-    DiepMenus.renderGame(this.ctx, this.gameEngine, this.gameEngine.width, this.gameEngine.height);
+    const g = this.gameEngine;
+    const ctx = this.ctx;
+    const w = g.width;
+    const h = g.height;
+
+    // 1. Draw Game World (Ground, Enemies, Players, Walls)
+    DiepWorldRenderer.renderWorld(ctx, g, w, h);
+
+    // 2. Draw HUD (Now manages its own internal start-check)
+    DiepHudRenderer.draw(ctx, g, w, h);
+
+    // 3. Draw UI Layers (Menus, Overlays, Transitions)
+    DiepMenus.renderUI(ctx, g, w, h);
   }
 }

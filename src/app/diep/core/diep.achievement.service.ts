@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Achievement } from './diep.interfaces';
+import { DiepAchievementToastRenderer } from '../ui/hud/diep.achievement-toast';
 
 @Injectable({ providedIn: 'root' })
 export class AchievementService {
@@ -63,7 +64,10 @@ export class AchievementService {
              ach.currentValue++;
              changed = true;
           }
-          if (ach.currentValue >= ach.targetValue) ach.isUnlocked = true;
+          if (ach.currentValue >= ach.targetValue) {
+            ach.isUnlocked = true;
+            DiepAchievementToastRenderer.add(ach);
+          }
         }
       }
     });

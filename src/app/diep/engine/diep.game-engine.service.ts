@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Player, Bullet, Enemy, HighScore, TrailSegment, DifficultyMode } from '../core/diep.interfaces';
-import { EnemySpawnerService } from './subsystems/diep.enemy-spawner';
+import { EnemySpawnerService } from '../enemies/diep.enemy-spawner';
 import { HighScoresService } from '../core/diep.high-scores.service';
 import { DiepCollisionService } from './subsystems/diep.collision.service';
 import { DiepWaveManagerService } from './subsystems/diep.wave-manager';
 import { DiepProjectileService } from './subsystems/diep.projectile.service';
 import { DiepPlayerService } from './subsystems/diep.player.service';
-import { DiepEnemyService } from './subsystems/diep.enemy.service';
+import { DiepEnemyService } from '../enemies/diep.enemy.service';
 import { TransitionManager } from '../ui/diep.transition-manager';
 import { AchievementService } from '../core/diep.achievement.service';
 import { DiepPlayerUpgradesService } from './subsystems/player-upgrades/diep.player-upgrades.service';
+import { DiepArenaManager } from './subsystems/diep.arena-manager';
+import { DiepHazardDirector } from './subsystems/diep.hazard-director.service';
 
 @Injectable({ providedIn: 'root' })
 export class DiepGameEngineService {
@@ -46,6 +48,8 @@ export class DiepGameEngineService {
     private lastTime: number = 0;
     private onRenderCallback: () => void = () => {};
 
+    public arenaEnabled = true;
+
     constructor(
         private spawner: EnemySpawnerService,
         private highScoresService: HighScoresService,
@@ -55,11 +59,14 @@ export class DiepGameEngineService {
         private enemyService: DiepEnemyService,
         public waveManager: DiepWaveManagerService,
         public achievementService: AchievementService,
-        private upgradeService: DiepPlayerUpgradesService
+        private upgradeService: DiepPlayerUpgradesService,
+        public arenaManager: DiepArenaManager,
+        public hazardDirector: DiepHazardDirector,
     ) {
         this.player = this.playerService.getDefaultPlayer(this.currentDifficulty, this.persistentXp);
         this.topScores = this.highScoresService.getHighScores();
         this.transition.fadeIn();
+        this.arenaManager.init(this.width, this.height);
     }
 
     public startTicker(renderFn: () => void) {
@@ -122,30 +129,48 @@ export class DiepGameEngineService {
     public update(deltaTime: number) {
         const F = deltaTime / (1000 / 60);
         
+        this.arenaManager.update(deltaTime);
+        if (this.isGameStarted && !this.isPaused && !this.gameOver) {
+            this.hazardDirector.update(deltaTime, this.width, this.height);
+        }
+
         if (this.gameOver && this.deathAnimationTimeStart) {
             this.handleDeathAnimation(Date.now());
         }
 
         if (!this.isGameStarted || this.isPaused || this.gameOver) return;
 
+        // 1. Move Player
         const playerUpdate = this.playerService.update(this.player, this.keys, this.mousePos, this.mouseAiming, this.width, this.height, F, deltaTime);
         this.lastAngle = playerUpdate.lastAngle;
+        
+        // 2. IMMEDIATE Environment Fix (Prevents Jitter by correcting X/Y before render)
+        if (this.collisionService.handleEnvironmentCollision(this.player)) {
+            this.handleGameOver();
+            return;
+        }
 
+        // 3. Move Bullets + Immediate Env Fix
         this.bullets = this.projectileService.updateBullets(this.bullets, F, this.width, this.height, this.player, deltaTime);
+        this.bullets.forEach(b => this.collisionService.handleEnvironmentCollision(b, true));
+
         this.toxicTrails = this.projectileService.updateTrails(this.toxicTrails, this.bullets, this.player, Date.now());
 
         if (this.mouseAiming && this.mouseDown && this.player.health > 0) {
             this.shootBullet();
         }
 
+        // 4. Update Enemies + Immediate Env Fix
         if (this.player.health > 0) {
             if (this.isStartingNewGame) {
                 this.isStartingNewGame = false;
             } else {
                 this.enemyService.updateAI(this.enemies, this.bullets, this.player, deltaTime, this.width, this.height);
+                this.enemies.forEach(e => this.collisionService.handleEnvironmentCollision(e));
             }
         }
 
+        // 5. Inter-Entity Collisions (Bullets/Enemies/Player)
         const col = this.collisionService.handleCollisions(this.player, this.bullets, this.enemies, (e) => this.killEnemy(e));
         this.bullets = col.bullets;
         this.enemies = col.enemies;
@@ -157,8 +182,9 @@ export class DiepGameEngineService {
 
         this.enemies = this.enemyService.cleanup(this.enemies, this.width, this.height);
         this.waveManager.updateWaves(this.enemies, this.width, this.height);
-
         this.achievementService.updateProgress('WAVE', this.waveManager.waveCount);
+        this.player.x = Math.max(this.player.radius, Math.min(this.width - this.player.radius, this.player.x));
+        this.player.y = Math.max(this.player.radius, Math.min(this.height - this.player.radius, this.player.y));
     }
 
     public shootBullet() {
@@ -184,24 +210,17 @@ export class DiepGameEngineService {
         this.topScores = this.highScoresService.getHighScores();
         this.showingQuadrivium = false;
         this.showingAchievements = false;
+        this.arenaManager.init(this.width, this.height);
     }
 
     public killEnemy(enemy: Enemy) {
         this.score += enemy.scoreValue;
         this.sessionKills++; 
-
         this.upgradeService.addXp(this.player.progression, enemy.scoreValue);
-
         enemy.onDeath?.(this.enemies, this.spawner, enemy, this.player);
         enemy.health = 0;
-
         const meta = (enemy as any).metadata || {};
-        this.achievementService.incrementKills(
-            enemy.type, 
-            meta.faction, 
-            this.sessionKills
-        );
-
+        this.achievementService.incrementKills(enemy.type, meta.faction, this.sessionKills);
         this.achievementService.updateProgress('SCORE', this.score);
     }
 

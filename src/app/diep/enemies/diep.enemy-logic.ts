@@ -1,5 +1,5 @@
-import { Enemy, Player, Bullet } from '../../core/diep.interfaces';
-import { EnemyRegistry } from '../../enemies/enemy.registry';
+import { Enemy, Player, Bullet } from '../core/diep.interfaces';
+import { EnemyRegistry } from './enemy.registry';
 
 /**
  * Utility class dedicated to updating the state, position, and actions of all enemy types each frame via the EnemyRegistry.

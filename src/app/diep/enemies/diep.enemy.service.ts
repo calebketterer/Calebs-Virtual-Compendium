@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Enemy, Player, Bullet, EnemyType } from '../../core/diep.interfaces';
+import { Enemy, Player, Bullet, EnemyType } from '../core/diep.interfaces';
 import { DiepEnemyLogic } from './diep.enemy-logic';
-import { DiepPhysics } from '../../core/diep.physics';
+import { DiepPhysics } from '../core/diep.physics';
 
 @Injectable({ providedIn: 'root' })
 export class DiepEnemyService {
@@ -17,7 +17,8 @@ export class DiepEnemyService {
             mass: 10,
             canDespawn: true,
             isGhost: false,
-            isInvulnerable: false
+            isInvulnerable: false,
+            isFlying: false,
         };
 
         const enemy = { ...defaults, ...config } as Enemy;
