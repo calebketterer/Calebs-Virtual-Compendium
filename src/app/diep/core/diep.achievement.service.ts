@@ -5,14 +5,14 @@ import { DiepAchievementToastRenderer } from '../ui/hud/diep.achievement-toast';
 @Injectable({ providedIn: 'root' })
 export class AchievementService {
   public achievements: Achievement[] = [
-    // --- WAVE / SURVIVOR SERIES (Session Max) ---
+    // --- WAVE / SURVIVOR SERIES ---
     { id: 'wave_1', groupId: 'wave', tier: 1, name: 'Survivor', description: 'Reach Wave 5', targetValue: 5, currentValue: 0, isUnlocked: false, type: 'WAVE', weight: 5 },
     { id: 'wave_2', groupId: 'wave', tier: 2, name: 'Survivor', description: 'Reach Wave 10', targetValue: 10, currentValue: 0, isUnlocked: false, type: 'WAVE', weight: 20 },
     { id: 'wave_3', groupId: 'wave', tier: 3, name: 'Survivor', description: 'Reach Wave 25', targetValue: 25, currentValue: 0, isUnlocked: false, type: 'WAVE', weight: 40 },
 
-    // --- SCORE SERIES (Session Max) ---
+    // --- SCORE SERIES ---
     { id: 'score_1', groupId: 'score', tier: 1, name: 'Novice', description: 'Earn 10,000 score in one game', targetValue: 10000, currentValue: 0, isUnlocked: false, type: 'SCORE', weight: 10 },
-    { id: 'score_2', groupId: 'score', tier: 2, name: 'Professional', description: 'Earn 25,000 score in one game', targetValue: 25000, currentValue: 0, isUnlocked: false, type: 'SCORE', weight: 25 },
+    { id: 'score_2', groupId: 'score', tier: 2, name: 'Pro', description: 'Earn 25,000 score in one game', targetValue: 25000, currentValue: 0, isUnlocked: false, type: 'SCORE', weight: 25 },
     { id: 'score_3', groupId: 'score', tier: 3, name: 'Expert', description: 'Earn 50,000 score in one game', targetValue: 50000, currentValue: 0, isUnlocked: false, type: 'SCORE', weight: 50 },
 
     // --- LIFETIME KILL SERIES ---
@@ -37,15 +37,23 @@ export class AchievementService {
     { id: 'f_blue_1', groupId: 'f_blue', tier: 1, name: 'Deep Blue', description: 'Defeat 50 blue shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Blue', weight: 5 },
     { id: 'f_blue_2', groupId: 'f_blue', tier: 2, name: 'Deep Blue', description: 'Defeat 500 blue shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Blue', weight: 20 },
     { id: 'f_purple_1', groupId: 'f_purple', tier: 1, name: 'Purple Haze', description: 'Defeat 50 purple shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Purple', weight: 5 },
-    { id: 'f_purple_2', groupId: 'f_purple', tier: 2, name: 'Purple Haze', description: 'Defeat 500 purple shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Purple', weight: 20 },
-
-    //
-    // --- ENEMY TYPE SPECIFIC ---
-    //{ id: 'slay_haunter_1', groupId: 'slay_haunter', tier: 1, name: 'Exorcist', description: 'Banish 20 Haunters', targetValue: 20, currentValue: 0, isUnlocked: false, type: 'KILL', enemyType: 'Haunter', weight: 15 },
-    //{ id: 'slay_healer_1', groupId: 'slay_healer', tier: 1, name: 'Malpractice', description: 'Destroy 20 Healers', targetValue: 20, currentValue: 0, isUnlocked: false, type: 'KILL', enemyType: 'Healer', weight: 15 }
+    { id: 'f_purple_2', groupId: 'f_purple', tier: 2, name: 'Purple Haze', description: 'Defeat 500 purple shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Purple', weight: 20 }
   ];
 
-  constructor() { this.load(); }
+  constructor() { 
+    this.load(); 
+    this.processTierMetadata();
+  }
+
+  private processTierMetadata() {
+    this.achievements.forEach(ach => {
+      const group = this.achievements.filter(a => a.groupId === ach.groupId);
+      const previousTiers = group.filter(a => (a.tier || 1) < (ach.tier || 1));
+      
+      (ach as any).bankedValue = previousTiers.reduce((sum, a) => sum + (a.weight || 0), 0);
+      (ach as any)._totalTiers = group.length;
+    });
+  }
 
   public incrementKills(enemyType?: string, factionColor?: string, sessionKills?: number) {
     let changed = false;
@@ -74,7 +82,6 @@ export class AchievementService {
     if (changed) this.save();
   }
 
-  // Renamed back to updateProgress to fix your Engine errors
   public updateProgress(type: 'WAVE' | 'KILL' | 'SCORE', value: number) {
     let changed = false;
     this.achievements.forEach(ach => {
@@ -82,7 +89,10 @@ export class AchievementService {
         if (value > ach.currentValue) {
           ach.currentValue = value;
           changed = true;
-          if (ach.currentValue >= ach.targetValue) ach.isUnlocked = true;
+          if (ach.currentValue >= ach.targetValue) {
+            ach.isUnlocked = true;
+            DiepAchievementToastRenderer.add(ach);
+          }
         }
       }
     });

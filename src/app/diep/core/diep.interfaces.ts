@@ -145,11 +145,12 @@ export interface DiepButton extends ButtonArea {
   action: () => void;
 }
 
-export type AchievementType = 'KILL' | 'WAVE' | 'SCORE';
+export type AchievementType = 'KILL' | 'WAVE' | 'SCORE'|'UPGRADE';
 
 export interface Achievement {
   id: string;
   groupId?: string;
+  groupTag?: string;
   tier?: number;
   name: string;
   description: string;

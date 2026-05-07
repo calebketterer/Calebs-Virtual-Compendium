@@ -2,6 +2,7 @@ import { Achievement, DiepButton } from '../../core/diep.interfaces';
 import { AchievementListSorter } from './achievement-list.sorter';
 import { AchievementCardRenderer } from './achievement-card.renderer';
 import { DiepMainMenu } from '../main-menu/diep.main-menu';
+import { DiepAchievementNavigator } from './diep.achievement-nav-bar';
 
 export class DiepAchievementMenu {
   private static scrollY = 0;
@@ -10,36 +11,54 @@ export class DiepAchievementMenu {
   private static lastMouseY = 0;
 
   public static render(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {
-    this.handleKeyboardScroll(g);
-    this.scrollY += (this.targetScrollY - this.scrollY) * 0.15;
-
+    DiepAchievementNavigator.updateGroups(g.achievementService.achievements);
+    DiepAchievementNavigator.handleInput(g);
+    
     const totalScore = g.achievementService.achievements
       .filter((a: Achievement) => a.isUnlocked)
       .reduce((sum: number, a: Achievement) => sum + (a.weight || 0), 0);
 
-    const sorted = AchievementListSorter.getSortedAchievements(g.achievementService.achievements);
+    const filtered = DiepAchievementNavigator.getFiltered(g.achievementService.achievements);
+    const sorted = AchievementListSorter.getSortedAchievements(filtered);
     
     const colCount = 2;
     const rowSpacing = 110;
     const colWidth = (width - 120) / colCount; 
     const totalRows = Math.ceil(sorted.length / colCount);
-    const totalHeight = Math.max(height, totalRows * rowSpacing);
+    
+    const startY = 80; 
+    const viewHeight = height - startY - 20; 
+    const contentHeight = totalRows * rowSpacing;
+
+    // SCROLL GATE: Disable movement and wrap if content fits the view
+    const canScroll = contentHeight > viewHeight;
+    const totalHeight = contentHeight;
+
+    if (canScroll) {
+      this.handleKeyboardScroll(g);
+      this.scrollY += (this.targetScrollY - this.scrollY) * 0.15;
+    } else {
+      this.targetScrollY = 0;
+      this.scrollY = 0;
+    }
 
     ctx.fillStyle = 'rgba(12, 10, 5, 0.99)'; 
     ctx.fillRect(0, 0, width, height);
 
-    let displayOffset = this.scrollY % totalHeight;
-    if (displayOffset > 0) displayOffset -= totalHeight;
-
-    const startY = 80; 
-    const viewHeight = height - startY - 20; 
+    let displayOffset = 0;
+    if (canScroll) {
+      displayOffset = this.scrollY % totalHeight;
+      if (displayOffset > 0) displayOffset -= totalHeight;
+    }
 
     ctx.save();
     ctx.beginPath();
     ctx.rect(0, startY - 10, width, viewHeight + 10);
     ctx.clip();
 
-    for (let loop = 0; loop < 2; loop++) {
+    // Loop logic: 1 loop for static lists, 2 for circular wrapping
+    const loops = canScroll ? 2 : 1;
+    for (let loop = 0; loop < loops; loop++) {
       sorted.forEach((ach, i) => {
         const row = Math.floor(i / colCount);
         const col = i % colCount;
@@ -54,7 +73,11 @@ export class DiepAchievementMenu {
 
     this.drawFades(ctx, width, height, startY, viewHeight);
     this.drawHeader(ctx, width, totalScore);
-    this.drawScrollbar(ctx, width, startY, viewHeight, totalHeight);
+    DiepAchievementNavigator.drawTabs(ctx, width);
+
+    if (canScroll) {
+      this.drawScrollbar(ctx, width, startY, viewHeight, totalHeight);
+    }
 
     const buttons = this.getButtons(g, width, height);
     buttons.forEach((btn: DiepButton) => {
@@ -73,7 +96,7 @@ export class DiepAchievementMenu {
     
     ctx.font = '900 9px Inter, sans-serif';
     ctx.fillStyle = 'rgba(241, 196, 18, 0.5)';
-    ctx.fillText('DRAG OR USE W AND S TO EXPLORE', width / 2, 62);
+    ctx.fillText('A / D TO SWAP GROUPS • W / S TO SCROLL', width / 2, 62);
 
     ctx.textAlign = 'right';
     ctx.font = '900 10px Inter, sans-serif';
@@ -100,6 +123,14 @@ export class DiepAchievementMenu {
     botGrad.addColorStop(1, fadeColor);
     ctx.fillStyle = botGrad;
     ctx.fillRect(0, bottomY - 20, w, 30);
+    
+    // ADJUSTABLE BOTTOM FADE
+    const floorFadeHeight = 20; 
+    const floorGrad = ctx.createLinearGradient(0, h - floorFadeHeight, 0, h);
+    floorGrad.addColorStop(0, 'rgba(12, 10, 5, 0.99)');
+    floorGrad.addColorStop(1, transparent);
+    ctx.fillStyle = floorGrad;
+    ctx.fillRect(0, h - floorFadeHeight, w, floorFadeHeight);
   }
 
   private static drawScrollbar(ctx: CanvasRenderingContext2D, w: number, startY: number, viewH: number, totalH: number): void {
