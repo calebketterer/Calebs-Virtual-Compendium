@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, HostListener, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DiepMenus } from './ui/diep.menus-manager';
+import { DiepWorldRenderer } from './ui/diep.arena-renderer';
+import { DiepHudRenderer } from './ui/hud/diep.hud-renderer';
 import { DiepGameEngineService } from './engine/diep.game-engine.service'; 
 import { DiepInputService } from './engine/diep.input.service';
 import { DiepInteractionService } from './ui/diep.interaction.service';
@@ -76,6 +78,18 @@ export class DiepComponent implements AfterViewInit {
   }
 
   draw() {
-    DiepMenus.renderGame(this.ctx, this.gameEngine, this.gameEngine.width, this.gameEngine.height);
+    const g = this.gameEngine;
+    const ctx = this.ctx;
+    const w = g.width;
+    const h = g.height;
+
+    // 1. Draw Game World (Ground, Enemies, Players, Walls)
+    DiepWorldRenderer.renderWorld(ctx, g, w, h);
+
+    // 2. Draw HUD (Only if game is active/paused/over)
+    DiepHudRenderer.draw(ctx, g, g.width, g.height);
+
+    // 3. Draw UI Layers (Menus, Overlays, Transitions)
+    DiepMenus.renderUI(ctx, g, w, h);
   }
 }
