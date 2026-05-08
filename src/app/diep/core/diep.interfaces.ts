@@ -157,9 +157,10 @@ export interface Achievement {
   targetValue: number;
   currentValue: number;
   isUnlocked: boolean;
-  type: 'WAVE' | 'KILL' | 'SCORE';
+  type: 'WAVE' | 'KILL' | 'SCORE' | 'UPGRADE';
   weight: number;
   enemyType?: string; 
+  upgradeId?: string;
   faction?: 'Red' | 'Orange' | 'Yellow' | 'Green' | 'Blue' | 'Purple';
   isSingleGame?: boolean;
 }

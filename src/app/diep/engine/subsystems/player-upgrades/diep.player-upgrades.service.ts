@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Player, PlayerProgression, DifficultyMode } from '../../../core/diep.interfaces';
 import { UPGRADE_REGISTRY } from './diep.upgrade-registry';
+import { AchievementService } from '../../../core/diep.achievement.service';
 
 @Injectable({ providedIn: 'root' })
 export class DiepPlayerUpgradesService {
   private readonly INITIAL_XP_NEEDED = 100;
   private readonly XP_INCREMENT_PER_LEVEL = 50;
+
+  constructor(private achievementService: AchievementService) {}
 
   public applyUpgrade(player: Player, upgradeId: string): void {
     const spent = player.upgrades[upgradeId] || 0;
@@ -38,6 +41,9 @@ export class DiepPlayerUpgradesService {
         player.healthRegen += increment;
         break;
     }
+
+    // Check for achievement updates
+    this.achievementService.checkUpgradeAchievements(player.upgrades);
   }
 
   public getDefaultProgression(difficulty: DifficultyMode = 'MEDIUM', carryOverXp: number = 0): PlayerProgression {

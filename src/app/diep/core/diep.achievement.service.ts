@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Achievement } from './diep.interfaces';
 import { DiepAchievementToastRenderer } from '../ui/hud/diep.achievement-toast';
 
+const CUSTOM_UPGRADE_THRESHOLD = 7; 
+
 @Injectable({ providedIn: 'root' })
 export class AchievementService {
   public achievements: Achievement[] = [
@@ -37,7 +39,16 @@ export class AchievementService {
     { id: 'f_blue_1', groupId: 'f_blue', groupTag: 'Color', tier: 1, name: 'Deep Blue', description: 'Defeat 50 blue shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Blue', weight: 5 },
     { id: 'f_blue_2', groupId: 'f_blue', groupTag: 'Color', tier: 2, name: 'Deep Blue', description: 'Defeat 500 blue shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Blue', weight: 20 },
     { id: 'f_purple_1', groupId: 'f_purple', groupTag: 'Color', tier: 1, name: 'Purple Haze', description: 'Defeat 50 purple shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Purple', weight: 5 },
-    { id: 'f_purple_2', groupId: 'f_purple', groupTag: 'Color', tier: 2, name: 'Purple Haze', description: 'Defeat 500 purple shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Purple', weight: 20 }
+    { id: 'f_purple_2', groupId: 'f_purple', groupTag: 'Color', tier: 2, name: 'Purple Haze', description: 'Defeat 500 purple shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Purple', weight: 20 },
+
+    // --- UPGRADE SERIES ---
+    { id: 'up_regen', groupTag: 'Upgrades', name: 'Wolverine', description: 'Max out Health Regen', targetValue: 10, currentValue: 0, isUnlocked: false, type: 'UPGRADE', weight: 20, upgradeId: 'healthRegen' },
+    { id: 'up_health', groupTag: 'Upgrades', name: 'Titan', description: 'Max out Max Health', targetValue: 10, currentValue: 0, isUnlocked: false, type: 'UPGRADE', weight: 20, upgradeId: 'maxHealth' },
+    { id: 'up_dmg', groupTag: 'Upgrades', name: 'Glass Cannon', description: 'Max out Bullet Damage', targetValue: 10, currentValue: 0, isUnlocked: false, type: 'UPGRADE', weight: 20, upgradeId: 'bulletDamage' },
+    { id: 'up_reload', groupTag: 'Upgrades', name: 'Minigun', description: 'Max out Reload Speed', targetValue: 10, currentValue: 0, isUnlocked: false, type: 'UPGRADE', weight: 20, upgradeId: 'reloadSpeed' },
+    { id: 'up_speed', groupTag: 'Upgrades', name: 'Sonic', description: 'Max out Movement Speed', targetValue: 10, currentValue: 0, isUnlocked: false, type: 'UPGRADE', weight: 20, upgradeId: 'maxSpeed' },
+    { id: 'up_count_5', groupTag: 'Upgrades', name: 'Jack of All Trades', description: 'Max out 5 upgrade lines', targetValue: 5, currentValue: 0, isUnlocked: false, type: 'UPGRADE', weight: 50 },
+    { id: 'up_count_custom', groupTag: 'Upgrades', name: 'Completionist', description: `Max out more than ${CUSTOM_UPGRADE_THRESHOLD} lines`, targetValue: CUSTOM_UPGRADE_THRESHOLD + 1, currentValue: 0, isUnlocked: false, type: 'UPGRADE', weight: 100 }
   ];
 
   constructor() { 
@@ -53,6 +64,40 @@ export class AchievementService {
       (ach as any).bankedValue = previousTiers.reduce((sum, a) => sum + (a.weight || 0), 0);
       (ach as any)._totalTiers = group.length;
     });
+  }
+
+  public checkUpgradeAchievements(playerUpgrades: Record<string, number>) {
+    let changed = false;
+    let maxedCount = 0;
+
+    this.achievements.forEach(ach => {
+      if (ach.type !== 'UPGRADE' || ach.isUnlocked) return;
+
+      // Track individual line maxing
+      if (ach.upgradeId && playerUpgrades[ach.upgradeId] >= 10) {
+        ach.currentValue = 10;
+        ach.isUnlocked = true;
+        DiepAchievementToastRenderer.add(ach);
+        changed = true;
+      }
+    });
+
+    // Count how many lines are currently at max (10)
+    maxedCount = Object.values(playerUpgrades).filter(val => val >= 10).length;
+
+    // Track aggregate count achievements
+    this.achievements.forEach(ach => {
+      if (ach.type === 'UPGRADE' && !ach.upgradeId && !ach.isUnlocked) {
+        if (maxedCount >= ach.targetValue) {
+          ach.currentValue = maxedCount;
+          ach.isUnlocked = true;
+          DiepAchievementToastRenderer.add(ach);
+          changed = true;
+        }
+      }
+    });
+
+    if (changed) this.save();
   }
 
   public incrementKills(enemyType?: string, factionColor?: string, sessionKills?: number) {
