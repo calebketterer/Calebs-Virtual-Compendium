@@ -9,14 +9,12 @@ export class DiepAchievementNavigator {
     achievements.forEach(a => {
       if ((a as any).groupTag) tags.add((a as any).groupTag.toUpperCase());
     });
-    this.groups = ['ALL', 'CORE', 'COLORS', ...Array.from(tags)];
+    this.groups = ['ALL', ...Array.from(tags)];
   }
 
   public static getFiltered(achs: Achievement[]): Achievement[] {
     const group = this.groups[this.activeGroupIndex];
     if (group === 'ALL') return achs;
-    if (group === 'CORE') return achs.filter(a => a.type === 'WAVE' || a.type === 'SCORE');
-    if (group === 'COLORS') return achs.filter(a => a.faction);
     return achs.filter(a => (a as any).groupTag?.toUpperCase() === group);
   }
 
