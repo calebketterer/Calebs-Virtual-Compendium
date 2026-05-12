@@ -1,8 +1,8 @@
 import { Achievement, DiepButton } from '../../core/diep.interfaces';
 import { AchievementListSorter } from './achievement-list.sorter';
 import { AchievementCardRenderer } from './achievement-card.renderer';
-import { DiepMainMenu } from '../main-menu/diep.main-menu';
 import { DiepAchievementNavigator } from './diep.achievement-nav-bar';
+import { DiepButtonRenderer } from '../diep.button-renderer';
 
 export class DiepAchievementMenu {
   private static scrollY = 0;
@@ -77,13 +77,7 @@ export class DiepAchievementMenu {
       this.drawScrollbar(ctx, width, startY, viewHeight, totalHeight);
     }
 
-    const buttons = this.getButtons(g, width, height);
-    buttons.forEach((btn: any) => {
-      // Check for necessary properties before drawing to avoid white/red rectangles
-      if (btn.label && btn.color) {
-        DiepMainMenu.drawButton(ctx, btn);
-      }
-    });
+    DiepButtonRenderer.drawCollection(ctx, g, this.getButtons(g, width, height));
   }
 
   private static drawHeader(ctx: CanvasRenderingContext2D, width: number, score: number): void {
@@ -157,6 +151,7 @@ export class DiepAchievementMenu {
     if (g.keys['w'] || g.keys['W'] || g.keys['arrowup']) this.targetScrollY += speed;
     if (g.keys['s'] || g.keys['S'] || g.keys['arrowdown']) this.targetScrollY -= speed;
   }
+  
   public static getButtons(g: any, width: number, height: number): DiepButton[] {
     return [
       {
@@ -164,6 +159,7 @@ export class DiepAchievementMenu {
         label: 'BACK',
         x: width / 2 - 100, y: height - 80, w: 200, h: 50,
         color: '#e74c3c', borderColor: '#c0392b',
+        hoverEffect: 'grow',
         action: () => g.transition.fadeOut(() => g.showingAchievements = false)
       },
       ...DiepAchievementNavigator.getButtons(g, width)

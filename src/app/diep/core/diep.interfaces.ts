@@ -141,6 +141,7 @@ export interface DiepButton extends ButtonArea {
   color: string;
   borderColor: string;
   textColor?: string;
+  hoverEffect?: 'grow' | 'highlight' | 'none';
   fontSize?: string;
   action: () => void;
 }
