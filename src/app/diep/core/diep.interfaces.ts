@@ -141,24 +141,27 @@ export interface DiepButton extends ButtonArea {
   color: string;
   borderColor: string;
   textColor?: string;
+  hoverEffect?: 'grow' | 'highlight' | 'none';
   fontSize?: string;
   action: () => void;
 }
 
-export type AchievementType = 'KILL' | 'WAVE' | 'SCORE';
+export type AchievementType = 'KILL' | 'WAVE' | 'SCORE'|'UPGRADE';
 
 export interface Achievement {
   id: string;
   groupId?: string;
+  groupTag?: string;
   tier?: number;
   name: string;
   description: string;
   targetValue: number;
   currentValue: number;
   isUnlocked: boolean;
-  type: 'WAVE' | 'KILL' | 'SCORE';
+  type: 'WAVE' | 'KILL' | 'SCORE' | 'UPGRADE';
   weight: number;
   enemyType?: string; 
+  upgradeId?: string;
   faction?: 'Red' | 'Orange' | 'Yellow' | 'Green' | 'Blue' | 'Purple';
   isSingleGame?: boolean;
 }

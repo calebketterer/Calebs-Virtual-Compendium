@@ -1,36 +1,46 @@
 import { TileType } from '../../engine/subsystems/diep.arena-manager';
+import { DiepButton } from '../../core/diep.interfaces';
+import { DiepButtonAnimator } from '../diep.button-animator';
 
 export class DiepArenaCheckboxRenderer {
   private static readonly WARNING_DURATION = 1500;
-  private static readonly HOLE_PERSIST_DURATION = 2000; // How long it stays black
+  private static readonly HOLE_PERSIST_DURATION = 2000; 
   
   private static miniGrid = Array.from({ length: 9 }, () => ({
     type: TileType.EMPTY,
     targetType: TileType.EMPTY,
     transition: 0,
     warningTime: 0,
-    life: 0 // Track how long the hazard has been active
+    life: 0 
   }));
 
-  public static draw(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, isEnabled: boolean, frame: number): void {
-    const dt = 16; // Use standard 60fps delta
-    const cellSize = size / 3;
+  public static draw(ctx: CanvasRenderingContext2D, btn: DiepButton, g: any, isEnabled: boolean, frame: number): void {
+    const mouse = g.mousePos || { x: -1, y: -1 };
+    const isHovered = mouse.x >= btn.x && mouse.x <= btn.x + btn.w && 
+                      mouse.y >= btn.y && mouse.y <= btn.y + btn.h;
+    
+    const anim = DiepButtonAnimator.getValues(btn.id, isHovered);
+    
+    // The background rect (still used for the renderer's logic context)
+    const growAmt = btn.hoverEffect === 'none' ? 0 : 8;
+    const rect = DiepButtonAnimator.getBloomedRect(btn, anim.hover, growAmt);
+
+    const dt = 16; 
+    
+    // FIX: Use btn.w (static) instead of rect.w (dynamic) so the grid doesn't expand
+    const cellSize = btn.w / 3; 
     const padding = 2;
 
     this.miniGrid.forEach((tile, i) => {
-      // 1. Logic Controller
       if (isEnabled) {
-        // Only spawn new hazards if the tile is fully EMPTY
         if (tile.targetType === TileType.EMPTY && tile.transition === 0 && Math.random() > 0.997) {
           tile.targetType = Math.random() > 0.6 ? TileType.WALL : TileType.HOLE;
           tile.warningTime = 0;
           tile.life = 0;
         }
 
-        // Handle expiration of hazards
         if (tile.targetType !== TileType.EMPTY) {
           tile.life += dt;
-          // Walls expire after 3s, Holes expire after warning + persist duration
           const expiry = tile.targetType === TileType.WALL ? 3000 : (this.WARNING_DURATION + this.HOLE_PERSIST_DURATION);
           if (tile.life > expiry) {
             tile.targetType = TileType.EMPTY;
@@ -42,11 +52,12 @@ export class DiepArenaCheckboxRenderer {
 
       this.processTileLogic(tile, dt);
 
-      // 2. Rendering
       const col = i % 3;
       const row = Math.floor(i / 3);
-      const cellX = x + col * cellSize + padding;
-      const cellY = y + row * cellSize + padding;
+      
+      // FIX: Use btn.x/y (static) instead of rect.x/y so the internal grid stays centered
+      const cellX = btn.x + col * cellSize + padding;
+      const cellY = btn.y + row * cellSize + padding;
       const drawSize = cellSize - (padding * 2);
 
       this.renderMiniTile(ctx, tile, cellX, cellY, drawSize);
@@ -65,16 +76,16 @@ export class DiepArenaCheckboxRenderer {
           tile.transition = 0;
         }
       } else if (tile.transition < 1) {
-        tile.transition += dt * 0.001; // Slow lowering
+        tile.transition += dt * 0.001; 
       }
     } else if (target === TileType.WALL && tile.transition < 1) {
-      tile.transition += dt * 0.002; // Faster raising
+      tile.transition += dt * 0.002; 
       if (tile.transition >= 1) {
         tile.type = TileType.WALL;
         tile.transition = 1;
       }
     } else if (target === TileType.EMPTY && tile.transition > 0) {
-      tile.transition -= dt * 0.0015; // Specific fade-out speed
+      tile.transition -= dt * 0.0015; 
       if (tile.transition <= 0) {
         tile.transition = 0;
         tile.type = TileType.EMPTY;
@@ -84,25 +95,19 @@ export class DiepArenaCheckboxRenderer {
   }
 
   private static renderMiniTile(ctx: CanvasRenderingContext2D, tile: any, x: number, y: number, size: number): void {
-    // Background ghost grid
     ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.fillRect(x, y, size, size);
 
     if (tile.targetType === TileType.HOLE && tile.type !== TileType.HOLE) {
-      // Blinking Warning: Red to Grey
       const isBlinkOn = Math.floor(tile.warningTime / 250) % 2 === 0;
       ctx.fillStyle = isBlinkOn ? 'rgba(231, 76, 60, 0.4)' : 'rgba(255, 255, 255, 0.1)';
     } else if (tile.type === TileType.HOLE) {
-      // Solid Black Hole (Opacity tied to transition)
       ctx.fillStyle = `rgba(0, 0, 0, ${tile.transition * 0.9})`;
     } else if (tile.targetType === TileType.WALL || tile.type === TileType.WALL) {
-      // White Wall
       ctx.fillStyle = `rgba(255, 255, 255, ${tile.transition * 0.8})`;
     } else if (tile.transition > 0) {
-      // This handles the "Fade back to gray" state when target is EMPTY but transition > 0
       ctx.fillStyle = `rgba(255, 255, 255, ${tile.transition * 0.15})`;
     }
-
     ctx.fillRect(x, y, size, size);
   }
 }

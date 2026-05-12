@@ -1,6 +1,6 @@
 import { DiepButton } from '../../core/diep.interfaces';
-import { DiepMainMenu } from '../main-menu/diep.main-menu';
 import { DiepHighScoreRenderer } from '../hud/diep.high-score-renderer';
+import { DiepButtonRenderer } from '../diep.button-renderer';
 
 export class DiepGameOverOverlay {
   public static draw(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {
@@ -14,10 +14,10 @@ export class DiepGameOverOverlay {
 
     ctx.font = '32px Inter, sans-serif';
     ctx.fillStyle = '#ecf0f1';
-    ctx.fillText('Final Score: ' + g.score, width / 2, height / 2 -50);
+    ctx.fillText('Final Score: ' + g.score, width / 2, height / 2 - 50);
 
     DiepHighScoreRenderer.drawList(ctx, width * 0.875, height / 2 - 200, g.topScores, g.score, '#f39c12');
-    this.getButtons(g, width, height).forEach((btn) => DiepMainMenu.drawButton(ctx, btn));
+    DiepButtonRenderer.drawCollection(ctx, g, this.getButtons(g, width, height));
   }
 
   public static getButtons(g: any, width: number, height: number): DiepButton[] {
@@ -28,6 +28,7 @@ export class DiepGameOverOverlay {
         x: width / 2 - 110, y: height / 2 , w: 220, h: 60,
         color: '#2ecc71', borderColor: '#27ae60',
         fontSize: 'bold 30px Inter, sans-serif',
+        hoverEffect: 'grow',
         action: () => g.restartGameWithFade()
       },
       {
@@ -35,6 +36,7 @@ export class DiepGameOverOverlay {
         label: 'MAIN MENU',
         x: width / 2 - 100, y: height / 2 + 80, w: 200, h: 50,
         color: '#34495e', borderColor: '#2c3e50',
+        hoverEffect: 'grow',
         action: () => g.returnToMainMenuWithFade()
       }
     ];

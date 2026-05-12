@@ -2,7 +2,7 @@ import { EnemyRegistry } from '../../enemies/enemy.registry';
 import { QuadriviumSorter } from './diep.quadrivium-sorter';
 import { QuadriviumEntryRenderer } from './quadrivium-entry.renderer';
 import { DiepButton } from '../../core/diep.interfaces';
-import { DiepMainMenu } from '../main-menu/diep.main-menu';
+import { DiepButtonRenderer } from '../diep.button-renderer';
 
 export class DiepQuadriviumMenu {
   private static rotation = 0;
@@ -58,10 +58,9 @@ export class DiepQuadriviumMenu {
       this.drawScrollbar(ctx, width, height, startY, viewHeight);
     }
 
-    const buttons = this.getButtons(g, width, height);
-    buttons.forEach((btn: DiepButton) => {
-      DiepMainMenu.drawButton(ctx, btn);
-    });
+    // CLEANED UP BUTTON RENDERING
+    // drawCollection handles the loop and mouse lookup using 'g' internally.
+    DiepButtonRenderer.drawCollection(ctx, g, this.getButtons(g, width, height));
   }
 
   private static drawHeader(ctx: CanvasRenderingContext2D, width: number): void {
@@ -136,6 +135,7 @@ export class DiepQuadriviumMenu {
         label: 'BACK',
         x: width / 2 - 100, y: height - 100, w: 200, h: 50,
         color: '#e74c3c', borderColor: '#c0392b',
+        hoverEffect: 'grow',
         action: () => g.transition.fadeOut(() => g.showingQuadrivium = false)
       }
     ];

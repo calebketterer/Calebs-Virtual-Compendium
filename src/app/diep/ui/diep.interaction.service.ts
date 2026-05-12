@@ -3,6 +3,7 @@ import { DiepGameEngineService } from '../engine/diep.game-engine.service';
 import { DiepButton } from '../core/diep.interfaces';
 import { DiepQuadriviumMenu } from './quadrivium/diep.quadrivium-menu';
 import { DiepAchievementMenu } from './achievements/diep.achievement-menu';
+import { DiepAchievementNavigator } from './achievements/diep.achievement-nav-bar';
 import { DiepMainMenu } from './main-menu/diep.main-menu';
 import { DiepPauseOverlay } from './overlays/pause-overlay';
 import { DiepGameOverOverlay } from './overlays/game-over-overlay';
@@ -25,7 +26,6 @@ export class DiepInteractionService {
     const g = this.gameEngine;
     const { width, height } = g;
 
-    // 1. Check In-Game Pause Circle
     if (g.isGameStarted && !g.gameOver && !g.showingQuadrivium && !g.showingAchievements) {
       const dist = Math.sqrt(Math.pow(mouseX - width / 2, 2) + Math.pow(mouseY - 35, 2));
       if (dist < 20) {
@@ -35,13 +35,13 @@ export class DiepInteractionService {
       }
     }
 
-    // 2. Identify active button set
     let activeButtons: DiepButton[] = [];
 
     if (g.showingQuadrivium) {
       activeButtons = DiepQuadriviumMenu.getButtons(g, width, height);
     } else if (g.showingAchievements) {
       activeButtons = DiepAchievementMenu.getButtons(g, width, height);
+      activeButtons.push(...DiepAchievementNavigator.getButtons(g, width));
     } else if (!g.isGameStarted) {
       activeButtons = DiepMainMenu.getButtons(g, width, height);
     } else if (g.isPaused) {
@@ -50,16 +50,12 @@ export class DiepInteractionService {
       activeButtons = DiepGameOverOverlay.getButtons(g, width, height);
     }
 
-    // INJECT HUD INTERACTION: Health bar and Upgrade menu
     if (g.isGameStarted && !g.isPaused && !g.gameOver && !g.showingQuadrivium && !g.showingAchievements) {
       activeButtons.push(DiepHealthBarRenderer.getButton());
-      
-      // Inject upgrade buttons
       const upgradeButtons = DiepUpgradeMenuRenderer.getButtons(g, height);
       activeButtons.push(...upgradeButtons);
     }
 
-    // 3. Collision detection for buttons
     for (const btn of activeButtons) {
       if (
         mouseX >= btn.x && 
@@ -68,11 +64,7 @@ export class DiepInteractionService {
         mouseY <= btn.y + btn.h
       ) {
         btn.action();
-        
-        if (!g.isPaused && g.isGameStarted) {
-          gameLoopCallback();
-        }
-        
+        if (!g.isPaused && g.isGameStarted) gameLoopCallback();
         drawCallback();
         return true; 
       }
