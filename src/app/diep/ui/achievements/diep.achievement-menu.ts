@@ -30,7 +30,6 @@ export class DiepAchievementMenu {
     const viewHeight = height - startY - 20; 
     const contentHeight = totalRows * rowSpacing;
 
-    // SCROLL GATE: Disable movement and wrap if content fits the view
     const canScroll = contentHeight > viewHeight;
     const totalHeight = contentHeight;
 
@@ -56,7 +55,6 @@ export class DiepAchievementMenu {
     ctx.rect(0, startY - 10, width, viewHeight + 10);
     ctx.clip();
 
-    // Loop logic: 1 loop for static lists, 2 for circular wrapping
     const loops = canScroll ? 2 : 1;
     for (let loop = 0; loop < loops; loop++) {
       sorted.forEach((ach, i) => {
@@ -80,8 +78,11 @@ export class DiepAchievementMenu {
     }
 
     const buttons = this.getButtons(g, width, height);
-    buttons.forEach((btn: DiepButton) => {
-      DiepMainMenu.drawButton(ctx, btn);
+    buttons.forEach((btn: any) => {
+      // Check for necessary properties before drawing to avoid white/red rectangles
+      if (btn.label && btn.color) {
+        DiepMainMenu.drawButton(ctx, btn);
+      }
     });
   }
 
@@ -124,7 +125,6 @@ export class DiepAchievementMenu {
     ctx.fillStyle = botGrad;
     ctx.fillRect(0, bottomY - 20, w, 30);
     
-    // ADJUSTABLE BOTTOM FADE
     const floorFadeHeight = 20; 
     const floorGrad = ctx.createLinearGradient(0, h - floorFadeHeight, 0, h);
     floorGrad.addColorStop(0, 'rgba(12, 10, 5, 0.99)');
@@ -165,7 +165,8 @@ export class DiepAchievementMenu {
         x: width / 2 - 100, y: height - 80, w: 200, h: 50,
         color: '#e74c3c', borderColor: '#c0392b',
         action: () => g.transition.fadeOut(() => g.showingAchievements = false)
-      }
+      },
+      ...DiepAchievementNavigator.getButtons(g, width)
     ];
   }
 }

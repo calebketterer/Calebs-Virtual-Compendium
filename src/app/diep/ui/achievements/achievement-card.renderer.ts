@@ -11,7 +11,8 @@ export class AchievementCardRenderer {
     viewHeight: number
   ): void {
     const isUnlocked = ach.isUnlocked;
-    const progress = Math.min(ach.currentValue / ach.targetValue, 1);
+    // Clamp progress to safe range
+    const progress = Math.max(0, Math.min(ach.currentValue / ach.targetValue, 1));
     const cardHeight = 90;
     const halfHeight = cardHeight / 2;
     const bottomEdge = startY + viewHeight;
@@ -32,7 +33,8 @@ export class AchievementCardRenderer {
 
     const completedTiers = (ach.tier || 1) - 1;
     const totalTiers = (ach as any)._totalTiers || 1;
-    const goldRatio = completedTiers / totalTiers;
+    // Clamp goldRatio to 0.999 to prevent addColorStop(1.00000...x) crashes
+    const goldRatio = Math.max(0, Math.min(completedTiers / totalTiers, 0.999));
 
     // --- CARD BACKGROUND ---
     if (isUnlocked) {
